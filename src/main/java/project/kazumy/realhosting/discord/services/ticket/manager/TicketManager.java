@@ -48,8 +48,8 @@ public class TicketManager extends BaseService {
 
         val textChannel = jda.getTextChannelById(config.getString("bot.guild.ticket-chat-id"));
         textChannel.retrievePinnedMessages().queue(message -> {
-//            if (message.stream().anyMatch(embed -> embed.getAuthor().isBot()))
-//                return;
+            if (message.stream().anyMatch(embed -> embed.getAuthor().isBot()))
+                return;
 
             val embed = new EmbedBuilder();
             embed.setTitle(title);
@@ -57,7 +57,6 @@ public class TicketManager extends BaseService {
             embed.setDescription(description);
             val configSection = config.getConfigurationSection(section + "fields").getKeys(true);
 
-            //pegar os fields (name, value, inline) da config e instanciar no código para formar a embed de ticket
             for (int i = 1; i <= configSection.size(); i++) {
                 val name = config.getString(section + "fields." + i + ".name");
                 val value = config.getString(section + "fields." + i + ".value");
