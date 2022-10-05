@@ -8,5 +8,5 @@ public abstract class BaseService {
 
     private boolean operating;
 
-    public abstract void loadService(JDA jda);
+    public abstract BaseService loadService(JDA jda);
 }

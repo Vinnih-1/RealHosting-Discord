@@ -29,7 +29,7 @@ public class TicketManager extends BaseService {
         config.addDefaults(consumer -> {
             consumer.addDefault("bot.guild.ticket.title", "Title");
             consumer.addDefault("bot.guild.ticket.footer", "Footer");
-            consumer.addDefault("bot.guild.ticket.description", "Hello World\\nZumo was here!");
+            consumer.addDefault("bot.guild.ticket.description", "Hello World \\n Zumo was here!");
             consumer.addDefault("bot.guild.ticket.fields.1.name", "My Name is");
             consumer.addDefault("bot.guild.ticket.fields.1.value", "Zumo");
             consumer.addDefault("bot.guild.ticket.fields.1.inline", true);
@@ -74,10 +74,12 @@ public class TicketManager extends BaseService {
     }
 
     @Override
-    public void loadService(JDA jda) {
+    public BaseService loadService(JDA jda) {
         this.jda = jda;
 
         setDefaultTicketMessage();
         sendTicketMenu();
+
+        return this;
     }
 }
