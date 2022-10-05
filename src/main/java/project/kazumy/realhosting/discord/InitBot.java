@@ -29,13 +29,13 @@ public class InitBot {
                 .stream()
                 .map(service -> {
                     try {
-                        return service.getDeclaredConstructor().newInstance();
+                        return service.getDeclaredConstructor().newInstance().loadService(jda);
                     } catch (Exception e) {
                         System.err.println("Some service could not be loaded: " + e.getMessage());
                         return null;
                     }
                 }).filter(Objects::nonNull)
-                .forEach(service -> service.loadService(jda));
+                .forEach(service -> service.setOperating(true));
     }
 
     public void initConfig() {
