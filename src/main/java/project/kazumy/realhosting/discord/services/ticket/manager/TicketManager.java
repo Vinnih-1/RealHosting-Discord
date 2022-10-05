@@ -1,0 +1,77 @@
+package project.kazumy.realhosting.discord.services.ticket.manager;
+
+import lombok.Getter;
+import lombok.SneakyThrows;
+import lombok.val;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Message;
+import project.kazumy.realhosting.discord.InitBot;
+import project.kazumy.realhosting.discord.configuration.Configuration;
+import project.kazumy.realhosting.discord.services.BaseService;
+import project.kazumy.realhosting.discord.services.ticket.BaseTicket;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+@Getter
+public class TicketManager extends BaseService {
+
+    private final Set<BaseTicket> ticket = new HashSet<>();
+    private final Configuration config = InitBot.config;
+
+    private JDA jda;
+
+    @SneakyThrows
+    public void setDefaultTicketMessage() {
+        config.addDefault("bot.guild.ticket.title", "Title");
+        config.addDefault("bot.guild.ticket.footer", "Footer");
+        config.addDefault("bot.guild.ticket.text", Arrays.asList("abc", "123"));
+        config.save();
+    }
+
+    public void sendTicketMenu() {
+        val section = "bot.guild.ticket.";
+        val title = config.getString(section + "title");
+        val footer = config.getString(section + "footer");
+        val description = config.getString(section + "description");
+
+        val textChannel = jda.getTextChannelById(config.getString("bot.guild.ticket-chat-id"));
+        textChannel.retrievePinnedMessages().queue(message -> {
+//            if (message.stream().anyMatch(embed -> embed.getAuthor().isBot()))
+//                return;
+
+            val embed = new EmbedBuilder();
+            embed.setTitle(title);
+            embed.setFooter(footer);
+            embed.setDescription(description);
+
+//            textChannel.sendMessageEmbeds(embed.build()).queue();
+
+            val fields = new Object[3];
+
+
+            //pegar os fields (name, value, inline) da config e instanciar no código para formar a embed de ticket
+            config.getConfigurationSection(section + "fields").getKeys(true)
+                    .stream()
+                    .filter(field -> config.getString(section + "fields."+ field) != null)
+                    .map(field -> config.getString(section + "fields."+ field))
+                    .forEach(field -> {
+                        System.out.println(field);
+                    });
+        });
+    }
+
+    public void loadOpenedTicket() {
+    }
+
+    @Override
+    public void loadService(JDA jda) {
+        this.jda = jda;
+
+        setDefaultTicketMessage();
+        sendTicketMenu();
+    }
+}
