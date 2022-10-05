@@ -26,9 +26,17 @@ public class TicketManager extends BaseService {
 
     @SneakyThrows
     public void setDefaultTicketMessage() {
-        config.addDefault("bot.guild.ticket.title", "Title");
-        config.addDefault("bot.guild.ticket.footer", "Footer");
-        config.addDefault("bot.guild.ticket.text", Arrays.asList("abc", "123"));
+        config.addDefaults(consumer -> {
+            consumer.addDefault("bot.guild.ticket.title", "Title");
+            consumer.addDefault("bot.guild.ticket.footer", "Footer");
+            consumer.addDefault("bot.guild.ticket.description", "Hello World\\nZumo was here!");
+            consumer.addDefault("bot.guild.ticket.fields.1.name", "My Name is");
+            consumer.addDefault("bot.guild.ticket.fields.1.value", "Zumo");
+            consumer.addDefault("bot.guild.ticket.fields.1.inline", true);
+            consumer.addDefault("bot.guild.ticket.fields.2.name", "My Job is");
+            consumer.addDefault("bot.guild.ticket.fields.2.value", "Supporter of RealHosting");
+            consumer.addDefault("bot.guild.ticket.fields.2.inline", true);
+        });
         config.save();
     }
 
@@ -47,20 +55,19 @@ public class TicketManager extends BaseService {
             embed.setTitle(title);
             embed.setFooter(footer);
             embed.setDescription(description);
-
-//            textChannel.sendMessageEmbeds(embed.build()).queue();
-
-            val fields = new Object[3];
-
+            val configSection = config.getConfigurationSection(section + "fields").getKeys(true);
 
             //pegar os fields (name, value, inline) da config e instanciar no código para formar a embed de ticket
-            config.getConfigurationSection(section + "fields").getKeys(true)
-                    .stream()
-                    .filter(field -> config.getString(section + "fields."+ field) != null)
-                    .map(field -> config.getString(section + "fields."+ field))
-                    .forEach(field -> {
-                        System.out.println(field);
-                    });
+            for (int i = 1; i <= configSection.size(); i++) {
+                val name = config.getString(section + "fields." + i + ".name");
+                val value = config.getString(section + "fields." + i + ".value");
+                val inline = config.get(section + "fields." + i + ".inline");
+
+                if (name == null || value == null || inline == null) continue;
+                embed.addField(name, value, Boolean.parseBoolean(String.valueOf(inline)));
+            }
+
+            textChannel.sendMessageEmbeds(embed.build()).queue();
         });
     }
 
