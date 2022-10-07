@@ -5,13 +5,13 @@ import net.dv8tion.jda.api.Permission;
 import project.kazumy.realhosting.discord.InitBot;
 
 @Data
-public abstract class BaseCommand {
+public abstract class BaseSlashCommand {
 
     public final String name, description;
 
     public final Permission permission;
 
     public void register() {
-        InitBot.commandManager.addCommand(this);
+        InitBot.commandManager.addSlashCommand(this);
     }
 }
