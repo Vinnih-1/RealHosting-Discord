@@ -1,8 +1,17 @@
 package project.kazumy.realhosting.discord.listener;
 
-public interface InteractionService<T> {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-    void execute(T event);
+@Data
+@AllArgsConstructor
+public abstract class InteractionService<T> {
 
-    void register(InteractionService<T> instance);
+    private final String id;
+
+    public abstract void execute(T event);
+
+    public abstract void register(InteractionService<T> instance);
 }
