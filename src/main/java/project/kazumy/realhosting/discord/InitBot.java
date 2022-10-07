@@ -4,16 +4,20 @@ import lombok.SneakyThrows;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import org.reflections.Reflections;
-import project.kazumy.realhosting.discord.commands.base.BaseCommand;
+import project.kazumy.realhosting.discord.commands.base.BaseSlashCommand;
 import project.kazumy.realhosting.discord.commands.manager.CommandManager;
 import project.kazumy.realhosting.discord.configuration.Configuration;
+import project.kazumy.realhosting.discord.listener.EventListener;
+import project.kazumy.realhosting.discord.listener.InteractionManager;
 import project.kazumy.realhosting.discord.services.BaseService;
+import project.kazumy.realhosting.discord.services.ticket.manager.TicketManager;
 
 import java.util.Objects;
 
 public class InitBot {
 
     public static final CommandManager commandManager = new CommandManager();
+    public static final InteractionManager interactionManager = new InteractionManager();
 
     public static Configuration config;
     public JDA jda;
@@ -21,9 +25,11 @@ public class InitBot {
     @SneakyThrows
     public InitBot(String token) {
         this.jda = JDABuilder.createDefault(token).build().awaitReady();
+        jda.addEventListener(new EventListener(this));
 
         initConfig();
         initCommand();
+        interactionManager.initInteraction();
 
         new Reflections("project.kazumy.realhosting.discord.services").getSubTypesOf(BaseService.class)
                 .stream()
@@ -50,7 +56,7 @@ public class InitBot {
     public void initCommand() {
         if (this.jda == null) return;
 
-        new Reflections("project.kazumy.realhosting.discord.commands").getSubTypesOf(BaseCommand.class)
+        new Reflections("project.kazumy.realhosting.discord.commands").getSubTypesOf(BaseSlashCommand.class)
                 .stream()
                 .map(command -> {
                     try {
@@ -60,6 +66,6 @@ public class InitBot {
                         return null;
                     }
                 }).filter(Objects::nonNull)
-                .forEach(BaseCommand::register);
+                .forEach(BaseSlashCommand::register);
     }
 }
