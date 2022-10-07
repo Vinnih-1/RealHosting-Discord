@@ -5,14 +5,18 @@ import lombok.SneakyThrows;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.services.BaseService;
 import project.kazumy.realhosting.discord.services.ticket.BaseTicket;
+import project.kazumy.realhosting.discord.services.ticket.Ticket;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -82,6 +86,32 @@ public class TicketManager extends BaseService {
 
             textChannel.sendMessageEmbeds(embed.build()).addActionRow(menu).queue();
         });
+    }
+    public boolean hasOpenedTicket(Member member) {
+        return this.ticket.stream()
+                .anyMatch(ticket -> ticket.getAuthor().getUser().getId().equals(member.getUser().getId()));
+    }
+
+    public void closeTicket(Ticket ticket) {
+        System.out.println(this.ticket.remove(ticket));
+    }
+
+    public void openTicket(Ticket ticket) {
+        val category = this.jda.getCategoryById(this.config.getString("bot.guild.ticket.ticket-category-id"));
+
+        category.createTextChannel(ticket.getAuthor().getEffectiveName())
+                .addMemberPermissionOverride(
+                        ticket.getAuthor().getIdLong(),
+                        Arrays.asList(
+                                Permission.VIEW_CHANNEL,
+                                Permission.MESSAGE_SEND,
+                                Permission.MESSAGE_ATTACH_FILES
+                        ),
+                        Arrays.asList(Permission.ADMINISTRATOR)
+                ).queue(channel -> {
+                    channel.sendMessage("This is my first ticket system! :)").queue();
+        });
+        this.ticket.add(ticket);
     }
 
     public void loadOpenedTicket() {

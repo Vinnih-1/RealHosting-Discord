@@ -1,5 +1,6 @@
 package project.kazumy.realhosting.discord.services.ticket;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.val;
 import net.dv8tion.jda.api.entities.Member;
@@ -9,9 +10,10 @@ import project.kazumy.realhosting.discord.configuration.Configuration;
 import java.util.List;
 
 @Data
-public abstract class BaseTicket {
+@Builder(builderMethodName = "builder", builderClassName = "build")
+public class BaseTicket {
 
-    private String id;
+    private String id, category;
 
     private Member author;
 
@@ -24,4 +26,6 @@ public abstract class BaseTicket {
                 .buildIfNotExists();
         history.forEach(message -> config.addDefault(message.getAuthor().getAsTag() + ": ", message.getContentStripped()));
     }
+
+
 }
