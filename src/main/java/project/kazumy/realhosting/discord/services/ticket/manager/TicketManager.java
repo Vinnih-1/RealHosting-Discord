@@ -7,25 +7,25 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
-import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.services.BaseService;
-import project.kazumy.realhosting.discord.services.ticket.BaseTicket;
 import project.kazumy.realhosting.discord.services.ticket.Ticket;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 @Getter
 @SuppressWarnings("all")
 public class TicketManager extends BaseService {
 
-    private final Set<BaseTicket> ticket = new HashSet<>();
-    private final Configuration config = InitBot.config;
+    private final Map<String, Ticket> ticket = new HashMap<>();
+    private Configuration config;
 
     private JDA jda;
 
@@ -87,19 +87,26 @@ public class TicketManager extends BaseService {
             textChannel.sendMessageEmbeds(embed.build()).addActionRow(menu).queue();
         });
     }
+
     public boolean hasOpenedTicket(Member member) {
-        return this.ticket.stream()
-                .anyMatch(ticket -> ticket.getAuthor().getUser().getId().equals(member.getUser().getId()));
+        return this.ticket.containsKey(member.getId());
     }
 
+    @SneakyThrows
     public void closeTicket(Ticket ticket) {
-        System.out.println(this.ticket.remove(ticket));
+        val channel = jda.getTextChannelById(ticket.getChannelId());
+        val history = MessageHistory.getHistoryFromBeginning(channel).submit();
+        ticket.setHistory(new ArrayList<>(history.get().getRetrievedHistory()));
+        ticket.saveTicket();
+        channel.delete().queue();
+        this.ticket.remove(ticket.getAuthor().getId());
     }
 
+    @SneakyThrows
     public void openTicket(Ticket ticket) {
-        val category = this.jda.getCategoryById(this.config.getString("bot.guild.ticket.ticket-category-id"));
+        val category = this.jda.getCategoryById(this.config.getString("bot.guild.ticket-category-id"));
 
-        category.createTextChannel(ticket.getAuthor().getEffectiveName())
+        category.createTextChannel(ticket.getAuthor().getEffectiveName() + "-" + ticket.getCategory())
                 .addMemberPermissionOverride(
                         ticket.getAuthor().getIdLong(),
                         Arrays.asList(
@@ -110,16 +117,18 @@ public class TicketManager extends BaseService {
                         Arrays.asList(Permission.ADMINISTRATOR)
                 ).queue(channel -> {
                     channel.sendMessage("This is my first ticket system! :)").queue();
+                    ticket.setChannelId(channel.getId());
         });
-        this.ticket.add(ticket);
+        this.ticket.put(ticket.getAuthor().getId(), ticket);
     }
 
     public void loadOpenedTicket() {
     }
 
     @Override
-    public BaseService loadService(JDA jda) {
+    public BaseService loadService(JDA jda, Configuration config) {
         this.jda = jda;
+        this.config = config;
 
         setDefaultTicketMessage();
         sendTicketMenu();
