@@ -19,8 +19,7 @@ public class MenuInteraction extends InteractionService<SelectMenuInteractionEve
         if (event.getMember() == null) return;
 
         if (InitBot.ticketManager.hasOpenedTicket(event.getMember())) {
-            event.deferReply().setContent("Feche o ticket atual para abrir outro!")
-                    .queue(test -> test.deleteOriginal().queueAfter(5, TimeUnit.SECONDS));
+            event.deferReply(true).setContent(":x: Feche o ticket atual para abrir outro!").queue();
             return;
         }
 
@@ -31,6 +30,7 @@ public class MenuInteraction extends InteractionService<SelectMenuInteractionEve
                         .id("test")
                         .build()
         );
+        event.deferReply(true).setContent(":incoming_envelope: Seu ticket está aberto para o uso!").queue();
     }
 
     @Override

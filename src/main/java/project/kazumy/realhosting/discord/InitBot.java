@@ -1,6 +1,8 @@
 package project.kazumy.realhosting.discord;
 
 import lombok.SneakyThrows;
+import lombok.val;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -12,6 +14,7 @@ import project.kazumy.realhosting.discord.listener.EventListener;
 import project.kazumy.realhosting.discord.listener.InteractionManager;
 import project.kazumy.realhosting.discord.services.ticket.manager.TicketManager;
 
+import java.awt.*;
 import java.util.Objects;
 
 public class InitBot {
@@ -35,9 +38,9 @@ public class InitBot {
         ticketManager.loadService(jda, config)
                 .setOperating(true);
         interactionManager.initInteraction();
-
-
     }
+
+
 
     public void initConfig() {
         config = new Configuration("configuration/config.yml")
@@ -45,6 +48,7 @@ public class InitBot {
                 .addDefaults(config -> {
                     config.addDefault("bot.guild.ticket-category-id", "insert-your-category-id");
                     config.addDefault("bot.guild.ticket-chat-id", "insert-your-chat-id");
+                    config.addDefault("bot.guild.id", "insert-your-guild-id");
                 });
     }
 
