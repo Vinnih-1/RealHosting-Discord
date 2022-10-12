@@ -36,9 +36,4 @@ public class CloseTicketButtonInteraction extends InteractionService<ButtonInter
                         .findFirst()
                         .ifPresent(ticket -> ticket.getValue().saveTicket());
     }
-
-    @Override
-    public void register(InteractionService<ButtonInteractionEvent> instance) {
-
-    }
 }

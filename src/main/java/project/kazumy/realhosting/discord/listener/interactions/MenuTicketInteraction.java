@@ -58,9 +58,4 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
 
         event.deferReply(true).setContent(":incoming_envelope: Seu ticket está aberto para o uso!").queue();
     }
-
-    @Override
-    public void register(InteractionService<SelectMenuInteractionEvent> instance) {
-
-    }
 }

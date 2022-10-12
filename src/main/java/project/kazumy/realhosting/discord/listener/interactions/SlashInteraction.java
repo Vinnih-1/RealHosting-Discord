@@ -13,9 +13,4 @@ public class SlashInteraction extends InteractionService<SlashCommandInteraction
     public void execute(SlashCommandInteractionEvent event) {
 
     }
-
-    @Override
-    public void register(InteractionService<SlashCommandInteractionEvent> instance) {
-
-    }
 }
