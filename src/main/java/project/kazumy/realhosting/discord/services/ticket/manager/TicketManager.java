@@ -103,6 +103,8 @@ public class TicketManager extends BaseService {
     public void loadOpenedTicket() {
         val ticketFile = new File("services/tickets/opened-ticket/");
 
+        if (!ticketFile.exists()) return;
+
         Arrays.asList(ticketFile.listFiles()).forEach(file -> {
             val config = new Configuration("services/tickets/opened-ticket/" + file.getName())
                     .buildIfNotExists();
