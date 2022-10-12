@@ -51,7 +51,6 @@ public class Configuration extends YamlFile {
         }
         embed.setDescription(description);
         embed.setThumbnail(config.getString(section + "thumbnail"));
-        embed.setAuthor("RealHosting", config.getString(section + "site"), config.getString(section + "thumbnail"));
         embed.setFooter(config.getString(section + "footer"), config.getString(section + "thumbnail"));
 
         return embed;
