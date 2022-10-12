@@ -6,6 +6,8 @@ import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.listener.InteractionService;
 import project.kazumy.realhosting.discord.services.ticket.Ticket;
 
+import java.util.concurrent.TimeUnit;
+
 public class MenuInteraction extends InteractionService<SelectMenuInteractionEvent> {
 
     public MenuInteraction() {
@@ -14,6 +16,14 @@ public class MenuInteraction extends InteractionService<SelectMenuInteractionEve
 
     @Override
     public void execute(SelectMenuInteractionEvent event) {
+        if (event.getMember() == null) return;
+
+        if (InitBot.ticketManager.hasOpenedTicket(event.getMember())) {
+            event.deferReply().setContent("Feche o ticket atual para abrir outro!")
+                    .queue(test -> test.deleteOriginal().queueAfter(5, TimeUnit.SECONDS));
+            return;
+        }
+
         InitBot.ticketManager.openTicket(
                 Ticket.builder()
                         .author(event.getMember())
