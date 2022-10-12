@@ -121,6 +121,11 @@ public class TicketManager extends BaseService {
                 return;
             }
 
+            if (jda.getTextChannelById(config.getString("ticket.channelId")) == null) {
+                Logger.getGlobal().severe("Erro ao carregar o ticket " + file.getName() + "! O canal não foi encontrado.");
+                return;
+            }
+            
             this.ticketMap.put(config.getString("ticket.author"),
                     Ticket.builder()
                             .id(config.getString("ticket.id"))
