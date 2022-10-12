@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.services.BaseService;
@@ -43,40 +44,31 @@ public class TicketManager extends BaseService {
             consumer.addDefault("bot.guild.ticket.fields.2.name", "My Job is");
             consumer.addDefault("bot.guild.ticket.fields.2.value", "Supporter of RealHosting");
             consumer.addDefault("bot.guild.ticket.fields.2.inline", true);
+
+            consumer.addDefault("bot.guild.close-ticket.title", ":x: Do you want to close this ticket?");
+            consumer.addDefault("bot.guild.close-ticket.footer", "Footer");
+            consumer.addDefault("bot.guild.close-ticket.thumbnail", "thumbnail-url");
+            consumer.addDefault("bot.guild.close-ticket.description", "Click on red button to close this ticket!");
+            consumer.addDefault("bot.guild.close-ticket.site", "site-url");
+            consumer.addDefault("bot.guild.close-ticket.fields.1.name", "My Name is");
+            consumer.addDefault("bot.guild.close-ticket.fields.1.value", "Zumo");
+            consumer.addDefault("bot.guild.close-ticket.fields.1.inline", true);
+            consumer.addDefault("bot.guild.close-ticket.fields.2.name", "My Job is");
+            consumer.addDefault("bot.guild.close-ticket.fields.2.value", "Supporter of RealHosting");
+            consumer.addDefault("bot.guild.close-ticket.fields.2.inline", true);
         });
         config.save();
     }
 
     public void sendTicketMenu() {
         val section = "bot.guild.ticket.";
-        val title = config.getString(section + "title");
-        val footer = config.getString(section + "footer");
-        val description = config.getString(section + "description");
 
         val textChannel = jda.getTextChannelById(config.getString("bot.guild.ticket-chat-id"));
         textChannel.retrievePinnedMessages().queue(message -> {
             if (message.stream().anyMatch(embed -> embed.getAuthor().isBot()))
                 return;
 
-            val embed = new EmbedBuilder();
-            embed.setTitle(title);
-            embed.setFooter(footer);
-            embed.setColor(Color.YELLOW);
-            val configSection = config.getConfigurationSection(section + "fields").getKeys(true);
-
-            for (int i = 1; i <= configSection.size(); i++) {
-                val name = config.getString(section + "fields." + i + ".name");
-                val value = config.getString(section + "fields." + i + ".value");
-                val inline = config.get(section + "fields." + i + ".inline");
-
-                if (name == null || value == null || inline == null) continue;
-                embed.addField(name, value, Boolean.parseBoolean(String.valueOf(inline)));
-            }
-            embed.setDescription(description);
-            embed.setThumbnail(config.getString(section + "thumbnail"));
-            embed.setAuthor("RealHosting", config.getString(section + "site"), config.getString(section + "thumbnail"));
-            embed.setFooter(config.getString(section + "footer"), config.getString(section + "thumbnail"));
-
+            val embed = config.getEmbedMessageFromConfig(this.config, "ticket");
             val menu = SelectMenu.create("menu-ticket")
                     .addOption("Adquirir Serviços", "real.buy", "Contrate um dos planos do nosso serviço de hospedagem.", Emoji.fromUnicode("U+1F4B5"))
                     .addOption("Não... sério, preciso de ajuda!", "real.support", "Contate-nos pra solucionar problemas em seu serviço.", Emoji.fromUnicode("U+1F4BB"))
@@ -116,7 +108,9 @@ public class TicketManager extends BaseService {
                         ),
                         Arrays.asList(Permission.ADMINISTRATOR)
                 ).queue(channel -> {
-                    channel.sendMessage("This is my first ticket system! :)").queue();
+                    val embed = config.getEmbedMessageFromConfig(this.config, "close-ticket");
+
+                    channel.sendMessageEmbeds(embed.build()).addActionRow(Button.danger("close-ticket", Emoji.fromUnicode("U+2716"))).queue();
                     ticket.setChannelId(channel.getId());
         });
         this.ticket.put(ticket.getAuthor().getId(), ticket);
