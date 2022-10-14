@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.MessageHistory;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 
+import java.io.File;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -49,5 +50,9 @@ public class Ticket {
         });
         config.save();
         channel.delete().queueAfter(5, TimeUnit.SECONDS);
+    }
+
+    public File getOpenedTicketFolder() {
+        return new File("services/tickets/opened-ticket/");
     }
 }
