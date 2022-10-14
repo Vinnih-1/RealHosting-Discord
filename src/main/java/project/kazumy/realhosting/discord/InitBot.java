@@ -1,8 +1,6 @@
 package project.kazumy.realhosting.discord;
 
 import lombok.SneakyThrows;
-import lombok.val;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -14,8 +12,8 @@ import project.kazumy.realhosting.discord.listener.EventListener;
 import project.kazumy.realhosting.discord.listener.InteractionManager;
 import project.kazumy.realhosting.discord.services.ticket.manager.TicketManager;
 
-import java.awt.*;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 public class InitBot {
 
@@ -31,16 +29,14 @@ public class InitBot {
         this.jda = JDABuilder.createDefault(token)
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MEMBERS)
                 .build().awaitReady();
+
         jda.addEventListener(new EventListener(this));
 
         initConfig();
         initCommand();
-        ticketManager.loadService(jda, config)
-                .setOperating(true);
+        ticketManager.loadService(jda, config).setOperating(true);
         interactionManager.initInteraction();
     }
-
-
 
     public void initConfig() {
         config = new Configuration("configuration/config.yml")
@@ -49,6 +45,7 @@ public class InitBot {
                     config.addDefault("bot.guild.ticket-category-id", "insert-your-category-id");
                     config.addDefault("bot.guild.ticket-chat-id", "insert-your-chat-id");
                     config.addDefault("bot.guild.id", "insert-your-guild-id");
+                    config.addDefault("bot.guild.logs-chat-id", "insert-your-logs-chat-id");
                 });
     }
 
@@ -61,7 +58,7 @@ public class InitBot {
                     try {
                         return command.getDeclaredConstructor().newInstance();
                     } catch (Exception e) {
-                        System.err.println("Some command could not be loaded: " + e.getMessage());
+                        Logger.getGlobal().severe("Some command could not be loaded: " + e.getMessage());
                         return null;
                     }
                 }).filter(Objects::nonNull)
