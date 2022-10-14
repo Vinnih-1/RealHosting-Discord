@@ -53,6 +53,8 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
                     channel.sendMessageEmbeds(embed.build()).addActionRow(Button.danger("close-ticket-button", Emoji.fromUnicode("U+2716"))).queue();
                     ticket.setChannelId(channel.getId());
                     ticketManager.recordOpenedTicket(ticket);
+
+                    if (ticket.getCategory().equals("comprar")) InitBot.ticketManager.getPayment().sendBuyMenu(channel);
                 });
         ticketManager.getTicketMap().put(ticket.getAuthor().getId(), ticket);
 
