@@ -26,6 +26,8 @@ dependencies {
     implementation 'net.dv8tion:JDA:5.0.0-alpha.20'
     implementation 'me.carleslc.Simple-YAML:Simple-Yaml:1.7.2'
     implementation 'org.reflections:reflections:0.9.11'
+    implementation 'com.github.mattnicee7:PixQRCodeGenerator:1.1.0'
+    implementation 'io.nayuki:qrcodegen:1.8.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
