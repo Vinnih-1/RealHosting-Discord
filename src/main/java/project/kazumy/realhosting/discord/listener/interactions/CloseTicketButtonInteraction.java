@@ -30,10 +30,6 @@ public class CloseTicketButtonInteraction extends InteractionService<ButtonInter
                 .getMemberPermissionOverrides()
                 .forEach(permission -> permission.delete().queue());
 
-        InitBot.ticketManager.getTicketMap().entrySet()
-                        .stream()
-                        .filter(value -> value.getValue().getChannelId().equals(event.getChannel().getId()))
-                        .findFirst()
-                        .ifPresent(ticket -> ticket.getValue().saveTicket());
+        InitBot.ticketManager.getTicketByTextChannelId(event.getChannel().getId()).saveTicket();
     }
 }
