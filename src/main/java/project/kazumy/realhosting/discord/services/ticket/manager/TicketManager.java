@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.services.BaseService;
+import project.kazumy.realhosting.discord.services.payment.PaymentManager;
 import project.kazumy.realhosting.discord.services.ticket.Ticket;
 
 import java.io.File;
@@ -23,6 +24,7 @@ public class TicketManager extends BaseService {
 
     private final Map<String, Ticket> ticketMap = new HashMap<>();
     private Configuration config;
+    private PaymentManager payment;
 
     private JDA jda;
 
@@ -77,6 +79,13 @@ public class TicketManager extends BaseService {
         });
     }
 
+    public Ticket getTicketByTextChannelId(String textChannelId) {
+        return getTicketMap().entrySet()
+                .stream()
+                .filter(value -> value.getValue().getChannelId().equals(textChannelId))
+                .findFirst().get().getValue();
+    }
+
     public boolean hasOpenedTicket(Member member) {
         return this.ticketMap.containsKey(member.getId());
     }
@@ -97,44 +106,50 @@ public class TicketManager extends BaseService {
     public void destroyRecordedTicket(Ticket ticket) {
         val config = new Configuration("services/tickets/opened-ticket/" + ticket.getId() + ".yml")
                 .buildIfNotExists();
+        new File("services/tickets/opened-ticket/" + ticket.getChannelId() + ".png")
+                .delete();
         config.deleteFile();
     }
 
     public void loadOpenedTicket() {
-        val ticketFile = new File("services/tickets/opened-ticket/");
+        val ticketFolder = new File("services/tickets/opened-ticket/");
 
-        if (!ticketFile.exists()) return;
+        if (!ticketFolder.exists()) return;
 
-        Arrays.asList(ticketFile.listFiles()).forEach(file -> {
+        Arrays.asList(ticketFolder.listFiles())
+                .stream()
+                .filter(file -> file.getName().endsWith(".yml"))
+                .forEach(file -> {
             val config = new Configuration("services/tickets/opened-ticket/" + file.getName())
                     .buildIfNotExists();
 
-            val member = jda.getGuilds()
+            jda.getGuilds()
                     .stream()
                     .filter(guild -> guild.getId().equals(this.config.getString("bot.guild.id")))
                     .findFirst()
                     .get()
-                    .getMemberById(config.getString("ticket.author"));
+                    .retrieveMemberById(config.getString("ticket.author"))
+                    .queue(member -> {
+                        if (member == null) {
+                            Logger.getGlobal().severe("Erro ao carregar o ticket " + file.getName() + "! O autor não foi encontrado.");
+                            return;
+                        }
 
-            if (member == null) {
-                Logger.getGlobal().severe("Erro ao carregar o ticket " + file.getName() + "! O autor não foi encontrado.");
-                return;
-            }
+                        if (jda.getTextChannelById(config.getString("ticket.channelId")) == null) {
+                            Logger.getGlobal().severe("Erro ao carregar o ticket " + file.getName() + "! O canal não foi encontrado.");
+                            return;
+                        }
 
-            if (jda.getTextChannelById(config.getString("ticket.channelId")) == null) {
-                Logger.getGlobal().severe("Erro ao carregar o ticket " + file.getName() + "! O canal não foi encontrado.");
-                return;
-            }
-            
-            this.ticketMap.put(config.getString("ticket.author"),
-                    Ticket.builder()
-                            .id(config.getString("ticket.id"))
-                            .channelId(config.getString("ticket.channelId"))
-                            .category(config.getString("ticket.category"))
-                            .author(member)
-                            .build());
+                        this.ticketMap.put(config.getString("ticket.author"),
+                                Ticket.builder()
+                                        .id(config.getString("ticket.id"))
+                                        .channelId(config.getString("ticket.channelId"))
+                                        .category(config.getString("ticket.category"))
+                                        .author(member)
+                                        .build());
 
-           Logger.getGlobal().info("Ticket " + file.getName() + " carregado para a memória.");
+                        Logger.getGlobal().info("Ticket " + file.getName() + " carregado para a memória.");
+                    });
         });
     }
 
@@ -144,6 +159,7 @@ public class TicketManager extends BaseService {
         this.config = config;
 
         setDefaultTicketMessage();
+        payment.setDefaultBuyMessaage();
         sendTicketMenu();
         loadOpenedTicket();
 
