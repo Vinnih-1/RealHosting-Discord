@@ -157,6 +157,7 @@ public class TicketManager extends BaseService {
     public BaseService loadService(JDA jda, Configuration config) {
         this.jda = jda;
         this.config = config;
+        this.payment = new PaymentManager(config);
 
         setDefaultTicketMessage();
         payment.setDefaultBuyMessaage();
