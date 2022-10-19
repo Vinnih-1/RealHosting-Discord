@@ -26,6 +26,8 @@ public class Ticket {
 
     private Member author;
 
+    private Configuration config;
+
     private List<Message> history;
 
     @SneakyThrows
@@ -54,5 +56,9 @@ public class Ticket {
 
     public File getOpenedTicketFolder() {
         return new File("services/tickets/opened-ticket/");
+    }
+
+    public Configuration getOpenedTicketConfig() {
+        return new Configuration("services/tickets/opened-ticket/" + this.getAuthor().getUser().getAsTag() + ".yml");
     }
 }
