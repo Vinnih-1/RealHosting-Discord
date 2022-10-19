@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import org.apache.commons.lang.RandomStringUtils;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.listener.InteractionService;
 import project.kazumy.realhosting.discord.services.ticket.Ticket;
@@ -31,7 +32,7 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
         val ticket = Ticket.builder()
                 .author(event.getMember())
                 .category(event.getSelectedOptions().get(0).getValue())
-                .id(event.getUser().getAsTag()).build();
+                .id(RandomStringUtils.randomNumeric(8)).build();
 
         val ticketManager = InitBot.ticketManager;
 
@@ -54,7 +55,7 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
                     ticket.setChannelId(channel.getId());
                     ticketManager.recordOpenedTicket(ticket);
 
-                    if (ticket.getCategory().equals("comprar")) InitBot.ticketManager.getPayment().sendBuyMenu(channel);
+                    if (ticket.getCategory().equals("comprar")) InitBot.ticketManager.getPayment().sendBuyMenu(channel, InitBot.config);
                 });
         ticketManager.getTicketMap().put(ticket.getAuthor().getId(), ticket);
 
