@@ -8,10 +8,6 @@ version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
-}
-
-repositories {
-    mavenCentral()
 
     maven {
         url = uri('https://m2.dv8tion.net/releases')
@@ -28,6 +24,10 @@ dependencies {
     implementation 'org.reflections:reflections:0.9.11'
     implementation 'com.github.mattnicee7:PixQRCodeGenerator:1.1.0'
     implementation 'io.nayuki:qrcodegen:1.8.0'
+    implementation 'com.sendgrid:java-http-client:4.5.1'
+    implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation fileTree('libs')
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
