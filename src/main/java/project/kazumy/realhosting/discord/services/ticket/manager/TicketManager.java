@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.services.BaseService;
 import project.kazumy.realhosting.discord.services.payment.PaymentManager;
@@ -86,13 +87,31 @@ public class TicketManager extends BaseService {
                 .findFirst().get().getValue();
     }
 
+    public String getTicketIdByUserId(String userId) {
+        return getTicketMap().entrySet()
+                .stream()
+                .filter(value -> value.getValue().getAuthor().getId().equals(userId))
+                .findFirst().get().getValue().getId();
+    }
+
+    public Ticket getTicketById(String id) {
+        return getTicketMap().entrySet()
+                .stream().filter(value -> value.getValue().getId().equals(id))
+                .findFirst().get().getValue();
+    }
+
+    public boolean hasOpenedTicket(String id) {
+        return getTicketMap().entrySet()
+                .stream().anyMatch(value -> value.getValue().getId().equals(id));
+    }
+
     public boolean hasOpenedTicket(Member member) {
         return this.ticketMap.containsKey(member.getId());
     }
 
     @SneakyThrows
     public void recordOpenedTicket(Ticket ticket) {
-        val config = new Configuration("services/tickets/opened-ticket/"+ ticket.getId() +".yml")
+        val config = new Configuration("services/tickets/opened-ticket/" + ticket.getAuthor().getUser().getAsTag() + ".yml")
                 .buildIfNotExists();
         config.set("ticket.id", ticket.getId());
         config.set("ticket.author", ticket.getAuthor().getId());
@@ -104,10 +123,12 @@ public class TicketManager extends BaseService {
 
     @SneakyThrows
     public void destroyRecordedTicket(Ticket ticket) {
-        val config = new Configuration("services/tickets/opened-ticket/" + ticket.getId() + ".yml")
-                .buildIfNotExists();
+        val config = new Configuration("services/tickets/opened-ticket/" + ticket.getAuthor().getUser().getAsTag() + ".yml")
+                .buildIfNotExists()
+                ;
         new File("services/tickets/opened-ticket/" + ticket.getChannelId() + ".png")
                 .delete();
+
         config.deleteFile();
     }
 
@@ -140,14 +161,15 @@ public class TicketManager extends BaseService {
                             return;
                         }
 
-                        this.ticketMap.put(config.getString("ticket.author"),
-                                Ticket.builder()
-                                        .id(config.getString("ticket.id"))
-                                        .channelId(config.getString("ticket.channelId"))
-                                        .category(config.getString("ticket.category"))
-                                        .author(member)
-                                        .build());
+                        val ticket = Ticket.builder()
+                                .id(config.getString("ticket.id"))
+                                .channelId(config.getString("ticket.channelId"))
+                                .category(config.getString("ticket.category"))
+                                .author(member)
+                                .build();
 
+                        ticket.setConfig(ticket.getOpenedTicketConfig());
+                        this.ticketMap.put(config.getString("ticket.author"), ticket);
                         Logger.getGlobal().info("Ticket " + file.getName() + " carregado para a memória.");
                     });
         });
@@ -157,10 +179,10 @@ public class TicketManager extends BaseService {
     public BaseService loadService(JDA jda, Configuration config) {
         this.jda = jda;
         this.config = config;
-        this.payment = new PaymentManager(config);
+        this.payment = new PaymentManager();
 
         setDefaultTicketMessage();
-        payment.setDefaultBuyMessaage();
+        payment.setDefaultBuyMessaage(config);
         sendTicketMenu();
         loadOpenedTicket();
 
