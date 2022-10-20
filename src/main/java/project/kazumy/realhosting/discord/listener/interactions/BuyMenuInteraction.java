@@ -1,6 +1,5 @@
 package project.kazumy.realhosting.discord.listener.interactions;
 
-import com.github.mattnicee7.pixqrcode.pixqrcode.PixQRCodeBuilder;
 import io.nayuki.qrcodegen.QrCode;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -8,18 +7,21 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
+import org.apache.commons.lang.RandomStringUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.listener.InteractionService;
 import project.kazumy.realhosting.discord.services.payment.PaymentMP;
 import project.kazumy.realhosting.discord.services.payment.PaymentManager;
-import project.kazumy.realhosting.discord.services.plan.PlanBuilder;
+import project.kazumy.realhosting.discord.services.plan.Plan;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.concurrent.TimeUnit;
 
 public class BuyMenuInteraction extends InteractionService<SelectMenuInteractionEvent> {
@@ -42,20 +44,25 @@ public class BuyMenuInteraction extends InteractionService<SelectMenuInteraction
                 .replace(",", ".")
                 .replace(" ", "");
 
-        val plan = PlanBuilder.builder()
+        val plan = Plan.builder()
                 .title(section.getString("name"))
                 .description(section.getString("description"))
                 .price(new BigDecimal(price))
                 .logo(section.getString("logo"))
                 .skuId(section.getString("id"))
                 .emojiUnicode(Emoji.fromUnicode(section.getString("emoji")))
-                .build();
+                .createDate(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))
+                .userId(event.getMember().getId())
+                .planId(RandomStringUtils.randomAlphanumeric(15))
+                .userAsTag(event.getUser().getAsTag())
+                .enabled(false)
+                .build().instanceConfig();
 
         event.deferReply(true).setContent(":repeat: Estamos produzindo seu QRCode, aguarde um momento.").queue();
         event.getChannel().sendTyping().queue();
 
         val payment = new PaymentMP();
-        val request = payment.createRequestQrCode(plan, ticket, userId, posId, accessToken);
+        val request = payment.createRequestQrCode(plan, userId, posId, accessToken);
         val json = (JSONObject) new JSONParser().parse(request.getBody());
 
         System.out.println(request.getHeaders());
@@ -75,13 +82,16 @@ public class BuyMenuInteraction extends InteractionService<SelectMenuInteraction
                             .setColor(Color.GREEN)
                             .build();
 
+                    plan.registerPlan();
+                    InitBot.paymentManager.getPlans().add(plan);
+
                     event.getChannel().sendMessage("RealHosting: Cobrança Automática de Serviços Prestados").addEmbeds(embed, new EmbedBuilder()
-                            .setTitle(":white_check_mark: Pix Copia e Cola")
+                            .setTitle(":white_check_mark: PIX! Basta copiar e colar.")
                             .setColor(Color.YELLOW)
                             .setDescription(String.valueOf(json.get("qr_data")))
                             .build(), new EmbedBuilder()
                                     .setTitle(":x: Vencimento do Pagamento")
-                                    .setDescription("O tempo limite deste QRCode é de 10 Minuto(s), iremos apagá-lo após este periodo de tempo.")
+                                    .setDescription("O tempo limite de utilização deste QRCode é de 10 minuto(s), este QRCode será apagado após o prazo de 10 minutos.")
                                     .setColor(Color.RED)
                             .build()).queue(paymentMessage -> {
                                 if (paymentMessage != null) paymentMessage.delete().queueAfter(10, TimeUnit.MINUTES);
