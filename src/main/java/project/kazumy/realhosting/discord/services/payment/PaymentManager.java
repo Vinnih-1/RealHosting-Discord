@@ -1,23 +1,87 @@
 package project.kazumy.realhosting.discord.services.payment;
 
 import io.nayuki.qrcodegen.QrCode;
-import lombok.Getter;
+import lombok.Data;
 import lombok.val;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
-import project.kazumy.realhosting.discord.services.ticket.Ticket;
+import project.kazumy.realhosting.discord.services.BaseService;
+import project.kazumy.realhosting.discord.services.plan.Plan;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-public class PaymentManager {
+@Data
+public class PaymentManager extends BaseService {
 
-    public void setDefaultBuyMessaage(Configuration config) {
+    private Set<Plan> plans;
+    public void loadPlans() {
+        val planFolder = new File("services/payment/plan/");
+
+        if (!planFolder.exists()) return;
+
+        Arrays.asList(planFolder.listFiles())
+                .stream()
+                .filter(file -> file.getName().endsWith(".yml"))
+                .forEach(file -> {
+                    val config = new Configuration("services/payment/plan/" + file.getName())
+                            .buildIfNotExists();
+
+                    val plan = Plan.builder()
+                            .title(config.getString("plan.title"))
+                            .description(config.getString("plan.description"))
+                            .price(new BigDecimal(config.getString("plan.price")))
+                            .logo(config.getString("plan.logo"))
+                            .skuId(config.getString("plan.skuId"))
+                            .planId(config.getString("plan.planId"))
+                            .userId(config.getString("plan.author.authorId"))
+                            .userAsTag(config.getString("plan.author.authorAsTag"))
+                            .emojiUnicode(Emoji.fromUnicode(config.getString("plan.emojiUnicode")))
+                            .createDate(LocalDateTime.parse(config.getString("plan.createDate")))
+                            .enabled(config.getBoolean("plan.enabled"))
+                            .build().instanceConfig(config);
+
+                    Logger.getGlobal().info("O plano " + config.getString("plan.planId") + " foi carregado para a memória: "
+                            + plans.add(plan));
+                });
+    }
+
+    public boolean hasPlanByUserId(String userId) {
+        return this.getPlans().stream()
+                .anyMatch(plan -> plan.getUserId().equals(userId));
+    }
+
+    public boolean hasPlanByPlanId(String planId) {
+        return this.getPlans().stream()
+                .anyMatch(plan -> plan.getPlanId().equals(planId));
+    }
+
+    public Plan getPlanById(String planId) {
+        return this.getPlans().stream()
+                .filter(plan -> plan.getPlanId().equals(planId))
+                .findFirst().get();
+    }
+
+    public Set<Plan> getPlansByUserId(String userId) {
+        return this.getPlans().stream()
+                .filter(plan -> plan.getUserId().equals(userId))
+                .collect(Collectors.toSet());
+    }
+
+    public void setDefaultBuyMessage(Configuration config) {
         config.addDefaults(consumer -> {
             consumer.addDefault("bot.guild.payment.title", ":desktop: Here you can choose your plan");
             consumer.addDefault("bot.guild.payment.footer", "Self-Service official of RealHosting");
@@ -71,5 +135,18 @@ public class PaymentManager {
             }
         }
         return result;
+    }
+
+    @Override
+    public BaseService loadService(JDA jda, Configuration config) {
+        this.setDefaultBuyMessage(config);
+        this.setPlans(new HashSet<>());
+
+        loadPlans();
+
+        PaymentMP.setAccessToken(InitBot.config.getString("bot.payment.mercado-pago.access-token"));
+        new PaymentMP().waitPayment(this, jda);
+
+        return this;
     }
 }
