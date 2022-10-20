@@ -10,7 +10,6 @@ import project.kazumy.realhosting.discord.commands.manager.CommandManager;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.listener.EventListener;
 import project.kazumy.realhosting.discord.listener.InteractionManager;
-import project.kazumy.realhosting.discord.services.payment.PaymentMP;
 import project.kazumy.realhosting.discord.services.payment.PaymentManager;
 import project.kazumy.realhosting.discord.services.ticket.manager.TicketManager;
 
@@ -33,15 +32,13 @@ public class InitBot {
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MEMBERS)
                 .build().awaitReady();
 
-
         jda.addEventListener(new EventListener(this));
 
         initConfig();
         initCommand();
-        ticketManager.loadService(jda, config).setOperating(true);
         interactionManager.initInteraction();
-        PaymentMP.setAccessToken(InitBot.config.getString("bot.payment.mercado-pago.access-token"));
-        new PaymentMP().waitPayment(paymentManager);
+        ticketManager.loadService(jda, config).setOperating(true);
+        paymentManager.loadService(jda, config).setOperating(true);
     }
 
     public void initConfig() {
