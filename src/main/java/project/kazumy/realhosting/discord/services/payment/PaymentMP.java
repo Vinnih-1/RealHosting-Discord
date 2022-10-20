@@ -9,10 +9,12 @@ import com.sendgrid.Request;
 import com.sendgrid.Response;
 import lombok.SneakyThrows;
 import lombok.val;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import project.kazumy.realhosting.discord.InitBot;
-import project.kazumy.realhosting.discord.services.plan.PlanBuilder;
-import project.kazumy.realhosting.discord.services.ticket.Ticket;
+import project.kazumy.realhosting.discord.services.plan.Plan;
 
+import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Timer;
@@ -20,7 +22,7 @@ import java.util.TimerTask;
 
 public class PaymentMP {
 
-    private static final int SEARCH_LIMIT = 50;
+    private static final int SEARCH_LIMIT = 500;
     private static final int SEARCH_OFFSET = 0;
     private static final int DEFAULT_EXPIRATION = 10;
 
@@ -29,7 +31,7 @@ public class PaymentMP {
         MercadoPagoConfig.setAccessToken(accessToken);
     }
 
-    public void waitPayment(PaymentManager paymentManager) {
+    public void waitPayment(PaymentManager paymentManager, JDA jda) {
         val timer = new Timer();
 
         timer.schedule(new TimerTask() {
@@ -41,10 +43,27 @@ public class PaymentMP {
                 client.search(MPSearchRequest.builder().offset(SEARCH_OFFSET).limit(SEARCH_LIMIT).build())
                         .getResults().stream()
                         .filter(payment -> payment.getExternalReference() != null)
-                        .filter(payment -> InitBot.ticketManager.hasOpenedTicket(payment.getExternalReference()))
-                        .filter(payment -> payment.getExternalReference().equals(InitBot.ticketManager.getTicketById(payment.getExternalReference()).getId()))
-                        .findFirst().ifPresent(payment -> {
+                        .filter(payment -> payment.getExternalReference().length() == 15)
+                        .filter(payment -> paymentManager.hasPlanByPlanId(payment.getExternalReference()))
+                        .filter(payment -> !paymentManager.getPlanById(payment.getExternalReference()).isEnabled())
+                        .forEach(payment -> {
                             System.out.println("encontrado o pagamento do ticket id: " + payment.getExternalReference());
+                            val plan = paymentManager.getPlanById(payment.getExternalReference());
+                            plan.setPaymentDate(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")));
+                            plan.setExpirationDate(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")).plusDays(30L));
+                            plan.validatePlan();
+
+                            val ticketChannel = InitBot.ticketManager.getTicketByUserId(plan.getUserId()).getTicketChannel(jda);
+
+                            if (ticketChannel != null) {
+                                ticketChannel.sendMessageEmbeds(new EmbedBuilder()
+                                                .setColor(Color.GREEN)
+                                                .setAuthor("VERIFICAÇÃO DE PAGAMENTO", "https://painel.realhosting.com.br", plan.getLogo())
+                                                .setDescription(":white_check_mark: Estamos verificando se está tudo correto e logo e em breve lhe daremos acesso ao seu plano.")
+                                                .setFooter("Auto atendimento da RealHosting", plan.getLogo())
+                                        .build()).queue();
+                            }
+                            System.out.println("mostrar menu com criação do painel");
                         });
 
             }
@@ -52,7 +71,7 @@ public class PaymentMP {
     }
 
     @SneakyThrows
-    public Response createRequestQrCode(PlanBuilder plan, Ticket ticket, String userId, String posId, String accessToken, String expiration) {
+    public Response createRequestQrCode(Plan plan, String userId, String posId, String accessToken, String expiration) {
         val client = new Client();
         val request = new Request();
         val expirationDate = new StringBuilder();
@@ -69,7 +88,7 @@ public class PaymentMP {
         request.addHeader("Authorization", "Bearer " + accessToken);
         request.addHeader("Content-Type", "application/json");
         request.setBody("{\n" +
-                "  \"external_reference\": \""+ticket.getId()+"\",\n" +
+                "  \"external_reference\": \""+plan.getPlanId()+"\",\n" +
                 "  \"title\": \" " + plan.getTitle() + " \",\n" +
                 "  \"total_amount\": "+plan.getPrice().toString()+",\n" +
                 "  \"description\": \""+plan.getDescription()+"\",\n" +
@@ -94,7 +113,7 @@ public class PaymentMP {
         return client.api(request);
     }
 
-    public Response createRequestQrCode(PlanBuilder plan, Ticket ticket, String userId, String posId, String accessToken) {
-        return this.createRequestQrCode(plan, ticket, userId, posId, accessToken, null);
+    public Response createRequestQrCode(Plan plan, String userId, String posId, String accessToken) {
+        return this.createRequestQrCode(plan, userId, posId, accessToken, null);
     }
 }
