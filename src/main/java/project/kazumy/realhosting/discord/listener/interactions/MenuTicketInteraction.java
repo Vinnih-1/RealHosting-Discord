@@ -55,7 +55,7 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
                     ticket.setChannelId(channel.getId());
                     ticketManager.recordOpenedTicket(ticket);
 
-                    if (ticket.getCategory().equals("comprar")) InitBot.ticketManager.getPayment().sendBuyMenu(channel, InitBot.config);
+                    if (ticket.getCategory().equals("comprar")) InitBot.paymentManager.sendBuyMenu(channel, InitBot.config);
                 });
         ticketManager.getTicketMap().put(ticket.getAuthor().getId(), ticket);
 
