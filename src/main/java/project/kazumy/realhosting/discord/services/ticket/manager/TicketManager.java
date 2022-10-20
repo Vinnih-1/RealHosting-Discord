@@ -7,10 +7,8 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
-import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.services.BaseService;
-import project.kazumy.realhosting.discord.services.payment.PaymentManager;
 import project.kazumy.realhosting.discord.services.ticket.Ticket;
 
 import java.io.File;
@@ -25,7 +23,6 @@ public class TicketManager extends BaseService {
 
     private final Map<String, Ticket> ticketMap = new HashMap<>();
     private Configuration config;
-    private PaymentManager payment;
 
     private JDA jda;
 
@@ -88,10 +85,14 @@ public class TicketManager extends BaseService {
     }
 
     public String getTicketIdByUserId(String userId) {
+        return getTicketByUserId(userId).getId();
+    }
+
+    public Ticket getTicketByUserId(String userId) {
         return getTicketMap().entrySet()
                 .stream()
                 .filter(value -> value.getValue().getAuthor().getId().equals(userId))
-                .findFirst().get().getValue().getId();
+                .findFirst().get().getValue();
     }
 
     public Ticket getTicketById(String id) {
@@ -179,10 +180,8 @@ public class TicketManager extends BaseService {
     public BaseService loadService(JDA jda, Configuration config) {
         this.jda = jda;
         this.config = config;
-        this.payment = new PaymentManager();
 
         setDefaultTicketMessage();
-        payment.setDefaultBuyMessaage(config);
         sendTicketMenu();
         loadOpenedTicket();
 
