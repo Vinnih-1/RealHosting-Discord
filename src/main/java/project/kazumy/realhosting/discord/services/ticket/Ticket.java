@@ -4,9 +4,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.val;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 
@@ -25,6 +27,8 @@ public class Ticket {
     private String id, category, channelId;
 
     private Member author;
+
+    private Configuration config;
 
     private List<Message> history;
 
@@ -54,5 +58,13 @@ public class Ticket {
 
     public File getOpenedTicketFolder() {
         return new File("services/tickets/opened-ticket/");
+    }
+
+    public Configuration getOpenedTicketConfig() {
+        return new Configuration("services/tickets/opened-ticket/" + this.getAuthor().getUser().getAsTag() + ".yml");
+    }
+
+    public TextChannel getTicketChannel(JDA jda) {
+        return jda.getTextChannelById(this.getChannelId());
     }
 }

@@ -3,6 +3,9 @@ package project.kazumy.realhosting.discord.configuration;
 import lombok.SneakyThrows;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import org.simpleyaml.configuration.file.YamlFile;
 
 import java.awt.*;
@@ -26,6 +29,23 @@ public class Configuration extends YamlFile {
         consumer.accept(this);
         this.save();
         return this;
+    }
+
+    public SelectMenu.Builder getMenuFromConfig(Configuration config, String path, String menuId) {
+        val menu = SelectMenu.create(menuId);
+        val section = config.getConfigurationSection(path).getKeys(true);
+
+        for (int i = 1; i < section.size(); i++) {
+            val name = config.getString(path + "." + i + ".name");
+            val value = config.getString(path + "." + i + ".value");
+            val description = config.getString(path + "." + i + ".description");
+            val emoji = config.getString(path + "." + i + ".emoji");
+
+            if (name == null || value == null || description == null || emoji == null) continue;
+            menu.addOption(name, value, description, Emoji.fromUnicode(emoji));
+        }
+
+        return menu;
     }
 
     public EmbedBuilder getEmbedMessageFromConfig(Configuration config, String path) {
