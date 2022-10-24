@@ -26,6 +26,10 @@ public class TicketManager extends BaseService {
 
     private JDA jda;
 
+    public TicketManager() {
+        super(3L);
+    }
+
     @SneakyThrows
     public void setDefaultTicketMessage() {
         config.addDefaults(consumer -> {
@@ -177,7 +181,7 @@ public class TicketManager extends BaseService {
     }
 
     @Override
-    public BaseService loadService(JDA jda, Configuration config) {
+    public BaseService service(JDA jda, Configuration config) {
         this.jda = jda;
         this.config = config;
 
