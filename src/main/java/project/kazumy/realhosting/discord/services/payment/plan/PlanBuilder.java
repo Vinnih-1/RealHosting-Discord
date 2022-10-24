@@ -1,4 +1,4 @@
-package project.kazumy.realhosting.discord.services.plan;
+package project.kazumy.realhosting.discord.services.payment.plan;
 
 import lombok.*;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
@@ -6,7 +6,6 @@ import project.kazumy.realhosting.discord.configuration.Configuration;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 @ToString
 @Builder
