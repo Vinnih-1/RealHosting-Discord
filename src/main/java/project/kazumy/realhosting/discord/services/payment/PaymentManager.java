@@ -1,16 +1,19 @@
 package project.kazumy.realhosting.discord.services.payment;
 
 import io.nayuki.qrcodegen.QrCode;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.val;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.services.BaseService;
-import project.kazumy.realhosting.discord.services.plan.Plan;
+import project.kazumy.realhosting.discord.services.panel.ServerType;
+import project.kazumy.realhosting.discord.services.payment.plan.PlanBuilder;
+import project.kazumy.realhosting.discord.services.payment.plan.PlanType;
+import project.kazumy.realhosting.discord.services.payment.plan.StageType;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -24,10 +27,14 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@Data
 public class PaymentManager extends BaseService {
 
-    private Set<Plan> plans;
+    @Getter @Setter
+    private Set<PlanBuilder> plans;
+
+    public PaymentManager() {
+        super(2L);
+    }
     public void loadPlans() {
         val planFolder = new File("services/payment/plan/");
 
@@ -40,22 +47,29 @@ public class PaymentManager extends BaseService {
                     val config = new Configuration("services/payment/plan/" + file.getName())
                             .buildIfNotExists();
 
-                    val plan = Plan.builder()
-                            .title(config.getString("plan.title"))
-                            .description(config.getString("plan.description"))
-                            .price(new BigDecimal(config.getString("plan.price")))
-                            .logo(config.getString("plan.logo"))
-                            .skuId(config.getString("plan.skuId"))
-                            .planId(config.getString("plan.planId"))
-                            .userId(config.getString("plan.author.authorId"))
-                            .userAsTag(config.getString("plan.author.authorAsTag"))
-                            .emojiUnicode(Emoji.fromUnicode(config.getString("plan.emojiUnicode")))
-                            .createDate(LocalDateTime.parse(config.getString("plan.createDate")))
-                            .enabled(config.getBoolean("plan.enabled"))
-                            .build().instanceConfig(config);
+                    try {
+                        val plan = PlanBuilder.builder()
+                                .title(config.getString("plan.title"))
+                                .description(config.getString("plan.description"))
+                                .price(new BigDecimal(config.getString("plan.price")))
+                                .logo(config.getString("plan.logo"))
+                                .skuId(config.getString("plan.skuId"))
+                                .planId(config.getString("plan.planId"))
+                                .userId(config.getString("plan.author.authorId"))
+                                .userAsTag(config.getString("plan.author.authorAsTag"))
+                                .planType(PlanType.valueOf(config.getString("plan.planType")))
+                                .stageType(StageType.valueOf(config.getString("plan.stageType")))
+                                .serverType(ServerType.valueOf(config.getString("plan.serverType")))
+                                .emojiUnicode(Emoji.fromUnicode(config.getString("plan.emojiUnicode")))
+                                .createDate(LocalDateTime.parse(config.getString("plan.createDate")))
+                                .enabled(config.getBoolean("plan.enabled"))
+                                .build().instanceConfig(config);
 
-                    Logger.getGlobal().info("O plano " + config.getString("plan.planId") + " foi carregado para a memória: "
-                            + plans.add(plan));
+                        Logger.getGlobal().info("O plano " + config.getString("plan.planId") + " foi carregado para a memória: "
+                                + plans.add(plan));
+                    } catch (Exception e) {
+                        Logger.getGlobal().severe(String.format("Houve uma falha ao carregar o plano %s", file.getName()));
+                    }
                 });
     }
 
@@ -69,13 +83,13 @@ public class PaymentManager extends BaseService {
                 .anyMatch(plan -> plan.getPlanId().equals(planId));
     }
 
-    public Plan getPlanById(String planId) {
+    public PlanBuilder getPlanById(String planId) {
         return this.getPlans().stream()
                 .filter(plan -> plan.getPlanId().equals(planId))
                 .findFirst().get();
     }
 
-    public Set<Plan> getPlansByUserId(String userId) {
+    public Set<PlanBuilder> getPlansByUserId(String userId) {
         return this.getPlans().stream()
                 .filter(plan -> plan.getUserId().equals(userId))
                 .collect(Collectors.toSet());
@@ -100,19 +114,7 @@ public class PaymentManager extends BaseService {
     public void sendBuyMenu(TextChannel channel, Configuration config) {
         val embed = config.getEmbedMessageFromConfig(config, "payment");
         embed.setColor(Color.GREEN);
-
-        val menu = SelectMenu.create("buy-menu");
-        val section = config.getConfigurationSection("bot.guild.payment.plans").getKeys(true);
-
-        for (int i = 1; i < section.size(); i++) {
-            val name = config.getString("bot.guild.payment.plans." + i + ".name");
-            val value = config.getString("bot.guild.payment.plans." + i + ".value");
-            val description = config.getString("bot.guild.payment.plans." + i + ".description");
-            val emoji = config.getString("bot.guild.payment.plans." + i + ".emoji");
-
-            if (name == null || value == null || description == null || emoji == null) continue;
-            menu.addOption(name, value, description, Emoji.fromUnicode(emoji));
-        }
+        val menu = config.getMenuFromConfig(config, "bot.guild.payment.plans", "buy-menu");
         channel.sendMessageEmbeds(embed.build()).addActionRow(menu.build()).queue();
     }
 
@@ -138,11 +140,9 @@ public class PaymentManager extends BaseService {
     }
 
     @Override
-    public BaseService loadService(JDA jda, Configuration config) {
+    public BaseService service(JDA jda, Configuration config) {
         this.setDefaultBuyMessage(config);
         this.setPlans(new HashSet<>());
-
-        loadPlans();
 
         PaymentMP.setAccessToken(InitBot.config.getString("bot.payment.mercado-pago.access-token"));
         new PaymentMP().waitPayment(this, jda);

@@ -12,9 +12,12 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.listener.InteractionService;
+import project.kazumy.realhosting.discord.services.payment.plan.PlanType;
+import project.kazumy.realhosting.discord.services.panel.ServerType;
 import project.kazumy.realhosting.discord.services.payment.PaymentMP;
 import project.kazumy.realhosting.discord.services.payment.PaymentManager;
-import project.kazumy.realhosting.discord.services.plan.Plan;
+import project.kazumy.realhosting.discord.services.payment.plan.PlanBuilder;
+import project.kazumy.realhosting.discord.services.payment.plan.StageType;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -43,8 +46,10 @@ public class BuyMenuInteraction extends InteractionService<SelectMenuInteraction
                 .replace("R$", "")
                 .replace(",", ".")
                 .replace(" ", "");
+        val type = event.getSelectedOptions().get(0).getLabel().split("\\|")[1]
+                .replace(" ", "");
 
-        val plan = Plan.builder()
+        val plan = PlanBuilder.builder()
                 .title(section.getString("name"))
                 .description(section.getString("description"))
                 .price(new BigDecimal(price))
@@ -56,6 +61,9 @@ public class BuyMenuInteraction extends InteractionService<SelectMenuInteraction
                 .planId(RandomStringUtils.randomAlphanumeric(15))
                 .userAsTag(event.getUser().getAsTag())
                 .enabled(false)
+                .planType(PlanType.valueOf(type.toUpperCase()))
+                .serverType(ServerType.MINECRAFT)
+                .stageType(StageType.PENDING_PAYMENT)
                 .build().instanceConfig();
 
         event.deferReply(true).setContent(":repeat: Estamos produzindo seu QRCode, aguarde um momento.").queue();

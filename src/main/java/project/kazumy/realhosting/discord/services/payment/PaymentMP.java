@@ -12,13 +12,15 @@ import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import project.kazumy.realhosting.discord.InitBot;
-import project.kazumy.realhosting.discord.services.plan.Plan;
+import project.kazumy.realhosting.discord.services.payment.plan.PlanBuilder;
+import project.kazumy.realhosting.discord.services.payment.plan.StageType;
 
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Logger;
 
 public class PaymentMP {
 
@@ -47,31 +49,34 @@ public class PaymentMP {
                         .filter(payment -> paymentManager.hasPlanByPlanId(payment.getExternalReference()))
                         .filter(payment -> !paymentManager.getPlanById(payment.getExternalReference()).isEnabled())
                         .forEach(payment -> {
-                            System.out.println("encontrado o pagamento do ticket id: " + payment.getExternalReference());
+                            Logger.getGlobal().info("Encontrado o pagamento do ticket id: " + payment.getExternalReference());
                             val plan = paymentManager.getPlanById(payment.getExternalReference());
                             plan.setPaymentDate(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")));
                             plan.setExpirationDate(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")).plusDays(30L));
+                            plan.setStageType(StageType.PAYED);
                             plan.validatePlan();
 
-                            val ticketChannel = InitBot.ticketManager.getTicketByUserId(plan.getUserId()).getTicketChannel(jda);
+                            val ticket = InitBot.ticketManager.getTicketByUserId(plan.getUserId());
+                            val ticketChannel = ticket.getTicketChannel(jda);
+
 
                             if (ticketChannel != null) {
                                 ticketChannel.sendMessageEmbeds(new EmbedBuilder()
                                                 .setColor(Color.GREEN)
-                                                .setAuthor("VERIFICAÇÃO DE PAGAMENTO", "https://painel.realhosting.com.br", plan.getLogo())
+                                                .setAuthor("Verificação de Pagamento", "https://painel.realhosting.com.br", plan.getLogo())
                                                 .setDescription(":white_check_mark: Estamos verificando se está tudo correto e logo e em breve lhe daremos acesso ao seu plano.")
                                                 .setFooter("Auto atendimento da RealHosting", plan.getLogo())
                                         .build()).queue();
+                                InitBot.panelManager.emailMenu(InitBot.config, ticket, jda);
                             }
-                            System.out.println("mostrar menu com criação do painel");
-                        });
 
+                        });
             }
         }, 0, 10000);
     }
 
     @SneakyThrows
-    public Response createRequestQrCode(Plan plan, String userId, String posId, String accessToken, String expiration) {
+    public Response createRequestQrCode(PlanBuilder plan, String userId, String posId, String accessToken, String expiration) {
         val client = new Client();
         val request = new Request();
         val expirationDate = new StringBuilder();
@@ -113,7 +118,7 @@ public class PaymentMP {
         return client.api(request);
     }
 
-    public Response createRequestQrCode(Plan plan, String userId, String posId, String accessToken) {
+    public Response createRequestQrCode(PlanBuilder plan, String userId, String posId, String accessToken) {
         return this.createRequestQrCode(plan, userId, posId, accessToken, null);
     }
 }
