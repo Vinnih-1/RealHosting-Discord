@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.apache.commons.lang.RandomStringUtils;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.listener.InteractionService;
+import project.kazumy.realhosting.discord.services.terms.TermsOfService;
 import project.kazumy.realhosting.discord.services.ticket.Ticket;
 
 import java.awt.*;
@@ -55,7 +56,7 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
                     ticket.setChannelId(channel.getId());
                     ticketManager.recordOpenedTicket(ticket);
 
-                    if (ticket.getCategory().equals("comprar")) InitBot.paymentManager.sendBuyMenu(channel, InitBot.config);
+                    if (ticket.getCategory().equals("comprar")) TermsOfService.SendTermsMenu(channel);
                 });
         ticketManager.getTicketMap().put(ticket.getAuthor().getId(), ticket);
 
