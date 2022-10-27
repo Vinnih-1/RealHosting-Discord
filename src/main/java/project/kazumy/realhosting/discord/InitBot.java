@@ -44,6 +44,7 @@ public class InitBot {
         ServiceManager.loadServices(this, config);
 
         paymentManager.loadPlans();
+        panelManager.expireServerTimer();
 
         commandManager.loadSlashCommands();
         commandManager.registerSlashCommand(jda.getGuildById(config.getString("bot.guild.id")));

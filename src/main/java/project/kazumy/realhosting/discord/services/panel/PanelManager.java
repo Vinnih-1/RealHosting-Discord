@@ -2,23 +2,28 @@ package project.kazumy.realhosting.discord.services.panel;
 
 import com.mattmalec.pterodactyl4j.DataType;
 import com.mattmalec.pterodactyl4j.PteroBuilder;
+import com.mattmalec.pterodactyl4j.ServerStatus;
 import com.mattmalec.pterodactyl4j.application.entities.ApplicationServer;
 import com.mattmalec.pterodactyl4j.application.entities.ApplicationUser;
 import com.mattmalec.pterodactyl4j.application.entities.PteroApplication;
 import lombok.Getter;
 import lombok.val;
 import net.dv8tion.jda.api.JDA;
+import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.services.BaseService;
+import project.kazumy.realhosting.discord.services.panel.exceptions.EmailAlreadyExistsException;
+import project.kazumy.realhosting.discord.services.panel.exceptions.UsernameAlreadyExistsException;
 import project.kazumy.realhosting.discord.services.panel.exceptions.WrongEmailException;
 import project.kazumy.realhosting.discord.services.panel.exceptions.WrongUsernameException;
 import project.kazumy.realhosting.discord.services.payment.plan.PlanBuilder;
 import project.kazumy.realhosting.discord.services.ticket.Ticket;
 
 import java.awt.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class PanelManager extends BaseService {
@@ -34,7 +39,23 @@ public class PanelManager extends BaseService {
         super(1L);
     }
 
-    public void createUser(UserPanel user, Consumer<ApplicationUser> consumer) throws Exception {
+    public void expireServerTimer() {
+        val timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                InitBot.paymentManager.getExpiredPlans()
+                        .forEach(plan -> {
+                            val server = getServerByPlanId(plan.getPlanId());
+                            if (server.getStatus() == ServerStatus.SUSPENDED) return;
+                            server.getController().suspend().execute();
+                            Logger.getGlobal().info(String.format("O servidor do ID %s foi suspenso por falta de pagamento!", plan.getPlanId()));
+                        });
+            }
+        }, 0L, 1000L);
+    }
+
+    public void createUser(UserPanel user, Consumer<ApplicationUser> consumer) {
         application.getUserManager()
                 .createUser()
                 .setUserName(user.getUserName())
@@ -42,9 +63,7 @@ public class PanelManager extends BaseService {
                 .setLastName(user.getLastName())
                 .setEmail(user.getEmail())
                 .setPassword(user.getPassword())
-                .executeAsync(success -> {
-                    consumer.accept(success);
-                });
+                .executeAsync(consumer::accept);
     }
 
     public void createServer(ApplicationUser user, ServerType serverType, PlanBuilder plan, Consumer<ApplicationServer> server) {
@@ -81,18 +100,59 @@ public class PanelManager extends BaseService {
                 .setDescription(plan.getPlanId());
     }
 
-    public static boolean checkUserFields(UserPanel userPanel) throws WrongEmailException, WrongUsernameException {
+    public static boolean checkUserFields(UserPanel userPanel) throws WrongEmailException, WrongUsernameException, EmailAlreadyExistsException, UsernameAlreadyExistsException {
         if (!EMAIL_PATTERN.matcher(userPanel.getEmail()).matches())
             throw new WrongEmailException();
         if (!USER_PATTERN.matcher(userPanel.getUserName()).matches())
             throw new WrongUsernameException();
+        if (InitBot.panelManager.userExistsByEmail(userPanel.getEmail()))
+            throw new EmailAlreadyExistsException();
+        if (InitBot.panelManager.userExistsByUsername(userPanel.getUserName()))
+            throw new UsernameAlreadyExistsException();
 
         return true;
+    }
+
+
+    public ApplicationUser getUserByUsername(String username) {
+        return application.retrieveUsersByUsername(username, true).execute().get(0);
+    }
+
+    public List<ApplicationUser> getUsersByUsername(String username) {
+        return application.retrieveUsersByUsername(username, true).execute();
     }
 
     public ApplicationUser getUserByEmail(String email) {
         return application.retrieveUsersByEmail(email, true)
                 .execute().get(0);
+    }
+
+    public List<ApplicationUser> getUsersByEmail(String email) {
+        return application.retrieveUsersByEmail(email, true)
+                .execute();
+    }
+
+    public List<ApplicationServer> getServers() {
+        return application.retrieveServers().execute();
+    }
+
+    public ApplicationServer getServerByPlanId(String planId) {
+        return getServers().stream()
+                .filter(server -> server.getDescription().equals(planId))
+                .findAny().get();
+    }
+
+    public boolean serverExistsByPlanId(String planId) {
+        return getServers().stream()
+                .anyMatch(server -> server.getDescription().equals(planId));
+    }
+
+    public boolean userExistsByEmail(String email){
+        return !getUsersByEmail(email).isEmpty();
+    }
+
+    public boolean userExistsByUsername(String username) {
+        return !getUsersByUsername(username).isEmpty();
     }
 
     public void emailMenu(Configuration config, Ticket ticket, JDA jda) {
