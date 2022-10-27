@@ -53,7 +53,7 @@ public class Ticket {
             config.set("ID: " + message.getId() + " " + date + " - " + message.getAuthor().getAsTag() + ": ", message.getContentStripped());
         });
         config.save();
-        channel.delete().queueAfter(5, TimeUnit.SECONDS);
+        channel.delete().queueAfter(10, TimeUnit.SECONDS);
     }
 
     public File getOpenedTicketFolder() {

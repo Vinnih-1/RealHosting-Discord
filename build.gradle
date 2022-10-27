@@ -16,6 +16,10 @@ repositories {
     maven {
         url = uri('https://jitpack.io')
     }
+
+    maven {
+        url = 'https://repo.mattmalec.com/repository/releases'
+    }
 }
 
 dependencies {

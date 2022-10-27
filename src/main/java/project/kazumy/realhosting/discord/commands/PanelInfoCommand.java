@@ -59,7 +59,6 @@ public class PanelInfoCommand extends BaseSlashCommand {
                             event.deferReply(true).setContent(e.getMessage()).queue();
                             return;
                         }
-
                         InitBot.panelManager.createUser(userPanel, applicationUser -> {
                             event.deferReply(true).setContent(String.format("Estas são suas novas informações: \n" +
                                     "Email: %s\n" +

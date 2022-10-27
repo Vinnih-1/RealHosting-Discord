@@ -20,10 +20,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -62,6 +61,8 @@ public class PaymentManager extends BaseService {
                                 .serverType(ServerType.valueOf(config.getString("plan.serverType")))
                                 .emojiUnicode(Emoji.fromUnicode(config.getString("plan.emojiUnicode")))
                                 .createDate(LocalDateTime.parse(config.getString("plan.createDate")))
+                                .paymentDate(LocalDateTime.parse(config.getString("plan.paymentDate")))
+                                .expirationDate(LocalDateTime.parse(config.getString("plan.expirationDate")))
                                 .enabled(config.getBoolean("plan.enabled"))
                                 .build().instanceConfig(config);
 
@@ -71,6 +72,13 @@ public class PaymentManager extends BaseService {
                         Logger.getGlobal().severe(String.format("Houve uma falha ao carregar o plano %s", file.getName()));
                     }
                 });
+    }
+
+    public List<PlanBuilder> getExpiredPlans() {
+        return getPlans().stream()
+                .filter(plan -> plan.getExpirationDate() != null)
+                .filter(plan -> plan.getExpirationDate().isBefore(LocalDateTime.now(ZoneId.of("America/Sao_Paulo"))))
+                .collect(Collectors.toList());
     }
 
     public boolean hasPlanByUserId(String userId) {
