@@ -47,6 +47,10 @@ public class PaymentManager extends BaseService {
                             .buildIfNotExists();
 
                     try {
+                        val createDate = config.getString("plan.createDate");
+                        val paymentDate = config.getString("plan.paymentDate");
+                        val expireDate = config.getString("plan.expirationDate");
+
                         val plan = PlanBuilder.builder()
                                 .title(config.getString("plan.title"))
                                 .description(config.getString("plan.description"))
@@ -60,16 +64,16 @@ public class PaymentManager extends BaseService {
                                 .stageType(StageType.valueOf(config.getString("plan.stageType")))
                                 .serverType(ServerType.valueOf(config.getString("plan.serverType")))
                                 .emojiUnicode(Emoji.fromUnicode(config.getString("plan.emojiUnicode")))
-                                .createDate(LocalDateTime.parse(config.getString("plan.createDate")))
-                                .paymentDate(LocalDateTime.parse(config.getString("plan.paymentDate")))
-                                .expirationDate(LocalDateTime.parse(config.getString("plan.expirationDate")))
+                                .createDate(createDate != null ? LocalDateTime.parse(createDate) : null)
+                                .paymentDate(paymentDate != null ? LocalDateTime.parse(paymentDate) : null)
+                                .expirationDate(expireDate != null ? LocalDateTime.parse(expireDate) : null)
                                 .enabled(config.getBoolean("plan.enabled"))
                                 .build().instanceConfig(config);
 
                         Logger.getGlobal().info("O plano " + config.getString("plan.planId") + " foi carregado para a memória: "
                                 + plans.add(plan));
                     } catch (Exception e) {
-                        Logger.getGlobal().severe(String.format("Houve uma falha ao carregar o plano %s", file.getName()));
+                        Logger.getGlobal().severe(String.format("Houve uma falha ao carregar o plano %s ", file.getName()));
                     }
                 });
     }
