@@ -110,6 +110,11 @@ public class TicketManager extends BaseService {
                 .stream().anyMatch(value -> value.getValue().getId().equals(id));
     }
 
+    public boolean hasOpenedTicketByChannelId(String channelId) {
+        return getTicketMap().entrySet()
+                .stream().anyMatch(value -> value.getValue().getChannelId().equals(channelId));
+    }
+
     public boolean hasOpenedTicket(Member member) {
         return this.ticketMap.containsKey(member.getId());
     }

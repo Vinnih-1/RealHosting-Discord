@@ -28,9 +28,9 @@ public final class TermsOfService extends BaseService {
         embed.setColor(Color.YELLOW);
         embed.setTitle("Você concorda com os nossos Termos?");
         embed.setDescription("Ao clicar no botão verde, você está ciente e de acordo com todos os nossos termos.");
+        embed.setImage("https://cdn.discordapp.com/attachments/967481970797985822/1041728331114106941/2022-11-14_11-55.png");
         textChannel.sendMessageEmbeds(embed.build()).addActionRow(Button.success("terms-agree", "Sim"),
-                Button.danger("terms-disagree", "Não"))
-                .addFiles(FileUpload.fromData(getTermsFile())).queue();
+                Button.danger("terms-disagree", "Não")).queue(success -> success.getChannel().sendFiles(FileUpload.fromData(getTermsFile())).queue());
     }
 
     private static boolean checkIfTermsExists() {

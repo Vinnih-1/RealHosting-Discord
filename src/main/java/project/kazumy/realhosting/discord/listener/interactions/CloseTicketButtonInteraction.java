@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.listener.InteractionService;
+import project.kazumy.realhosting.discord.services.payment.plan.PlanBuilder;
+import project.kazumy.realhosting.discord.services.payment.plan.StageType;
 
 import java.awt.*;
 
@@ -29,6 +31,10 @@ public class CloseTicketButtonInteraction extends InteractionService<ButtonInter
         event.getChannel().asTextChannel()
                 .getMemberPermissionOverrides()
                 .forEach(permission -> permission.delete().queue());
+
+        InitBot.paymentManager.getPlansByUserId(event.getUser().getId()).stream()
+                                .filter(plan -> plan.getStageType() == StageType.CHOOSING_SERVER)
+                                .forEach(PlanBuilder::deletePlan);
 
         InitBot.ticketManager.getTicketByTextChannelId(event.getChannel().getId()).saveTicket();
     }

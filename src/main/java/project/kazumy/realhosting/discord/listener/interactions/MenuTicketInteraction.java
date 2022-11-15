@@ -30,6 +30,11 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
             return;
         }
 
+        if (event.getSelectedOptions().get(0).getValue().equals("comprar") && InitBot.paymentManager.hasPlanPending(event.getUser().getId())) {
+            event.deferReply(true).setContent(":x: Aparentemente você ainda tem um plano pendente, utilize o comando /painel para terminar o processo!").queue();
+            return;
+        }
+
         val ticket = Ticket.builder()
                 .author(event.getMember())
                 .category(event.getSelectedOptions().get(0).getValue())

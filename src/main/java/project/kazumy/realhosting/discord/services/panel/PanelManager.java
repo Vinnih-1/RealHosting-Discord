@@ -8,7 +8,9 @@ import com.mattmalec.pterodactyl4j.application.entities.ApplicationUser;
 import com.mattmalec.pterodactyl4j.application.entities.PteroApplication;
 import lombok.Getter;
 import lombok.val;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.services.BaseService;
@@ -20,8 +22,9 @@ import project.kazumy.realhosting.discord.services.payment.plan.PlanBuilder;
 import project.kazumy.realhosting.discord.services.ticket.Ticket;
 
 import java.awt.*;
-import java.util.*;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -39,20 +42,46 @@ public class PanelManager extends BaseService {
         super(1L);
     }
 
-    public void expireServerTimer() {
+    public void expireServerTimer(Guild guild, Configuration config) {
         val timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
+                InitBot.paymentManager.getExpiredPlans(1L)
+                        .stream().filter(plan -> !plan.isNotified())
+                        .forEach(plan -> {
+                            if (guild.getMemberById(plan.getPlanData().getUserId()) == null) return;
+
+                            guild.getMemberById(plan.getPlanData().getUserId()).getUser()
+                                    .openPrivateChannel().queue(channel -> {
+                                        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                                        val embedConfig = config.getEmbedMessageFromConfig(config, "pre-expiration");
+                                        val embed = new EmbedBuilder();
+                                        embed.setColor(Color.YELLOW);
+                                        embed.setTitle(embedConfig.build().getTitle());
+                                        embed.setThumbnail(embedConfig.build().getThumbnail().getUrl());
+                                        embed.setFooter(embedConfig.build().getFooter().getText(), embedConfig.build().getThumbnail().getUrl());
+                                        embedConfig.getFields().forEach(embed::addField);
+                                        embed.setDescription(String.format(embedConfig.getDescriptionBuilder().toString().replace("\\n", "\n"),
+                                                plan.getPlanData().getPlanId(),
+                                                plan.getExpirationDate().format(formatter),
+                                                plan.getExpirationDate().minusDays(2L).format(formatter)));
+                                        channel.sendMessageEmbeds(embed.build()).queue();
+                                        plan.setNotified(true);
+                                        plan.saveConfig();
+                                    });
+                        });
+
                 InitBot.paymentManager.getExpiredPlans()
                         .forEach(plan -> {
-                            val server = getServerByPlanId(plan.getPlanId());
+                            val server = getServerByPlanId(plan.getPlanData().getPlanId());
                             if (server.getStatus() == ServerStatus.SUSPENDED) return;
                             server.getController().suspend().execute();
-                            Logger.getGlobal().info(String.format("O servidor do ID %s foi suspenso por falta de pagamento!", plan.getPlanId()));
+                            plan.disablePlan();
+                            Logger.getGlobal().info(String.format("O servidor do ID %s foi suspenso por falta de pagamento!", plan.getPlanData().getPlanId()));
                         });
             }
-        }, 0L, 1000L);
+        }, 0L, 10000L);
     }
 
     public void createUser(UserPanel user, Consumer<ApplicationUser> consumer) {
@@ -76,10 +105,10 @@ public class PanelManager extends BaseService {
                 .setDisk(plan.getPlanType().getDisk(), DataType.GB)
                 .setMemory(plan.getPlanType().getMemory(), DataType.GB)
                 .setDatabases(plan.getPlanType().getDatabase())
-                .setName(plan.getTitle())
+                .setName(plan.getPlanData().getTitle())
                 .setAllocations(1L)
                 .setPortRange(PORT_RANGE)
-                .setDescription(plan.getPlanId())
+                .setDescription(plan.getPlanData().getPlanId())
                 .executeAsync(server::accept);
     }
 
@@ -92,12 +121,12 @@ public class PanelManager extends BaseService {
                 .setCPU(plan.getPlanType().getCpu())
                 .setBackups(plan.getPlanType().getBackup())
                 .setDisk(plan.getPlanType().getDisk(), DataType.GB)
-                .setMemory(plan.getPlanType().getMemory(), DataType.GB)
+                .setMemory(plan.getPlanType().getMemory(), plan.getPlanType().getDataType())
                 .setDatabases(plan.getPlanType().getDatabase())
-                .setName(plan.getTitle())
+                .setName(plan.getPlanData().getTitle())
                 .setAllocations(1L)
                 .setPortRange(PORT_RANGE)
-                .setDescription(plan.getPlanId());
+                .setDescription(plan.getPlanData().getPlanId());
     }
 
     public static boolean checkUserFields(UserPanel userPanel) throws WrongEmailException, WrongUsernameException, EmailAlreadyExistsException, UsernameAlreadyExistsException {
@@ -166,6 +195,7 @@ public class PanelManager extends BaseService {
         for(int i = 5000; i <= 5500; i++) PORT_RANGE.add(i);
 
         application = PteroBuilder.createApplication(config.getString("bot.panel.url"), config.getString("bot.panel.token"));
+
         return this;
     }
 }

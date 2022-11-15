@@ -1,5 +1,6 @@
 package project.kazumy.realhosting.discord;
 
+import lombok.val;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -36,18 +37,21 @@ public class InitBot {
             Logger.getGlobal().severe("The bot cannot be loaded! Exiting code...: " + e.getMessage());
             System.exit(1);
         }
-
         jda.addEventListener(new EventListener(this));
 
         initConfig();
+        val guild = jda.getGuildById(config.getString("bot.guild.id"));
+
         interactionManager.initInteraction();
         ServiceManager.loadServices(this, config);
 
         paymentManager.loadPlans();
-        panelManager.expireServerTimer();
+        panelManager.expireServerTimer(guild, config);
+
+        paymentManager.getPaymentMP().detectRenewPlanPayment(paymentManager, panelManager);
 
         commandManager.loadSlashCommands();
-        commandManager.registerSlashCommand(jda.getGuildById(config.getString("bot.guild.id")));
+        commandManager.registerSlashCommand(guild);
     }
 
     public void initConfig() {
