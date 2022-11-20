@@ -14,6 +14,7 @@ import project.kazumy.realhosting.discord.services.payment.plan.StageType;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 public class RenewPlanCommand extends BaseSlashCommand {
 
@@ -65,7 +66,29 @@ public class RenewPlanCommand extends BaseSlashCommand {
                                 if (paymentMessage != null) paymentMessage.delete().queueAfter(10, TimeUnit.MINUTES);
                             });
                         });
+                InitBot.paymentManager.getPaymentMP().detectRenewPayment(onSuccess -> {
+                    plan.enablePlan(event.getGuild());
+                    plan.updatePaymentIntent(PaymentIntent.NONE);
 
+                    if (event.getChannel() == null) return;
+
+                    if (!InitBot.panelManager.serverExistsByPlanId(plan.getPlanData().getPlanId())) {
+                        channel.sendMessageEmbeds(new EmbedBuilder()
+                                        .setColor(Color.RED)
+                                        .setDescription(String.format("Não foi possível encontrar o servidor do plano %s para renovação! Por favor, abra um ticket.",
+                                                plan.getPlanData().getPlanId()))
+                                .build()).queue();
+                        return;
+                    }
+                    val server = InitBot.panelManager.getServerByPlanId(plan.getPlanData().getPlanId());
+                    server.getController().unsuspend().executeAsync(success -> {
+                        channel.sendMessageEmbeds(new EmbedBuilder()
+                                .setColor(Color.GREEN)
+                                .setDescription("Detectamos seu pagamento! Seu plano foi renovado por mais 1 mês.")
+                                .build()).queue();
+                    });
+
+                });
                 event.getChannel().sendMessageEmbeds(new EmbedBuilder()
                                 .setColor(Color.GREEN)
                                 .setDescription(String.format(":white_check_mark: Um QRCode foi enviado em sua DM, %s", event.getUser().getAsTag()))

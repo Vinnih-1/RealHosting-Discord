@@ -220,9 +220,8 @@ public class PaymentManager extends BaseService {
         this.setDefaultBuyMessage(config);
         this.setPlans(new HashSet<>());
 
-        this.paymentMP = new PaymentMP();
+        this.paymentMP = PaymentMP.of(this, InitBot.panelManager, config, jda);
         this.paymentMP.setAccessToken(InitBot.config.getString("bot.payment.mercado-pago.access-token"));
-        this.paymentMP.detectCreatePlanPayment(this, jda);
 
         return this;
     }

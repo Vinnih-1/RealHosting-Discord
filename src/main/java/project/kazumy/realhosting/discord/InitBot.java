@@ -48,8 +48,6 @@ public class InitBot {
         paymentManager.loadPlans();
         panelManager.expireServerTimer(guild, config);
 
-        paymentManager.getPaymentMP().detectRenewPlanPayment(paymentManager, panelManager);
-
         commandManager.loadSlashCommands();
         commandManager.registerSlashCommand(guild);
     }

@@ -1,6 +1,5 @@
 package project.kazumy.realhosting.discord.services.payment;
 
-import com.mattmalec.pterodactyl4j.ServerStatus;
 import com.mercadopago.MercadoPagoConfig;
 import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.net.MPSearchRequest;
@@ -9,129 +8,41 @@ import com.sendgrid.Method;
 import com.sendgrid.Request;
 import com.sendgrid.Response;
 import io.nayuki.qrcodegen.QrCode;
+import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.val;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.User;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import project.kazumy.realhosting.discord.InitBot;
+import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.services.panel.PanelManager;
 import project.kazumy.realhosting.discord.services.payment.plan.PaymentIntent;
 import project.kazumy.realhosting.discord.services.payment.plan.PlanBuilder;
-import project.kazumy.realhosting.discord.services.payment.plan.StageType;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.NoSuchElementException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
+@Data(staticConstructor = "of")
 public class PaymentMP {
 
-    private static final int SEARCH_LIMIT = 999;
+    private final PaymentManager paymentManager;
+    private final PanelManager panelManager;
+    private final Configuration config;
+    private final JDA jda;
+
+    private static final int SEARCH_LIMIT = 500;
     private static final int SEARCH_OFFSET = 0;
     private static final int DEFAULT_EXPIRATION = 10;
 
     @SneakyThrows
     public void setAccessToken(String accessToken) {
         MercadoPagoConfig.setAccessToken(accessToken);
-    }
-
-    public void detectCreatePlanPayment(PaymentManager paymentManager, JDA jda) {
-        val timer = new Timer();
-
-        timer.schedule(new TimerTask() {
-
-            @Override
-            @SneakyThrows
-            public void run() {
-                val client = new PaymentClient();
-                client.search(MPSearchRequest.builder().offset(SEARCH_OFFSET).limit(SEARCH_LIMIT).build())
-                        .getResults().stream()
-                        .filter(payment -> payment.getExternalReference() != null)
-                        .filter(payment -> payment.getExternalReference().length() == 15)
-                        .filter(payment -> paymentManager.hasPlanByPlanId(payment.getExternalReference()))
-                        .filter(payment -> paymentManager.getPlanById(payment.getExternalReference()).getPaymentIntent() == PaymentIntent.CREATE_PLAN)
-                        .forEach(payment -> {
-                            Logger.getGlobal().info("Encontrado o pagamento do ticket id: " + payment.getExternalReference());
-                            val plan = paymentManager.getPlanById(payment.getExternalReference());
-                            plan.enablePlan();
-                            plan.giveBuyerTag(jda, InitBot.config);
-                            val guild = jda.getGuildById(InitBot.config.getString("bot.guild.id"));
-                            val member = guild.getMemberById(plan.getPlanData().getUserId());
-
-                            if (member == null) return;
-                            if (!InitBot.ticketManager.hasOpenedTicket(member)) return;
-
-                            val ticket = InitBot.ticketManager.getTicketByUserId(plan.getPlanData().getUserId());
-                            val ticketChannel = ticket.getTicketChannel(jda);
-
-                            if (ticketChannel != null) {
-                                ticketChannel.sendMessageEmbeds(new EmbedBuilder()
-                                                .setColor(Color.GREEN)
-                                                .setAuthor("Verificação de Pagamento", "https://pannel.realhosting.com.br", plan.getPlanData().getLogo())
-                                                .setDescription(":white_check_mark: Estamos verificando se está tudo correto e logo e em breve lhe daremos acesso ao seu plano.")
-                                                .setFooter("Auto atendimento da RealHosting", plan.getPlanData().getLogo())
-                                        .build()).queue();
-                                InitBot.panelManager.emailMenu(InitBot.config, ticket, jda);
-                            }
-                        });
-            }
-        }, 0, 1000L * 10);
-    }
-
-    public void detectRenewPlanPayment(PaymentManager paymentManager, PanelManager panelManager) {
-        val timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            @SneakyThrows
-            public void run() {
-                val client = new PaymentClient();
-                client.search(MPSearchRequest.builder().offset(SEARCH_OFFSET).limit(SEARCH_LIMIT).build())
-                        .getResults().stream()
-                        .filter(payment -> payment.getExternalReference() != null)
-                        .filter(payment -> payment.getExternalReference().length() == 8)
-                        .filter(payment -> paymentManager.hasPlanByExternalReference(payment.getExternalReference()))
-                        .map(payment -> paymentManager.getPlanByExternalReference(payment.getExternalReference()))
-                        .forEach(plan -> {
-                            plan.enablePlan();
-                            plan.updatePaymentIntent(PaymentIntent.NONE);
-                            val planId = plan.getPlanData().getPlanId();
-
-                            if (!panelManager.serverExistsByPlanId(planId)) {
-                                Logger.getGlobal().severe(String.format("Não foi possível encontrar o servidor do plano %s para renovação!", planId));
-                                return;
-                            }
-
-                            try {
-                                val server = panelManager.getServerByPlanId(planId);
-
-                                if (server.getStatus() == ServerStatus.SUSPENDED) {
-                                    server.getController().unsuspend().executeAsync(success -> {
-                                        Logger.getGlobal().info(String.format("Encontramos o pagamento do plano %s e seu servidor foi reativado.", planId));
-                                    });
-                                } else Logger.getGlobal().info(String.format("Encontramos o pagamento do plano %s", planId));
-                                if (plan.getPlanData().toUser(InitBot.jda.getGuildById("896553346738057226")) == null) return;
-                                plan.getPlanData().toUser(InitBot.jda.getGuildById("896553346738057226")).openPrivateChannel()
-                                    .queue(channel -> {
-                                        channel.sendMessageEmbeds(new EmbedBuilder()
-                                                        .setColor(Color.GREEN)
-                                                        .setDescription("Detectamos seu pagamento! Seu plano foi renovado por mais 1 mês.")
-                                                .build()).queue();
-                                    });
-                            } catch (NoSuchElementException e) {
-                                Logger.getGlobal().severe(String.format("Não encontrei nenhum servidor com o id %s, por favor, crie um servidor com este ID", planId));
-                                return;
-                            }
-                        });
-            }
-        }, 0, 1000L * 10);
     }
 
     @SneakyThrows
@@ -180,6 +91,60 @@ public class PaymentMP {
 
     public Response createRequestQrCode(PlanBuilder plan, String userId, String posId, String accessToken) {
         return this.createRequestQrCode(plan, userId, posId, accessToken, null);
+    }
+
+    public void detectCreatePayment(PlanBuilder plan, Consumer<PlanBuilder> onSuccess) {
+        val expirate = LocalDateTime.now(ZoneId.of("America/Sao_Paulo")).plusMinutes(DEFAULT_EXPIRATION);
+
+        new Timer()
+                .schedule(new TimerTask() {
+                    @Override
+                    @SneakyThrows
+                    public void run() {
+                        val client = new PaymentClient();
+                        client.search(MPSearchRequest.builder().offset(SEARCH_OFFSET).limit(SEARCH_LIMIT).build())
+                                .getResults().stream()
+                                .filter(payment -> payment.getExternalReference() != null)
+                                .filter(payment -> payment.getExternalReference().length() == 15)
+                                .filter(payment -> paymentManager.hasPlanByPlanId(payment.getExternalReference()))
+                                .filter(payment -> paymentManager.getPlanById(payment.getExternalReference()).getPaymentIntent() == PaymentIntent.CREATE_PLAN)
+                                .forEach(payment -> {
+                                    if (expirate.isBefore(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))) {
+                                        Logger.getGlobal().info("O plano %s expirou após 10 minutos sem a detecção do pagamento");
+                                        this.cancel();
+                                        return;
+                                    }
+                                    onSuccess.accept(plan);
+                                });
+                    }
+                }, 0L, 1000L);
+    }
+
+    public void detectRenewPayment(Consumer<PlanBuilder> onSuccess) {
+        val expirate = LocalDateTime.now(ZoneId.of("America/Sao_Paulo")).plusMinutes(DEFAULT_EXPIRATION);
+
+        new Timer()
+                .schedule(new TimerTask() {
+                    @Override
+                    @SneakyThrows
+                    public void run() {
+                        val client = new PaymentClient();
+                        client.search(MPSearchRequest.builder().offset(SEARCH_OFFSET).limit(SEARCH_LIMIT).build())
+                                .getResults().stream()
+                                .filter(payment -> payment.getExternalReference() != null)
+                                .filter(payment -> payment.getExternalReference().length() == 8)
+                                .filter(payment -> paymentManager.hasPlanByExternalReference(payment.getExternalReference()))
+                                .map(payment -> paymentManager.getPlanByExternalReference(payment.getExternalReference()))
+                                .forEach(plan -> {
+                                    if (expirate.isBefore(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))) {
+                                        Logger.getGlobal().info("O plano %s expirou após 10 minutos sem a detecção do pagamento");
+                                        this.cancel();
+                                        return;
+                                    }
+                                    onSuccess.accept(plan);
+                                });
+                    }
+                }, 0L, 1000L);
     }
 
     @SneakyThrows
