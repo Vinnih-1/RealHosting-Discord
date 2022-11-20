@@ -1,7 +1,7 @@
 package project.kazumy.realhosting.discord.services.payment.plan;
 
 import lombok.*;
-import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.services.panel.ServerType;
@@ -56,26 +56,29 @@ public class PlanBuilder {
         config.save();
     }
 
-    public void enablePlan() {
+    public void enablePlan(Guild guild) {
         if (paymentIntent == PaymentIntent.CREATE_PLAN) {
             this.setPaymentDate(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")));
             this.setExpirationDate(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")));
         }
-        this.setNotified(true);
+        this.setNotified(false);
         this.setStageType(StageType.ACTIVED);
         this.setPaymentIntent(PaymentIntent.CREATE_USER);
         this.setExpirationDate(this.getExpirationDate().plusDays(30L));
         this.getPlanData().setExternalReference("");
 
         saveConfig();
+        giveBuyerTag(guild);
+
+        Logger.getGlobal().info(String.format("O plano %s do autor %s foi "+(paymentIntent == PaymentIntent.CREATE_PLAN ? "habilitado" : "renovado"),
+                this.getPlanData().getPlanId(), this.getPlanData().getUserAsTag()));
     }
 
-    public void giveBuyerTag(JDA jda, Configuration config) {
-        val guild = jda.getGuildById(config.getString("bot.guild.id"));
+    public void giveBuyerTag(Guild guild) {
         val role = guild.getRoles().stream()
                 .filter(roles -> roles.getId().equals("896873613200867338")).findFirst().get();
 
-        guild.addRoleToMember(jda.getUserById(planData.getUserId()), role).queue(success -> {
+        guild.addRoleToMember(guild.getMemberById(this.getPlanData().getUserId()), role).queue(success -> {
             Logger.getGlobal().info("A tag Cliente foi cedida ao usuário " + planData.getUserAsTag());
         });
     }
