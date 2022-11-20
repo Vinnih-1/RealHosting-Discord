@@ -11,6 +11,7 @@ import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.services.BaseService;
@@ -19,7 +20,6 @@ import project.kazumy.realhosting.discord.services.panel.exceptions.UsernameAlre
 import project.kazumy.realhosting.discord.services.panel.exceptions.WrongEmailException;
 import project.kazumy.realhosting.discord.services.panel.exceptions.WrongUsernameException;
 import project.kazumy.realhosting.discord.services.payment.plan.PlanBuilder;
-import project.kazumy.realhosting.discord.services.ticket.Ticket;
 
 import java.awt.*;
 import java.time.format.DateTimeFormatter;
@@ -184,10 +184,9 @@ public class PanelManager extends BaseService {
         return !getUsersByUsername(username).isEmpty();
     }
 
-    public void emailMenu(Configuration config, Ticket ticket, JDA jda) {
+    public void emailMenu(Configuration config, TextChannel channel) {
         val embed = config.getEmbedMessageFromConfig(config, "panel");
-        ticket.getTicketChannel(jda)
-                .sendMessageEmbeds(embed.setColor(Color.GREEN).build()).queue();
+        channel.sendMessageEmbeds(embed.setColor(Color.GREEN).build()).queue();
     }
 
     @Override
