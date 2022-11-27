@@ -75,10 +75,14 @@ public class PlanBuilder {
     }
 
     public void giveBuyerTag(Guild guild) {
+        val member = guild.getMemberById(this.getPlanData().getUserId());
         val role = guild.getRoles().stream()
                 .filter(roles -> roles.getId().equals("896873613200867338")).findFirst().get();
 
-        guild.addRoleToMember(guild.getMemberById(this.getPlanData().getUserId()), role).queue(success -> {
+        if (member == null) return;
+        if (member.getRoles().contains(role)) return;
+
+        guild.addRoleToMember(member, role).queue(success -> {
             Logger.getGlobal().info("A tag Cliente foi cedida ao usuário " + planData.getUserAsTag());
         });
     }
