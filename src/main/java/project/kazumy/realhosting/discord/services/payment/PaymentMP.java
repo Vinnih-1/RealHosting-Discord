@@ -94,14 +94,19 @@ public class PaymentMP {
     }
 
     public void detectCreatePayment(PlanBuilder plan, Consumer<PlanBuilder> onSuccess) {
-        val expirate = LocalDateTime.now(ZoneId.of("America/Sao_Paulo")).plusMinutes(DEFAULT_EXPIRATION);
+        val expiration = LocalDateTime.now(ZoneId.of("America/Sao_Paulo")).plusMinutes(DEFAULT_EXPIRATION);
+        val client = new PaymentClient();
 
         new Timer()
                 .schedule(new TimerTask() {
                     @Override
                     @SneakyThrows
                     public void run() {
-                        val client = new PaymentClient();
+                        if (expiration.isBefore(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))) {
+                            Logger.getGlobal().info("O plano %s expirou após 10 minutos sem a detecção do pagamento");
+                            this.cancel();
+                            return;
+                        }
                         client.search(MPSearchRequest.builder().offset(SEARCH_OFFSET).limit(SEARCH_LIMIT).build())
                                 .getResults().stream()
                                 .filter(payment -> payment.getExternalReference() != null)
@@ -109,11 +114,6 @@ public class PaymentMP {
                                 .filter(payment -> paymentManager.hasPlanByPlanId(payment.getExternalReference()))
                                 .filter(payment -> paymentManager.getPlanById(payment.getExternalReference()).getPaymentIntent() == PaymentIntent.CREATE_PLAN)
                                 .forEach(payment -> {
-                                    if (expirate.isBefore(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))) {
-                                        Logger.getGlobal().info("O plano %s expirou após 10 minutos sem a detecção do pagamento");
-                                        this.cancel();
-                                        return;
-                                    }
                                     onSuccess.accept(plan);
                                 });
                     }
@@ -121,14 +121,19 @@ public class PaymentMP {
     }
 
     public void detectRenewPayment(Consumer<PlanBuilder> onSuccess) {
-        val expirate = LocalDateTime.now(ZoneId.of("America/Sao_Paulo")).plusMinutes(DEFAULT_EXPIRATION);
+        val expiration = LocalDateTime.now(ZoneId.of("America/Sao_Paulo")).plusMinutes(DEFAULT_EXPIRATION);
+        val client = new PaymentClient();
 
         new Timer()
                 .schedule(new TimerTask() {
                     @Override
                     @SneakyThrows
                     public void run() {
-                        val client = new PaymentClient();
+                        if (expiration.isBefore(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))) {
+                            Logger.getGlobal().info("O plano %s expirou após 10 minutos sem a detecção do pagamento");
+                            this.cancel();
+                            return;
+                        }
                         client.search(MPSearchRequest.builder().offset(SEARCH_OFFSET).limit(SEARCH_LIMIT).build())
                                 .getResults().stream()
                                 .filter(payment -> payment.getExternalReference() != null)
@@ -136,11 +141,6 @@ public class PaymentMP {
                                 .filter(payment -> paymentManager.hasPlanByExternalReference(payment.getExternalReference()))
                                 .map(payment -> paymentManager.getPlanByExternalReference(payment.getExternalReference()))
                                 .forEach(plan -> {
-                                    if (expirate.isBefore(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))) {
-                                        Logger.getGlobal().info("O plano %s expirou após 10 minutos sem a detecção do pagamento");
-                                        this.cancel();
-                                        return;
-                                    }
                                     onSuccess.accept(plan);
                                 });
                     }
