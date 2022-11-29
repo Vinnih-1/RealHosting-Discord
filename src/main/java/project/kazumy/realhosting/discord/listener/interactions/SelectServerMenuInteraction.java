@@ -37,6 +37,6 @@ public class SelectServerMenuInteraction extends InteractionService<SelectMenuIn
         planData.setExternalReference(planData.getPlanId());
         plan.registerPlan();
         InitBot.paymentManager.getPlans().add(plan);
-        event.getMessage().delete().queue(success -> InitBot.paymentManager.sendBuyMenu(event.getChannel().asTextChannel(), InitBot.config));
+        event.getMessage().delete().queue(success -> InitBot.paymentManager.sendBuyMenu(event.getChannel().asTextChannel(), InitBot.config, "buy-menu"));
     }
 }
