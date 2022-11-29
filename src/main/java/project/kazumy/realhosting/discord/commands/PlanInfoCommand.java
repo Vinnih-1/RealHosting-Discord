@@ -66,7 +66,6 @@ public class PlanInfoCommand extends BaseSlashCommand {
         embed.addField("Referência Externa", plan.getPlanData().getExternalReference(), true);
 
         event.deferReply().addEmbeds(embed.build()).addActionRow(
-                Button.success("upgrade", "Aprimorar").withEmoji(Emoji.fromUnicode("U+2699")),
-                Button.primary("subuser", "Adicionar Sub-Usuário").withEmoji(Emoji.fromUnicode("U+1F468"))).queue();
+                Button.success("upgrade", "Aprimorar").withEmoji(Emoji.fromUnicode("U+2699"))).queue();
     }
 }
