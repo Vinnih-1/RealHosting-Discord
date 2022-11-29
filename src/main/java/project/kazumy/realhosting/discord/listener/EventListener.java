@@ -30,7 +30,7 @@ public class EventListener extends ListenerAdapter {
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         InitBot.interactionManager.getInteractionList()
                 .stream()
-                .filter(interaction -> interaction.getId().equals(event.getComponentId()))
+                .filter(interaction -> event.getComponentId().contains(interaction.getId()))
                 .findAny()
                 .ifPresentOrElse(interaction -> ((InteractionService<ButtonInteractionEvent>)interaction).execute(event),
                         () -> Logger.getGlobal().severe("Unloaded interaction id: " + event.getComponentId()));
