@@ -1,6 +1,7 @@
 package project.kazumy.realhosting.discord.listener.interactions;
 
 import lombok.val;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
@@ -62,6 +63,11 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
                     ticketManager.recordOpenedTicket(ticket);
 
                     if (ticket.getCategory().equals("comprar")) TermsOfService.SendTermsMenu(channel);
+                    if (ticket.getCategory().equals("aprimorar"))
+                        channel.sendMessageEmbeds(new EmbedBuilder()
+                                        .setColor(Color.GREEN)
+                                        .setDescription("Utilize o comando `/aprimorar` para aprimorar o plano desejado.")
+                                .build()).queue();
                 });
         ticketManager.getTicketMap().put(ticket.getAuthor().getId(), ticket);
 
