@@ -69,9 +69,9 @@ public class TicketManager extends BaseService {
                 return;
 
             val embed = config.getEmbedMessageFromConfig(this.config, "ticket");
-
             val menu = SelectMenu.create("menu-ticket")
                     .addOption("Adquirir Serviços", "comprar", "Contrate um dos planos do nosso serviço de hospedagem.", Emoji.fromUnicode("U+1F4B5"))
+                    .addOption("Aprimorar Serviços", "aprimorar", "Aprimore seus serviços para um melhor aproveitamento.", Emoji.fromUnicode("U+1F680"))
                     .addOption("Não... sério, preciso de ajuda!", "técnico", "Contate-nos pra solucionar problemas em seu serviço.", Emoji.fromUnicode("U+1F4BB"))
                     .addOption("Esclarecer Dúvidas", "dúvida", "Acabe com aquela pulga atrás da orelha.", Emoji.fromUnicode("U+1F4A1"))
                     .addOption("Crítica Construtiva", "sugestão", "Dê uma crítica construtiva em algo que podemos melhorar.", Emoji.fromUnicode("U+1F48C"))
