@@ -170,10 +170,10 @@ public class PaymentManager extends BaseService {
         channel.sendMessageEmbeds(embed.build()).addActionRow(menu.build()).queue();
     }
 
-    public void sendBuyMenu(TextChannel channel, Configuration config) {
+    public void sendBuyMenu(TextChannel channel, Configuration config, String id) {
         val embed = config.getEmbedMessageFromConfig(config, "payment");
         embed.setColor(Color.GREEN);
-        val menu = config.getMenuFromConfig(config, "bot.guild.payment.plans", "buy-menu");
+        val menu = config.getMenuFromConfig(config, "bot.guild.payment.plans", id);
         channel.sendMessageEmbeds(embed.build()).addActionRow(menu.build()).queue();
     }
 
@@ -182,6 +182,8 @@ public class PaymentManager extends BaseService {
         val posId = config.getString("bot.payment.mercado-pago.external-pos-id");
         val accessToken = config.getString("bot.payment.mercado-pago.access-token");
         plan.updatePaymentIntent(paymentIntent);
+        if (paymentIntent == PaymentIntent.UPGRADE_PLAN)
+            plan.getPlanData().setExternalReference(RandomStringUtils.randomAlphanumeric(20));
         if (paymentIntent == PaymentIntent.RENEW_PLAN)
             plan.getPlanData().setExternalReference(RandomStringUtils.randomAlphanumeric(8));
 

@@ -147,6 +147,33 @@ public class PaymentMP {
                 }, 0L, 1000L);
     }
 
+    public void detectUpgradePayment(Consumer<PlanBuilder> onSuccess) {
+        val expiration = LocalDateTime.now(ZoneId.of("America/Sao_Paulo")).plusMinutes(DEFAULT_EXPIRATION);
+        val client = new PaymentClient();
+
+        new Timer()
+                .schedule(new TimerTask() {
+                    @Override
+                    @SneakyThrows
+                    public void run() {
+                        if (expiration.isBefore(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))) {
+                            Logger.getGlobal().info("O plano %s expirou após 10 minutos sem a detecção do pagamento");
+                            this.cancel();
+                            return;
+                        }
+                        client.search(MPSearchRequest.builder().offset(SEARCH_OFFSET).limit(SEARCH_LIMIT).build())
+                                .getResults().stream()
+                                .filter(payment -> payment.getExternalReference() != null)
+                                .filter(payment -> payment.getExternalReference().length() == 20)
+                                .filter(payment -> paymentManager.hasPlanByExternalReference(payment.getExternalReference()))
+                                .map(payment -> paymentManager.getPlanByExternalReference(payment.getExternalReference()))
+                                .forEach(plan -> {
+                                    onSuccess.accept(plan);
+                                });
+                    }
+                }, 0L, 1000L);
+    }
+
     @SneakyThrows
     public File getAsImage(String qrCodeText, String userId) {
 
