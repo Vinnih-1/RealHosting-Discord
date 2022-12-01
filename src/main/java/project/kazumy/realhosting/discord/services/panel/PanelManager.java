@@ -50,25 +50,28 @@ public class PanelManager extends BaseService {
                 InitBot.paymentManager.getExpiredPlans(1L)
                         .stream().filter(plan -> !plan.isNotified())
                         .forEach(plan -> {
-                            if (guild.getMemberById(plan.getPlanData().getUserId()) == null) return;
+                            Logger.getGlobal().info(String.format("Notificando o autor do plano %s por falta de pagamento...", plan.getPlanData().getPlanId()));
+                            guild.retrieveMemberById(plan.getPlanData().getUserId()).queue(member -> {
+                                member.getUser()
+                                        .openPrivateChannel().queue(channel -> {
+                                            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                                            val embedConfig = config.getEmbedMessageFromConfig(config, "pre-expiration");
+                                            val embed = new EmbedBuilder();
+                                            embed.setColor(Color.YELLOW);
+                                            embed.setTitle(embedConfig.build().getTitle());
+                                            embed.setThumbnail(embedConfig.build().getThumbnail().getUrl());
+                                            embed.setFooter(embedConfig.build().getFooter().getText(), embedConfig.build().getThumbnail().getUrl());
+                                            embedConfig.getFields().forEach(embed::addField);
+                                            embed.setDescription(String.format(embedConfig.getDescriptionBuilder().toString().replace("\\n", "\n"),
+                                                    plan.getPlanData().getPlanId(),
+                                                    plan.getExpirationDate().format(formatter),
+                                                    plan.getExpirationDate().minusDays(2L).format(formatter)));
+                                            channel.sendMessageEmbeds(embed.build()).queue();
+                                            plan.setNotified(true);
+                                            plan.saveConfig();
 
-                            guild.getMemberById(plan.getPlanData().getUserId()).getUser()
-                                    .openPrivateChannel().queue(channel -> {
-                                        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                                        val embedConfig = config.getEmbedMessageFromConfig(config, "pre-expiration");
-                                        val embed = new EmbedBuilder();
-                                        embed.setColor(Color.YELLOW);
-                                        embed.setTitle(embedConfig.build().getTitle());
-                                        embed.setThumbnail(embedConfig.build().getThumbnail().getUrl());
-                                        embed.setFooter(embedConfig.build().getFooter().getText(), embedConfig.build().getThumbnail().getUrl());
-                                        embedConfig.getFields().forEach(embed::addField);
-                                        embed.setDescription(String.format(embedConfig.getDescriptionBuilder().toString().replace("\\n", "\n"),
-                                                plan.getPlanData().getPlanId(),
-                                                plan.getExpirationDate().format(formatter),
-                                                plan.getExpirationDate().minusDays(2L).format(formatter)));
-                                        channel.sendMessageEmbeds(embed.build()).queue();
-                                        plan.setNotified(true);
-                                        plan.saveConfig();
+                                            Logger.getGlobal().info(String.format("Autor %s notificado sobre a falta de pagamento", plan.getPlanData().getUserAsTag()));
+                                        });
                                     });
                         });
 
