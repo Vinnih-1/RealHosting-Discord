@@ -49,6 +49,7 @@ public class PlanInfoCommand extends BaseSlashCommand {
         val member = event.getGuild().getMemberById(plan.getPlanData().getUserId());
         val dateTime = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
         val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        val externalReference = plan.getPlanData().getExternalReference();
         val embed = new EmbedBuilder();
         embed.setColor(Color.GREEN);
         embed.setAuthor(event.getUser().getAsTag(), "https://app.realhosting.com.br", plan.getPlanData().getLogo());
@@ -63,7 +64,7 @@ public class PlanInfoCommand extends BaseSlashCommand {
         embed.addField("Data de Expiração", plan.getExpirationDate().format(formatter), true);
         embed.addBlankField(false);
         embed.addField("Intenção de Pagamento", plan.getPaymentIntent().toString(), true);
-        embed.addField("Referência Externa", plan.getPlanData().getExternalReference(), true);
+        embed.addField("Referência Externa", externalReference == null ? "Nenhuma" : plan.getPlanData().getExternalReference(), true);
 
         event.deferReply().addEmbeds(embed.build()).addActionRow(
                 Button.success("upgrade", "Aprimorar").withEmoji(Emoji.fromUnicode("U+2699"))).queue();
