@@ -76,9 +76,9 @@ public class SelectPlanMenuInteraction extends InteractionService<SelectMenuInte
                                             event.getMessage().delete().queue();
                                     if (paymentMessage != null) paymentMessage.delete().queueAfter(10, TimeUnit.MINUTES);
                                     InitBot.paymentManager.getPaymentMP().detectCreatePayment(plan, onSuccess -> {
-                                        onSuccess.enablePlan(event.getGuild());
                                         if (event.getChannel() != null)
                                             InitBot.panelManager.emailMenu(InitBot.config, event.getChannel().asTextChannel());
+                                        onSuccess.enablePlan(event.getGuild());
                                     });
                                 });
                             });

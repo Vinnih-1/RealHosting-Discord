@@ -66,7 +66,7 @@ public class RenewPlanCommand extends BaseSlashCommand {
                                 if (paymentMessage != null) paymentMessage.delete().queueAfter(10, TimeUnit.MINUTES);
                             });
                         });
-                InitBot.paymentManager.getPaymentMP().detectRenewPayment(onSuccess -> {
+                InitBot.paymentManager.getPaymentMP().detectRenewPayment(plan.getPlanData().getPlanId(), onSuccess -> {
                     plan.enablePlan(event.getGuild());
                     plan.updatePaymentIntent(PaymentIntent.NONE);
 
