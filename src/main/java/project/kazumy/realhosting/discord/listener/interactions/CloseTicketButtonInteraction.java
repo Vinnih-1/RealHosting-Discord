@@ -36,6 +36,8 @@ public class CloseTicketButtonInteraction extends InteractionService<ButtonInter
                                 .filter(plan -> plan.getStageType() == StageType.CHOOSING_SERVER)
                                 .forEach(PlanBuilder::deletePlan);
 
-        InitBot.ticketManager.getTicketByTextChannelId(event.getChannel().getId()).saveTicket();
+        if (InitBot.ticketManager.hasOpenedTicketByChannelId(event.getChannel().getId()))
+            InitBot.ticketManager.getTicketByTextChannelId(event.getChannel().getId()).saveTicket();
+        else event.getChannel().delete().queue();
     }
 }

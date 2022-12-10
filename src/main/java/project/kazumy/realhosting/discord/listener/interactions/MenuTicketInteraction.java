@@ -37,7 +37,7 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
         }
 
         val ticket = Ticket.builder()
-                .author(event.getMember())
+                .author(event.getMember().getUser())
                 .category(event.getSelectedOptions().get(0).getValue())
                 .id(RandomStringUtils.randomNumeric(8)).build();
 
@@ -45,7 +45,7 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
 
         val category = ticketManager.getJda().getCategoryById(ticketManager.getConfig().getString("bot.guild.ticket-category-id"));
 
-        category.createTextChannel(ticket.getAuthor().getEffectiveName() + "-" + ticket.getCategory())
+        category.createTextChannel(ticket.getAuthor().getAsTag() + "-" + ticket.getCategory())
                 .addMemberPermissionOverride(
                         ticket.getAuthor().getIdLong(),
                         Arrays.asList(

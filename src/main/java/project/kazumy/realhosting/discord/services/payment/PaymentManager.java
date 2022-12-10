@@ -7,6 +7,7 @@ import lombok.val;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import org.apache.commons.lang.RandomStringUtils;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
@@ -54,6 +55,14 @@ public class PaymentManager extends BaseService {
                         val createDate = config.getString("plan.createDate");
                         val paymentDate = config.getString("plan.paymentDate");
                         val expireDate = config.getString("plan.expirationDate");
+                        val emojiUnicode = config.getString("plan.emojiUnicode");
+
+                        if (emojiUnicode == null) {
+                            Logger.getGlobal().severe(String.format("O plano %s incompleto foi detectado! Preparando-o para o descarte...", config.getString("plan.planId")));
+                            config.deleteFile();
+                            Logger.getGlobal().severe("Plano descartado com êxito.");
+                            return;
+                        }
 
                         val plan = PlanBuilder.builder()
                                 .planData(PlanData.builder()
@@ -119,6 +128,7 @@ public class PaymentManager extends BaseService {
 
     public boolean hasPlanByExternalReference(String externalReference) {
         return this.getPlans().stream()
+                .filter(plan -> plan.getPlanData().getExternalReference() != null)
                 .anyMatch(plan -> plan.getPlanData().getExternalReference().equals(externalReference));
     }
 
@@ -136,6 +146,7 @@ public class PaymentManager extends BaseService {
     }
 
     public PlanBuilder getPlanByExternalReference(String externalReference) {
+        System.out.println(externalReference);
         return this.getPlans().stream()
                 .filter(plan -> plan.getPlanData().getExternalReference().equals(externalReference))
                 .findAny().get();
@@ -175,6 +186,10 @@ public class PaymentManager extends BaseService {
         embed.setColor(Color.GREEN);
         val menu = config.getMenuFromConfig(config, "bot.guild.payment.plans", id);
         channel.sendMessageEmbeds(embed.build()).addActionRow(menu.build()).queue();
+    }
+
+    public SelectMenu.Builder getBuyMenu(Configuration config, String id) {
+        return config.getMenuFromConfig(config, "bot.guild.payment.plans", id);
     }
 
     public String getPaymentQrCode(PaymentIntent paymentIntent, Configuration config, PlanBuilder plan) {

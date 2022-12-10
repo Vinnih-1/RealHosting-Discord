@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
@@ -26,7 +27,7 @@ public class Ticket {
 
     private String id, category, channelId;
 
-    private Member author;
+    private User author;
 
     private Configuration config;
 
@@ -41,7 +42,7 @@ public class Ticket {
         InitBot.ticketManager.destroyRecordedTicket(this);
         InitBot.ticketManager.getTicketMap().remove(this.getAuthor().getId());
 
-        val config = new Configuration("services/tickets/saved-ticket/" + author.getId() + "/" + author.getEffectiveName() + "-" + id + ".yml")
+        val config = new Configuration("services/tickets/saved-ticket/" + author.getId() + "/" + author.getAsTag() + "-" + id + ".yml")
                 .buildIfNotExists();
 
         Collections.reverse(history);
@@ -61,7 +62,7 @@ public class Ticket {
     }
 
     public Configuration getOpenedTicketConfig() {
-        return new Configuration("services/tickets/opened-ticket/" + this.getAuthor().getUser().getAsTag() + ".yml");
+        return new Configuration("services/tickets/opened-ticket/" + this.getAuthor().getAsTag() + ".yml");
     }
 
     public TextChannel getTicketChannel(JDA jda) {
