@@ -4,6 +4,7 @@ import lombok.val;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import project.kazumy.realhosting.discord.commands.manager.CommandManager;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.listener.EventListener;
@@ -32,6 +33,7 @@ public class InitBot {
         try {
             this.jda = JDABuilder.createDefault(token)
                     .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MEMBERS)
+                    .setMemberCachePolicy(MemberCachePolicy.ALL)
                     .build().awaitReady();
         } catch(Exception e) {
             Logger.getGlobal().severe("The bot cannot be loaded! Exiting code...: " + e.getMessage());
@@ -49,6 +51,7 @@ public class InitBot {
         panelManager.expireServerTimer(guild, config);
 
         commandManager.loadSlashCommands();
+        commandManager.loadPrefixCommands();
         commandManager.registerSlashCommand(guild);
     }
 
