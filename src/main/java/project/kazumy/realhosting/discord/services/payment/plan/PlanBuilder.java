@@ -18,7 +18,7 @@ public class PlanBuilder {
 
     private PlanData planData;
 
-    @Getter private boolean notified;
+    @Getter private boolean notified, forcedApproved;
 
     private PlanType planType;
     private ServerType serverType;
@@ -77,8 +77,9 @@ public class PlanBuilder {
     public void giveBuyerTag(Guild guild) {
         val member = guild.getMemberById(this.getPlanData().getUserId());
         val role = guild.getRoles().stream()
-                .filter(roles -> roles.getId().equals("896873613200867338")).findFirst().get();
+                .filter(roles -> roles.getId().equals("855625716078870538")).findFirst().get();
 
+        if (role == null) return;
         if (member == null) return;
         if (member.getRoles().contains(role)) return;
 
@@ -101,6 +102,21 @@ public class PlanBuilder {
         if (expirationDate != null)
             config.set("plan.expirationDate", expirationDate.toString());
         config.set("plan.stageType", stageType.toString());
+        config.set("plan.paymentIntent", paymentIntent.toString());
+        config.set("plan.description", planData.getDescription());
+        config.set("plan.externalReference", planData.getExternalReference());
+        config.set("plan.notified", this.isNotified());
+        config.save();
+    }
+
+    @SneakyThrows
+    public void updateNewInformation() {
+        config.set("plan.title", planData.getTitle());
+        config.set("plan.skuId", planData.getSkuId());
+        config.set("plan.logo", planData.getLogo());
+        config.set("plan.emojiUnicode", planData.getEmojiUnicode().getAsCodepoints());
+        config.set("plan.price", getPrice().toString());
+        config.set("plan.planType", getPlanType().toString());
         config.set("plan.paymentIntent", paymentIntent.toString());
         config.set("plan.description", planData.getDescription());
         config.set("plan.externalReference", planData.getExternalReference());

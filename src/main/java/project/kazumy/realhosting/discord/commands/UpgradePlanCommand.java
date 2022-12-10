@@ -12,7 +12,11 @@ import project.kazumy.realhosting.discord.commands.base.BaseSlashCommand;
 import project.kazumy.realhosting.discord.services.payment.plan.PaymentIntent;
 
 import java.awt.*;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 public class UpgradePlanCommand extends BaseSlashCommand {
 
@@ -24,13 +28,6 @@ public class UpgradePlanCommand extends BaseSlashCommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        if (true) {
-            event.deferReply(true).addEmbeds(new EmbedBuilder()
-                    .setColor(Color.YELLOW)
-                    .setDescription("Este comando está sendo desenvolvido, você será alertado quando tudo estiver pronto. :smiley_cat:")
-                    .build()).queue();
-            return;
-        }
         val paymentManager = InitBot.paymentManager;
         val panelManager = InitBot.panelManager;
         val planString = event.getOption("plano").getAsString();
@@ -68,6 +65,27 @@ public class UpgradePlanCommand extends BaseSlashCommand {
                     Button.danger(String.format("upgrade-disagree;%s;%s", event.getUser().getId(), plan.getPlanData().getPlanId()), "Não concordo").withEmoji(Emoji.fromUnicode("U+2716"))).queue();
             return;
         }
-        paymentManager.sendBuyMenu(event.getChannel().asTextChannel(), InitBot.config, "upgrade-menu");
+        plan.updatePaymentIntent(PaymentIntent.UPGRADE_PLAN);
+        val member = event.getGuild().getMemberById(plan.getPlanData().getUserId());
+        val dateTime = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        val externalReference = plan.getPlanData().getExternalReference();
+        val embed = new EmbedBuilder();
+        embed.setColor(Color.GREEN);
+        embed.setAuthor(event.getUser().getAsTag(), "https://app.realhosting.com.br", plan.getPlanData().getLogo());
+        embed.setTitle(plan.getPlanData().getTitle());
+        embed.setFooter("RealHosting Bot às " + dateTime.format(formatter), plan.getPlanData().getLogo());
+        embed.setThumbnail(member != null ? member.getUser().getAvatarUrl() : plan.getPlanData().getLogo());
+        embed.addField("Autor", plan.getPlanData().getUserAsTag(), true);
+        embed.addField("Plano", plan.getPlanType().toString(), true);
+        embed.addField("ID do Plano", plan.getPlanData().getPlanId(), true);
+        embed.addField("Data de Criação", plan.getCreateDate().format(formatter), true);
+        embed.addField("Data de Pagamento", plan.getPaymentDate().format(formatter), true);
+        embed.addField("Data de Expiração", plan.getExpirationDate().format(formatter), true);
+        embed.addBlankField(false);
+        embed.addField("Intenção de Pagamento", plan.getPaymentIntent().toString(), true);
+        embed.addField("Referência Externa", externalReference == null ? "Nenhuma" : plan.getPlanData().getExternalReference(), true);
+
+        event.deferReply().addEmbeds(embed.build()).addActionRow(paymentManager.getBuyMenu(InitBot.config, "upgrade-menu").build()).queue();
     }
 }

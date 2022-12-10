@@ -45,8 +45,7 @@ public class PanelInfoCommand extends BaseSlashCommand {
             val applicationUser = InitBot.panelManager.getUserByEmail(email);
             if (InitBot.ticketManager.hasOpenedTicketByChannelId(event.getChannel().getId())) {
                 val ticket = InitBot.ticketManager.getTicketByTextChannelId(event.getChannel().getId());
-                ticket.getTicketChannel(InitBot.jda)
-                        .sendMessageEmbeds(new EmbedBuilder()
+                event.deferReply(true).addEmbeds(new EmbedBuilder()
                                 .setColor(Color.GREEN)
                                 .setDescription("Olá! Eu estou criando seu servidor, aguarde um pouco.")
                                 .build()).queue();
@@ -68,7 +67,7 @@ public class PanelInfoCommand extends BaseSlashCommand {
             event.deferReply().setContent(":x: Você precisa inserir todos os campos para criar um usuário!").queue();
             return;
         }
-        val userName = event.getOption("usuario").getAsString();
+        val username = event.getOption("usuario").getAsString();
         val firstName = event.getOption("nome").getAsString();
         val lastName = event.getOption("sobrenome").getAsString();
         val password = RandomStringUtils.randomAlphanumeric(8);
@@ -76,7 +75,7 @@ public class PanelInfoCommand extends BaseSlashCommand {
         try {
             val userPanel = UserPanel.builder()
                     .email(email)
-                    .userName(userName)
+                    .userName(username)
                     .firstName(firstName)
                     .lastName(lastName)
                     .password(password)
@@ -89,17 +88,29 @@ public class PanelInfoCommand extends BaseSlashCommand {
             }
             plan.updatePaymentIntent(PaymentIntent.NONE);
             InitBot.panelManager.createUser(userPanel, applicationUser -> {
-                event.deferReply(true).setContent(String.format("Estas são suas novas informações: \n" +
-                        "Email: %s\n" +
-                        "Senha: %s\n" +
-                        "Painel: https://panel.realhosting.com.br", email, password)).queue();
+                event.deferReply(true).addEmbeds(new EmbedBuilder()
+                                .setColor(Color.YELLOW)
+                                .setDescription(":repeat: Estamos gerando suas credenciais. Aguarde um momento.")
+                        .build()).queue();
+
+                event.getChannel().sendMessageEmbeds(new EmbedBuilder()
+                                .setColor(Color.YELLOW)
+                                .setTitle(":white_check_mark: | Suas informações de login no Painel")
+                                .addBlankField(false)
+                                .addField("Email", email, true)
+                                .addField("Usuário", username, true)
+                                .addField("Senha", password, true)
+                                .addBlankField(false)
+                                .setDescription("Para acessar o painel, utilize o link: https://app.realhosting.com.br/")
+                                .setFooter("Não compartilhe sua senha a ninguém!", plan.getPlanData().getLogo())
+                        .build()).queue();
 
                 if (InitBot.ticketManager.hasOpenedTicketByChannelId(event.getChannel().getId())) {
                     val ticket = InitBot.ticketManager.getTicketByTextChannelId(event.getChannel().getId());
                     ticket.getTicketChannel(InitBot.jda)
                             .sendMessageEmbeds(new EmbedBuilder()
                                     .setColor(Color.GREEN)
-                                    .setDescription("Olá! Eu estou criando seu servidor, aguarde um pouco.")
+                                    .setDescription("Olá! Eu estou criando seu servidor, aguarde um instante.")
                                     .build()).queue();
                 }
                 InitBot.panelManager.createServer(applicationUser, plan.getServerType(), plan, success -> {

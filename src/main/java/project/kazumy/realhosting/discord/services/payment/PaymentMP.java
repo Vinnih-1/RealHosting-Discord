@@ -36,7 +36,7 @@ public class PaymentMP {
     private final Configuration config;
     private final JDA jda;
 
-    private static final int SEARCH_LIMIT = 500;
+    private static final int SEARCH_LIMIT = 900;
     private static final int SEARCH_OFFSET = 0;
     private static final int DEFAULT_EXPIRATION = 10;
 
@@ -107,6 +107,12 @@ public class PaymentMP {
                             this.cancel();
                             return;
                         }
+                        val forcedPlan = paymentManager.getPlanById(plan.getPlanData().getPlanId());
+
+                        if (forcedPlan.isForcedApproved()) {
+                            onSuccess.accept(forcedPlan);
+                            this.cancel();
+                        }
                         client.search(MPSearchRequest.builder().offset(SEARCH_OFFSET).limit(SEARCH_LIMIT).build())
                                 .getResults().stream()
                                 .filter(payment -> payment.getExternalReference() != null)
@@ -115,12 +121,13 @@ public class PaymentMP {
                                 .filter(payment -> paymentManager.getPlanById(payment.getExternalReference()).getPaymentIntent() == PaymentIntent.CREATE_PLAN)
                                 .forEach(payment -> {
                                     onSuccess.accept(plan);
+                                    this.cancel();
                                 });
                     }
                 }, 0L, 1000L);
     }
 
-    public void detectRenewPayment(Consumer<PlanBuilder> onSuccess) {
+    public void detectRenewPayment(String planId, Consumer<PlanBuilder> onSuccess) {
         val expiration = LocalDateTime.now(ZoneId.of("America/Sao_Paulo")).plusMinutes(DEFAULT_EXPIRATION);
         val client = new PaymentClient();
 
@@ -134,20 +141,31 @@ public class PaymentMP {
                             this.cancel();
                             return;
                         }
+                        val forcedPlan = paymentManager.getPlanById(planId);
+
+                        if (forcedPlan.isForcedApproved()) {
+                            onSuccess.accept(forcedPlan);
+                            this.cancel();
+                        }
                         client.search(MPSearchRequest.builder().offset(SEARCH_OFFSET).limit(SEARCH_LIMIT).build())
                                 .getResults().stream()
                                 .filter(payment -> payment.getExternalReference() != null)
                                 .filter(payment -> payment.getExternalReference().length() == 8)
                                 .filter(payment -> paymentManager.hasPlanByExternalReference(payment.getExternalReference()))
-                                .map(payment -> paymentManager.getPlanByExternalReference(payment.getExternalReference()))
+                                .map(payment -> {
+                                    val plan = paymentManager.getPlanByExternalReference(payment.getExternalReference());
+                                    payment.getAdditionalInfo().getItems().get(0).getTitle();
+                                    return plan;
+                                })
                                 .forEach(plan -> {
                                     onSuccess.accept(plan);
+                                    this.cancel();
                                 });
                     }
                 }, 0L, 1000L);
     }
 
-    public void detectUpgradePayment(Consumer<PlanBuilder> onSuccess) {
+    public void detectUpgradePayment(String planId, Consumer<PlanBuilder> onSuccess) {
         val expiration = LocalDateTime.now(ZoneId.of("America/Sao_Paulo")).plusMinutes(DEFAULT_EXPIRATION);
         val client = new PaymentClient();
 
@@ -160,6 +178,12 @@ public class PaymentMP {
                             Logger.getGlobal().info("O plano %s expirou após 10 minutos sem a detecção do pagamento");
                             this.cancel();
                             return;
+                        }
+                        val forcedPlan = paymentManager.getPlanById(planId);
+
+                        if (forcedPlan.isForcedApproved()) {
+                            onSuccess.accept(forcedPlan);
+                            this.cancel();
                         }
                         client.search(MPSearchRequest.builder().offset(SEARCH_OFFSET).limit(SEARCH_LIMIT).build())
                                 .getResults().stream()
@@ -169,6 +193,7 @@ public class PaymentMP {
                                 .map(payment -> paymentManager.getPlanByExternalReference(payment.getExternalReference()))
                                 .forEach(plan -> {
                                     onSuccess.accept(plan);
+                                    this.cancel();
                                 });
                     }
                 }, 0L, 1000L);
