@@ -21,13 +21,13 @@ public class InitBot {
 
     public static CommandManager commandManager = new CommandManager();
     public static InteractionManager interactionManager = new InteractionManager();
-
+    public static PaymentManager paymentManager = new PaymentManager();
+    public static PanelManager panelManager = new PanelManager();
     public static TicketManager ticketManager;
-    public static PaymentManager paymentManager;
-    public static PanelManager panelManager;
-
     public static Configuration config;
     public static JDA jda;
+
+    private static InitBot instance;
 
     public InitBot(String token) {
         try {
@@ -39,6 +39,7 @@ public class InitBot {
             Logger.getGlobal().severe("The bot cannot be loaded! Exiting code...: " + e.getMessage());
             System.exit(1);
         }
+        instance = this;
         jda.addEventListener(new EventListener(this));
 
         initConfig();
@@ -65,5 +66,9 @@ public class InitBot {
                     config.addDefault("bot.guild.logs-chat-id", "insert-your-logs-chat-id");
                     config.addDefault("bot.payment.mercado-pago.access-token", "insert-your-access-token");
                 });
+    }
+
+    public static InitBot getInstance() {
+        return instance;
     }
 }

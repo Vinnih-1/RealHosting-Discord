@@ -23,7 +23,7 @@ public class EventListener extends ListenerAdapter {
 
     @Override
     public void onSelectMenuInteraction(@NotNull SelectMenuInteractionEvent event) {
-        InitBot.interactionManager.getInteractionList()
+        instance.interactionManager.getInteractionList()
                 .stream()
                 .filter(interaction -> interaction.getId().equals(event.getSelectMenu().getId()))
                 .findAny()
@@ -33,7 +33,7 @@ public class EventListener extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        InitBot.interactionManager.getInteractionList()
+        instance.interactionManager.getInteractionList()
                 .stream()
                 .filter(interaction -> event.getComponentId().contains(interaction.getId()))
                 .findAny()
@@ -43,7 +43,7 @@ public class EventListener extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        InitBot.commandManager.getSlashCommands()
+        instance.commandManager.getSlashCommands()
                 .stream()
                 .filter(command -> event.getName().equals(command.getName()))
                 .findAny()
@@ -56,7 +56,7 @@ public class EventListener extends ListenerAdapter {
         val message = event.getMessage().getContentRaw();
         val commandMessage = message.split(" ")[0].replaceFirst(PREFIX, "");
         if (!message.startsWith(PREFIX)) return;
-        InitBot.commandManager.getPrefixCommands()
+        instance.commandManager.getPrefixCommands()
                 .stream()
                 .filter(command -> commandMessage.equals(command.getName()))
                 .filter(command -> event.getMember().hasPermission(command.getPermission()))

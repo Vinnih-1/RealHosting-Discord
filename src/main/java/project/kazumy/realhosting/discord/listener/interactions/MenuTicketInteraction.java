@@ -25,8 +25,9 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
     @Override
     public void execute(SelectMenuInteractionEvent event) {
         if (event.getMember() == null) return;
+        val ticketManager = this.initBotInstance().ticketManager;
 
-        if (InitBot.ticketManager.hasOpenedTicket(event.getMember())) {
+        if (ticketManager.hasOpenedTicket(event.getMember())) {
             event.deferReply(true).setContent(":x: Feche o ticket atual para abrir outro!").queue();
             return;
         }
@@ -40,8 +41,6 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
                 .author(event.getMember().getUser())
                 .category(event.getSelectedOptions().get(0).getValue())
                 .id(RandomStringUtils.randomNumeric(8)).build();
-
-        val ticketManager = InitBot.ticketManager;
 
         val category = ticketManager.getJda().getCategoryById(ticketManager.getConfig().getString("bot.guild.ticket-category-id"));
 

@@ -1,4 +1,4 @@
-package project.kazumy.realhosting.discord.commands;
+package project.kazumy.realhosting.discord.commands.slash;
 
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;

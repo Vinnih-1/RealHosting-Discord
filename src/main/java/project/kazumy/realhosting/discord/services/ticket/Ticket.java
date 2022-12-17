@@ -35,12 +35,13 @@ public class Ticket {
 
     @SneakyThrows
     public void saveTicket() {
-        val channel = InitBot.ticketManager.getJda().getTextChannelById(this.getChannelId());
+        val ticketManager = InitBot.ticketManager;
+        val channel = ticketManager.getJda().getTextChannelById(this.getChannelId());
         val chatHistory = MessageHistory.getHistoryFromBeginning(channel).submit();
         this.setHistory(new ArrayList<>(chatHistory.get().getRetrievedHistory()));
 
-        InitBot.ticketManager.destroyRecordedTicket(this);
-        InitBot.ticketManager.getTicketMap().remove(this.getAuthor().getId());
+        ticketManager.destroyRecordedTicket(this);
+        ticketManager.getTicketMap().remove(this.getAuthor().getId());
 
         val config = new Configuration("services/tickets/saved-ticket/" + author.getId() + "/" + author.getAsTag() + "-" + id + ".yml")
                 .buildIfNotExists();

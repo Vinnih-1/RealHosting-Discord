@@ -40,7 +40,6 @@ public class UpgradeMenuInteraction extends InteractionService<SelectMenuInterac
                 .findFirst().ifPresentOrElse(plan -> {
                     val paymentManager = InitBot.paymentManager;
                     val panelManager = InitBot.panelManager;
-                    val config = InitBot.config;
                     val selectedPlanType = PlanType.valueOf(type);
                     if (plan.getPlanType() == selectedPlanType) {
                         event.deferReply().addEmbeds(new EmbedBuilder()
@@ -63,7 +62,7 @@ public class UpgradeMenuInteraction extends InteractionService<SelectMenuInterac
                             .build()).queue();
 
                     val planData = plan.getPlanData();
-                    plan.setPrice(new BigDecimal(price));
+                    plan.setPrice(new BigDecimal(price).subtract(plan.getPrice()));
                     planData.setTitle(section.getString("name"));
                     planData.setDescription(section.getString("description"));
                     planData.setLogo(section.getString("logo"));

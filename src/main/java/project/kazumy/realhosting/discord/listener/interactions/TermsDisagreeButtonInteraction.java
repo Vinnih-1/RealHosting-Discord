@@ -15,6 +15,6 @@ public class TermsDisagreeButtonInteraction extends InteractionService<ButtonInt
         event.deferReply().setContent("Você discordou dos nossos termos, caso você tenha alguma sugestão não " +
                 "deixe de nos contatar para que possamos melhorar. Fecharemos o seu ticket em alguns segundos...").queue();
 
-        InitBot.ticketManager.getTicketByTextChannelId(event.getChannel().getId()).saveTicket();
+        this.initBotInstance().ticketManager.getTicketByTextChannelId(event.getChannel().getId()).saveTicket();
     }
 }

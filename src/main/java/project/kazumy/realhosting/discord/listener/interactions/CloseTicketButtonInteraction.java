@@ -25,6 +25,7 @@ public class CloseTicketButtonInteraction extends InteractionService<ButtonInter
                                 InitBot.config.getString("bot.guild.close-ticket.thumbnail"))
                         .setColor(Color.RED)
                 .build()).queue();
+        val ticketManager = this.initBotInstance().ticketManager;
         val channelManager = event.getChannel().asTextChannel().getManager();
         channelManager.setName("closed-" + event.getChannel().getName()).queue();
 
@@ -36,8 +37,8 @@ public class CloseTicketButtonInteraction extends InteractionService<ButtonInter
                                 .filter(plan -> plan.getStageType() == StageType.CHOOSING_SERVER)
                                 .forEach(PlanBuilder::deletePlan);
 
-        if (InitBot.ticketManager.hasOpenedTicketByChannelId(event.getChannel().getId()))
-            InitBot.ticketManager.getTicketByTextChannelId(event.getChannel().getId()).saveTicket();
+        if (ticketManager.hasOpenedTicketByChannelId(event.getChannel().getId()))
+            ticketManager.getTicketByTextChannelId(event.getChannel().getId()).saveTicket();
         else event.getChannel().delete().queue();
     }
 }

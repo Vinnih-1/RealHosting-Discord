@@ -22,4 +22,8 @@ public abstract class BaseSlashCommand {
     public void register() {
         InitBot.commandManager.addSlashCommand(this);
     }
+
+    public InitBot initBotInstance() {
+        return InitBot.getInstance();
+    }
 }
