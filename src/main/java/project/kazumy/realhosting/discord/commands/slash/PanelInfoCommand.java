@@ -44,13 +44,7 @@ public class PanelInfoCommand extends BaseSlashCommand {
                 return;
             }
             val applicationUser = InitBot.panelManager.getUserByEmail(email);
-            if (ticketManager.hasOpenedTicketByChannelId(event.getChannel().getId())) {
-                val ticket = ticketManager.getTicketByTextChannelId(event.getChannel().getId());
-                event.deferReply(true).addEmbeds(new EmbedBuilder()
-                                .setColor(Color.GREEN)
-                                .setDescription("Olá! Eu estou criando seu servidor, aguarde um pouco.")
-                                .build()).queue();
-            }
+            if (ticketManager.hasOpenedTicketByChannelId(event.getChannel().getId())) event.getChannel().sendTyping().queue();
             InitBot.panelManager.createServer(applicationUser, plan.getServerType(), plan, success -> {
                 plan.updatePaymentIntent(PaymentIntent.NONE);
                 event.getChannel().sendMessageEmbeds(new EmbedBuilder()
@@ -105,15 +99,7 @@ public class PanelInfoCommand extends BaseSlashCommand {
                                 .setDescription("Para acessar o painel, utilize o link: https://app.realhosting.com.br/")
                                 .setFooter("Não compartilhe sua senha a ninguém!", plan.getPlanData().getLogo())
                         .build()).queue();
-
-                if (ticketManager.hasOpenedTicketByChannelId(event.getChannel().getId())) {
-                    val ticket = ticketManager.getTicketByTextChannelId(event.getChannel().getId());
-                    ticket.getTicketChannel(InitBot.jda)
-                            .sendMessageEmbeds(new EmbedBuilder()
-                                    .setColor(Color.GREEN)
-                                    .setDescription("Olá! Eu estou criando seu servidor, aguarde um instante.")
-                                    .build()).queue();
-                }
+                if (ticketManager.hasOpenedTicketByChannelId(event.getChannel().getId())) event.getChannel().sendTyping().queue();
                 InitBot.panelManager.createServer(applicationUser, plan.getServerType(), plan, success -> {
                     plan.updatePaymentIntent(PaymentIntent.NONE);
                     event.getChannel().sendMessageEmbeds(new EmbedBuilder()

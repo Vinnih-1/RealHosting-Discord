@@ -57,24 +57,14 @@ public class SelectPlanMenuInteraction extends InteractionService<SelectMenuInte
 
                     logsChat.sendMessage("QRCode PIX: " + event.getUser().getAsTag())
                             .addFiles(FileUpload.fromData(qrCodeImage)).queueAfter(2, TimeUnit.SECONDS, message -> {
-                                val embed = new EmbedBuilder()
-                                        .setAuthor(event.getSelectedOptions().get(0).getLabel(), planData.getLogo(), planData.getLogo())
-                                        .setFooter("Auto atendimento da RealHosting", planData.getLogo())
-                                        .setImage(message.getAttachments().get(0).getProxyUrl())
-                                        .setColor(Color.GREEN)
-                                        .build();
-
-                                event.getChannel().sendMessage("RealHosting: Cobrança Automática de Serviços Prestados").addEmbeds(embed, new EmbedBuilder()
+                                event.getChannel().sendMessage("RealHosting: Cobrança Automática de Serviços Prestados")
+                                        .addFiles(FileUpload.fromData(qrCodeImage))
+                                        .addEmbeds(new EmbedBuilder()
                                         .setTitle(":white_check_mark: PIX! Basta copiar e colar.")
                                         .setColor(Color.YELLOW)
                                         .setDescription(qrCodeText)
-                                        .build(), new EmbedBuilder()
-                                        .setTitle(":x: Vencimento do Pagamento")
-                                        .setDescription("O tempo limite de utilização deste QRCode é de 10 minuto(s), este QRCode será apagado após o prazo de 10 minutos.")
-                                        .setColor(Color.RED)
                                         .build()).queue(paymentMessage -> {
                                             event.getMessage().delete().queue();
-                                    if (paymentMessage != null) paymentMessage.delete().queueAfter(10, TimeUnit.MINUTES);
                                     InitBot.paymentManager.getPaymentMP().detectCreatePayment(plan, onSuccess -> {
                                         if (event.getChannel() != null)
                                             InitBot.panelManager.emailMenu(InitBot.config, event.getChannel().asTextChannel());
