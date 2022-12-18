@@ -47,7 +47,6 @@ public class SelectPlanMenuInteraction extends InteractionService<SelectMenuInte
                     plan.setStageType(StageType.PENDING_PAYMENT);
                     plan.setPlanType(PlanType.valueOf(type.toUpperCase()));
                     plan.registerPlan();
-                    val planData = plan.getPlanData();
 
                     event.deferReply(true).setContent(":repeat: Estamos produzindo seu QRCode, aguarde um momento.").queue();
                     event.getChannel().sendTyping().queue();
@@ -65,11 +64,12 @@ public class SelectPlanMenuInteraction extends InteractionService<SelectMenuInte
                                         .setDescription(qrCodeText)
                                         .build()).queue(paymentMessage -> {
                                             event.getMessage().delete().queue();
-                                    InitBot.paymentManager.getPaymentMP().detectCreatePayment(plan, onSuccess -> {
-                                        if (event.getChannel() != null)
-                                            InitBot.panelManager.emailMenu(InitBot.config, event.getChannel().asTextChannel());
-                                        onSuccess.enablePlan(event.getGuild());
-                                    });
+                                            InitBot.paymentManager.getPaymentMP().detectCreatePayment(plan, onSuccess -> {
+                                                if (event.getChannel() != null)
+                                                    paymentMessage.delete().queue();
+                                                    InitBot.panelManager.emailMenu(InitBot.config, event.getChannel().asTextChannel());
+                                                onSuccess.enablePlan(event.getGuild());
+                                            });
                                 });
                             });
                 }, () -> event.deferReply().setContent(":x: " + new PlanNotFoundException().getMessage()).queue());
