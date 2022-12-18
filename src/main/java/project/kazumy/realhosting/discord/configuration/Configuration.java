@@ -70,8 +70,7 @@ public class Configuration extends YamlFile {
             embed.addField(name, value, Boolean.parseBoolean(String.valueOf(inline)));
         }
         embed.setDescription(description);
-        embed.setThumbnail(config.getString(section + "thumbnail"));
-        embed.setFooter(config.getString(section + "footer"), config.getString(section + "thumbnail"));
+        embed.setFooter(config.getString(section + "footer"));
 
         return embed;
     }

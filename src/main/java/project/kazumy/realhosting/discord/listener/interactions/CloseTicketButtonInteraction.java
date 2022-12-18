@@ -19,12 +19,7 @@ public class CloseTicketButtonInteraction extends InteractionService<ButtonInter
     @Override
     public void execute(ButtonInteractionEvent event) {
         if (event.getMember() == null) return;
-        event.deferReply().addEmbeds(new EmbedBuilder()
-                        .setTitle(":x: Este ticket foi fechado por: " + event.getUser().getAsTag())
-                        .setFooter("Salvando o ticket, por favor aguarde...",
-                                InitBot.config.getString("bot.guild.close-ticket.thumbnail"))
-                        .setColor(Color.RED)
-                .build()).queue();
+        event.deferReply().setContent(":x: Este ticket foi fechado por: " + event.getUser().getAsTag()).queue();
         val ticketManager = this.initBotInstance().ticketManager;
         val channelManager = event.getChannel().asTextChannel().getManager();
         channelManager.setName("closed-" + event.getChannel().getName()).queue();
