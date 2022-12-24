@@ -20,7 +20,6 @@ public class ForceApprovalCommand extends BasePrefixCommand {
     public void execute(Member member, Message message, String[] args) {
         val paymentManager = InitBot.paymentManager;
         val channel = message.getChannel().asTextChannel();
-        message.delete().queue();
 
         if (args.length == 0) return;
 

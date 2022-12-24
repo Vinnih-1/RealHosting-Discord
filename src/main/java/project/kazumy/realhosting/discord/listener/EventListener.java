@@ -28,7 +28,9 @@ public class EventListener extends ListenerAdapter {
                 .filter(interaction -> interaction.getId().equals(event.getSelectMenu().getId()))
                 .findAny()
                 .ifPresentOrElse(interaction -> ((InteractionService<SelectMenuInteractionEvent>)interaction).execute(event),
-                        () -> Logger.getGlobal().severe("Unloaded interaction id: " + event.getSelectMenu().getId()));
+                        () -> {
+                            Logger.getGlobal().severe("Unloaded interaction id: " + event.getSelectMenu().getId());
+                        });
     }
 
     @Override
@@ -65,6 +67,7 @@ public class EventListener extends ListenerAdapter {
                     val args = Arrays.stream(message.replaceFirst(PREFIX, "").split(" "))
                             .skip(1).toArray(String[]::new);
 
+                    event.getMessage().delete().queue();
                     command.execute(event.getMember(), event.getMessage(), args);
                 }, () -> {
                     Logger.getGlobal().severe("Unloaded slash command id " + commandMessage);
