@@ -59,8 +59,6 @@ public class PanelManager extends BaseService {
                                             val embed = new EmbedBuilder();
                                             embed.setColor(Color.YELLOW);
                                             embed.setTitle(embedConfig.build().getTitle());
-                                            embed.setThumbnail(embedConfig.build().getThumbnail().getUrl());
-                                            embed.setFooter(embedConfig.build().getFooter().getText(), embedConfig.build().getThumbnail().getUrl());
                                             embedConfig.getFields().forEach(embed::addField);
                                             embed.setDescription(String.format(embedConfig.getDescriptionBuilder().toString().replace("\\n", "\n"),
                                                     plan.getPlanData().getPlanId(),

@@ -52,10 +52,9 @@ public class PlanInfoCommand extends BaseSlashCommand {
         val externalReference = plan.getPlanData().getExternalReference();
         val embed = new EmbedBuilder();
         embed.setColor(Color.GREEN);
-        embed.setAuthor(event.getUser().getAsTag(), "https://app.realhosting.com.br", plan.getPlanData().getLogo());
+        embed.setAuthor(event.getUser().getAsTag(), "https://app.realhosting.com.br");
         embed.setTitle(plan.getPlanData().getTitle());
-        embed.setFooter("RealHosting Bot às " + dateTime.format(formatter), plan.getPlanData().getLogo());
-        embed.setThumbnail(member != null ? member.getUser().getAvatarUrl() : plan.getPlanData().getLogo());
+        embed.setFooter("RealHosting Bot às " + dateTime.format(formatter));
         embed.addField("Autor", plan.getPlanData().getUserAsTag(), true);
         embed.addField("Plano", plan.getPlanType().toString(), true);
         embed.addField("ID do Plano", plan.getPlanData().getPlanId(), true);
