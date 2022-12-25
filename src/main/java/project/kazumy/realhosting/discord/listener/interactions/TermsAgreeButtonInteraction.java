@@ -15,6 +15,6 @@ public class TermsAgreeButtonInteraction extends InteractionService<ButtonIntera
         event.deferReply(true).setContent("Você concordou com os nossos termos!").queue();
         event.getMessage().delete().queue();
 
-        InitBot.paymentManager.sendBuyMenu(event.getChannel().asTextChannel(), InitBot.config);
+        InitBot.paymentManager.sendServerMenu(event.getChannel().asTextChannel(), InitBot.config);
     }
 }

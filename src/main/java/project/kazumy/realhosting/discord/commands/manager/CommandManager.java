@@ -26,18 +26,28 @@ public class CommandManager {
 
     }
     public void loadSlashCommands() {
-        new Reflections("project.kazumy.realhosting.discord.commands").getSubTypesOf(BaseSlashCommand.class)
+        new Reflections("project.kazumy.realhosting.discord.commands.slash").getSubTypesOf(BaseSlashCommand.class)
                 .stream()
                 .map(command -> {
                     try {
                         return command.newInstance();
                     } catch (Exception e) {
-                        Logger.getGlobal().severe("Some command could not be loaded: " + e.getMessage());
+                        Logger.getGlobal().severe("Algum comando slash não pôde ser carregado: " + e.getMessage());
                         return null;
                     }
                 }).forEach(slashCommands::add);
     }
     public void loadPrefixCommands() {
+        new Reflections("project.kazumy.realhosting.discord.commands.prefix").getSubTypesOf(BasePrefixCommand.class)
+                .stream()
+                .map(command -> {
+                    try {
+                        return command.newInstance();
+                    } catch (Exception e) {
+                        Logger.getGlobal().severe("Algum comando prefix não pôde ser carregado: " + e.getMessage());
+                        return null;
+                    }
+                }).forEach(prefixCommands::add);
     }
 
     public void addSlashCommand(BaseSlashCommand command){

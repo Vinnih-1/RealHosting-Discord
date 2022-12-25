@@ -7,13 +7,13 @@ import lombok.val;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import org.apache.commons.lang.RandomStringUtils;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.services.BaseService;
 import project.kazumy.realhosting.discord.services.panel.ServerType;
-import project.kazumy.realhosting.discord.services.payment.plan.PlanBuilder;
-import project.kazumy.realhosting.discord.services.payment.plan.PlanType;
-import project.kazumy.realhosting.discord.services.payment.plan.StageType;
+import project.kazumy.realhosting.discord.services.payment.plan.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -31,6 +31,9 @@ public class PaymentManager extends BaseService {
     @Getter @Setter
     private Set<PlanBuilder> plans;
 
+    @Getter
+    private PaymentMP paymentMP;
+
     public PaymentManager() {
         super(2L);
     }
@@ -38,38 +41,56 @@ public class PaymentManager extends BaseService {
         val planFolder = new File("services/payment/plan/");
 
         if (!planFolder.exists()) return;
-
-        Arrays.asList(planFolder.listFiles())
-                .stream()
+        Arrays.stream(planFolder.listFiles())
                 .filter(file -> file.getName().endsWith(".yml"))
-                .forEach(file -> {
-                    val config = new Configuration("services/payment/plan/" + file.getName())
-                            .buildIfNotExists();
-
+                .map(file -> new Configuration("services/payment/plan/" + file.getName()).buildIfNotExists())
+                .forEach(config -> {
                     try {
+                        if (config.getString("plan.paymentIntent") == null) {
+                            config.set("plan.paymentIntent", "NONE");
+                            config.set("plan.externalReference", "");
+                            config.save();
+                        }
+
+                        val createDate = config.getString("plan.createDate");
+                        val paymentDate = config.getString("plan.paymentDate");
+                        val expireDate = config.getString("plan.expirationDate");
+                        val emojiUnicode = config.getString("plan.emojiUnicode");
+
+                        if (emojiUnicode == null) {
+                            Logger.getGlobal().severe(String.format("O plano %s incompleto foi detectado! Preparando-o para o descarte...", config.getString("plan.planId")));
+                            config.deleteFile();
+                            Logger.getGlobal().severe("Plano descartado com êxito.");
+                            return;
+                        }
+
                         val plan = PlanBuilder.builder()
-                                .title(config.getString("plan.title"))
-                                .description(config.getString("plan.description"))
+                                .planData(PlanData.builder()
+                                        .externalReference(config.getString("plan.externalReference"))
+                                        .title(config.getString("plan.title"))
+                                        .description(config.getString("plan.description"))
+                                        .logo(config.getString("plan.logo"))
+                                        .skuId(config.getString("plan.skuId"))
+                                        .planId(config.getString("plan.planId"))
+                                        .userId(config.getString("plan.author.authorId"))
+                                        .userAsTag(config.getString("plan.author.authorAsTag"))
+                                        .emojiUnicode(Emoji.fromUnicode(config.getString("plan.emojiUnicode")))
+                                        .build())
                                 .price(new BigDecimal(config.getString("plan.price")))
-                                .logo(config.getString("plan.logo"))
-                                .skuId(config.getString("plan.skuId"))
-                                .planId(config.getString("plan.planId"))
-                                .userId(config.getString("plan.author.authorId"))
-                                .userAsTag(config.getString("plan.author.authorAsTag"))
                                 .planType(PlanType.valueOf(config.getString("plan.planType")))
                                 .stageType(StageType.valueOf(config.getString("plan.stageType")))
                                 .serverType(ServerType.valueOf(config.getString("plan.serverType")))
-                                .emojiUnicode(Emoji.fromUnicode(config.getString("plan.emojiUnicode")))
-                                .createDate(LocalDateTime.parse(config.getString("plan.createDate")))
-                                .paymentDate(LocalDateTime.parse(config.getString("plan.paymentDate")))
-                                .expirationDate(LocalDateTime.parse(config.getString("plan.expirationDate")))
-                                .enabled(config.getBoolean("plan.enabled"))
+                                .paymentIntent(PaymentIntent.valueOf(config.getString("plan.paymentIntent")))
+                                .createDate(createDate != null ? LocalDateTime.parse(createDate) : null)
+                                .paymentDate(paymentDate != null ? LocalDateTime.parse(paymentDate) : null)
+                                .expirationDate(expireDate != null ? LocalDateTime.parse(expireDate) : null)
+                                .notified(config.getBoolean("plan.notified"))
                                 .build().instanceConfig(config);
-
                         Logger.getGlobal().info("O plano " + config.getString("plan.planId") + " foi carregado para a memória: "
                                 + plans.add(plan));
                     } catch (Exception e) {
-                        Logger.getGlobal().severe(String.format("Houve uma falha ao carregar o plano %s", file.getName()));
+                        Logger.getGlobal().severe(String.format("Houve uma falha ao carregar o plano %s ", config.getString("plan.planId")));
+                        e.printStackTrace();
                     }
                 });
     }
@@ -81,25 +102,59 @@ public class PaymentManager extends BaseService {
                 .collect(Collectors.toList());
     }
 
+    public List<PlanBuilder> getExpiredPlans(Long days) {
+        return getPlans().stream()
+                .filter(plan -> plan.getExpirationDate() != null)
+                .filter(plan -> plan.getExpirationDate().minusDays(days).isBefore(LocalDateTime.now(ZoneId.of("America/Sao_Paulo"))))
+                .collect(Collectors.toList());
+    }
+
     public boolean hasPlanByUserId(String userId) {
         return this.getPlans().stream()
-                .anyMatch(plan -> plan.getUserId().equals(userId));
+                .anyMatch(plan -> plan.getPlanData().getUserId().equals(userId));
+    }
+
+    public boolean hasPlanPending(String userId) {
+        return this.getPlans().stream()
+                .filter(plan -> plan.getPlanData().getUserId().equals(userId))
+                .filter(plan -> plan.getStageType() == StageType.ACTIVED)
+                .anyMatch(plan -> plan.getPaymentIntent() == PaymentIntent.CREATE_USER);
     }
 
     public boolean hasPlanByPlanId(String planId) {
         return this.getPlans().stream()
-                .anyMatch(plan -> plan.getPlanId().equals(planId));
+                .anyMatch(plan -> plan.getPlanData().getPlanId().equals(planId));
+    }
+
+    public boolean hasPlanByExternalReference(String externalReference) {
+        return this.getPlans().stream()
+                .filter(plan -> plan.getPlanData().getExternalReference() != null)
+                .anyMatch(plan -> plan.getPlanData().getExternalReference().equals(externalReference));
+    }
+
+    public PlanBuilder getPendingPlan(String userId) {
+        return this.getPlans().stream()
+                .filter(plan -> plan.getPlanData().getUserId().equals(userId))
+                .filter(plan -> plan.getStageType() == StageType.ACTIVED)
+                .filter(plan -> plan.getPaymentIntent() == PaymentIntent.CREATE_USER).findFirst().get();
     }
 
     public PlanBuilder getPlanById(String planId) {
         return this.getPlans().stream()
-                .filter(plan -> plan.getPlanId().equals(planId))
+                .filter(plan -> plan.getPlanData().getPlanId().equals(planId))
                 .findFirst().get();
+    }
+
+    public PlanBuilder getPlanByExternalReference(String externalReference) {
+        System.out.println(externalReference);
+        return this.getPlans().stream()
+                .filter(plan -> plan.getPlanData().getExternalReference().equals(externalReference))
+                .findAny().get();
     }
 
     public Set<PlanBuilder> getPlansByUserId(String userId) {
         return this.getPlans().stream()
-                .filter(plan -> plan.getUserId().equals(userId))
+                .filter(plan -> plan.getPlanData().getUserId().equals(userId))
                 .collect(Collectors.toSet());
     }
 
@@ -119,11 +174,41 @@ public class PaymentManager extends BaseService {
         });
     }
 
-    public void sendBuyMenu(TextChannel channel, Configuration config) {
+    public void sendServerMenu(TextChannel channel, Configuration config) {
+        val embed = config.getEmbedMessageFromConfig(config, "server");
+        embed.setColor(Color.GREEN);
+        val menu = config.getMenuFromConfig(config, "bot.guild.server.type", "type-menu");
+        channel.sendMessageEmbeds(embed.build()).addActionRow(menu.build()).queue();
+    }
+
+    public void sendBuyMenu(TextChannel channel, Configuration config, String id) {
         val embed = config.getEmbedMessageFromConfig(config, "payment");
         embed.setColor(Color.GREEN);
-        val menu = config.getMenuFromConfig(config, "bot.guild.payment.plans", "buy-menu");
+        val menu = config.getMenuFromConfig(config, "bot.guild.payment.plans", id);
         channel.sendMessageEmbeds(embed.build()).addActionRow(menu.build()).queue();
+    }
+
+    public SelectMenu.Builder getBuyMenu(Configuration config, String id) {
+        return config.getMenuFromConfig(config, "bot.guild.payment.plans", id);
+    }
+
+    public String getPaymentQrCode(PaymentIntent paymentIntent, Configuration config, PlanBuilder plan) {
+        val userId = config.getString("bot.payment.mercado-pago.user-id");
+        val posId = config.getString("bot.payment.mercado-pago.external-pos-id");
+        val accessToken = config.getString("bot.payment.mercado-pago.access-token");
+        plan.updatePaymentIntent(paymentIntent);
+        if (paymentIntent == PaymentIntent.UPGRADE_PLAN)
+            plan.getPlanData().setExternalReference(RandomStringUtils.randomAlphanumeric(20));
+        if (paymentIntent == PaymentIntent.RENEW_PLAN)
+            plan.getPlanData().setExternalReference(RandomStringUtils.randomAlphanumeric(8));
+
+        plan.saveConfig();
+        val response = paymentMP.createRequestQrCode(plan, userId, posId, accessToken);
+        return paymentMP.getAsText(response);
+    }
+
+    public File getPaymentQrCodeImage(String qrCodeText, PlanBuilder plan) {
+        return paymentMP.getAsImage(qrCodeText, plan.getPlanData().getUserId());
     }
 
     public static BufferedImage toImage(QrCode qr, int scale, int border) {
@@ -152,8 +237,8 @@ public class PaymentManager extends BaseService {
         this.setDefaultBuyMessage(config);
         this.setPlans(new HashSet<>());
 
-        PaymentMP.setAccessToken(InitBot.config.getString("bot.payment.mercado-pago.access-token"));
-        new PaymentMP().waitPayment(this, jda);
+        this.paymentMP = PaymentMP.of(this, InitBot.panelManager, config, jda);
+        this.paymentMP.setAccessToken(InitBot.config.getString("bot.payment.mercado-pago.access-token"));
 
         return this;
     }

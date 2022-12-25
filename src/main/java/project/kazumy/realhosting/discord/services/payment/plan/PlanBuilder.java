@@ -1,79 +1,139 @@
 package project.kazumy.realhosting.discord.services.payment.plan;
 
 import lombok.*;
-import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
+import net.dv8tion.jda.api.entities.Guild;
+import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.services.panel.ServerType;
-import project.kazumy.realhosting.discord.services.panel.UserPanel;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.logging.Logger;
 
 @ToString
 @Builder
-@Getter
+@Data
 public class PlanBuilder {
 
-    private String planId, skuId, userId, userAsTag, description, logo, title;
+    private PlanData planData;
 
-    private UserPanel userPanel;
+    @Getter private boolean notified, forcedApproved;
 
-    @Setter private PlanType planType;
-
-    @Setter private ServerType serverType;
-
-    @Setter private StageType stageType;
+    private PlanType planType;
+    private ServerType serverType;
+    private StageType stageType;
+    PaymentIntent paymentIntent;
 
     private BigDecimal price;
 
     private Configuration config;
 
-    private boolean enabled;
-
-    private UnicodeEmoji emojiUnicode;
-
-    @Setter private LocalDateTime createDate, paymentDate, expirationDate;
+    private LocalDateTime createDate, paymentDate, expirationDate;
 
     @SneakyThrows
     public void registerPlan() {
         config.addDefaults(consumer -> {
-            consumer.addDefault("plan.author.authorId", userId);
-            consumer.addDefault("plan.author.authorAsTag", userAsTag);
-            consumer.addDefault("plan.planId", planId);
-            consumer.addDefault("plan.skuId", skuId);
-            consumer.addDefault("plan.title", title);
+            if (stageType == StageType.CHOOSING_SERVER) {
+                consumer.set("plan.author.authorId", planData.getUserId());
+                consumer.set("plan.author.authorAsTag", planData.getUserAsTag());
+                consumer.set("plan.planId", planData.getPlanId());
+                consumer.set("plan.externalReference", planData.getExternalReference());
+                consumer.set("plan.createDate", createDate.toString());
+                consumer.set("plan.serverType", serverType.toString());
+                consumer.set("plan.stageType", stageType.toString());
+                consumer.set("plan.paymentIntent", paymentIntent.toString());
+                return;
+            }
+            consumer.addDefault("plan.skuId", planData.getSkuId());
+            consumer.addDefault("plan.title", planData.getTitle());
             consumer.addDefault("plan.price", price.toString());
-            consumer.addDefault("plan.description", description);
-            consumer.addDefault("plan.logo", logo);
-            consumer.addDefault("plan.emojiUnicode", emojiUnicode.getAsCodepoints());
-            consumer.addDefault("plan.createDate", createDate.toString());
+            consumer.addDefault("plan.description", planData.getDescription());
+            consumer.addDefault("plan.logo", planData.getLogo());
+            consumer.addDefault("plan.emojiUnicode", planData.getEmojiUnicode().getAsCodepoints());
             consumer.addDefault("plan.planType", planType.toString());
-            consumer.addDefault("plan.serverType", serverType.toString());
-            consumer.addDefault("plan.stageType", stageType.toString());
-            consumer.addDefault("plan.enabled", enabled);
         });
         config.save();
     }
 
+    public void enablePlan(Guild guild) {
+        if (paymentIntent == PaymentIntent.CREATE_PLAN) {
+            this.setPaymentDate(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")));
+            this.setExpirationDate(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")));
+        }
+        this.setNotified(false);
+        this.setStageType(StageType.ACTIVED);
+        this.setPaymentIntent(PaymentIntent.CREATE_USER);
+        this.setExpirationDate(this.getExpirationDate().plusDays(30L));
+        this.getPlanData().setExternalReference("");
+
+        saveConfig();
+        giveBuyerTag(guild);
+
+        Logger.getGlobal().info(String.format("O plano %s do autor %s foi "+(paymentIntent == PaymentIntent.CREATE_PLAN ? "habilitado" : "renovado"),
+                this.getPlanData().getPlanId(), this.getPlanData().getUserAsTag()));
+    }
+
+    public void giveBuyerTag(Guild guild) {
+        val member = guild.getMemberById(this.getPlanData().getUserId());
+        val role = guild.getRoles().stream()
+                .filter(roles -> roles.getId().equals("855625716078870538")).findFirst().get();
+
+        if (role == null) return;
+        if (member == null) return;
+        if (member.getRoles().contains(role)) return;
+
+        guild.addRoleToMember(member, role).queue(success -> {
+            Logger.getGlobal().info("A tag Cliente foi cedida ao usuário " + planData.getUserAsTag());
+        });
+    }
+
+    public void disablePlan() {
+        this.setStageType(StageType.SUSPENDED);
+        this.setPaymentIntent(PaymentIntent.NONE);
+
+        saveConfig();
+    }
+
     @SneakyThrows
-    public void validatePlan() {
-        enabled = true;
-        config.set("plan.paymentDate", paymentDate.toString());
-        config.set("plan.expirationDate", expirationDate.toString());
-        config.set("plan.enabled", true);
+    public void saveConfig() {
+        if (paymentDate != null)
+            config.set("plan.paymentDate", paymentDate.toString());
+        if (expirationDate != null)
+            config.set("plan.expirationDate", expirationDate.toString());
         config.set("plan.stageType", stageType.toString());
+        config.set("plan.paymentIntent", paymentIntent.toString());
+        config.set("plan.description", planData.getDescription());
+        config.set("plan.externalReference", planData.getExternalReference());
+        config.set("plan.notified", this.isNotified());
         config.save();
     }
 
     @SneakyThrows
-    public void updateStageType() {
-        config.set("plan.stageType", stageType.toString());
+    public void updateNewInformation() {
+        config.set("plan.title", planData.getTitle());
+        config.set("plan.skuId", planData.getSkuId());
+        config.set("plan.logo", planData.getLogo());
+        config.set("plan.emojiUnicode", planData.getEmojiUnicode().getAsCodepoints());
+        config.set("plan.price", getPrice().toString());
+        config.set("plan.planType", getPlanType().toString());
+        config.set("plan.paymentIntent", paymentIntent.toString());
+        config.set("plan.description", planData.getDescription());
+        config.set("plan.externalReference", planData.getExternalReference());
+        config.set("plan.notified", this.isNotified());
         config.save();
     }
 
     @SneakyThrows
-    public void expirePlan() {
-        config.set("plan.enabled", false);
+    public void updatePaymentIntent(PaymentIntent paymentIntent) {
+        this.setPaymentIntent(paymentIntent);
+        config.set("plan.paymentIntent", paymentIntent.toString());
+        config.save();
+    }
+
+    @SneakyThrows
+    public void updateStageType(StageType stageType) {
+        this.setStageType(stageType);
         config.set("plan.stageType", stageType.toString());
         config.save();
     }
@@ -81,6 +141,7 @@ public class PlanBuilder {
     @SneakyThrows
     public void deletePlan() {
         config.deleteFile();
+        System.out.println(InitBot.paymentManager.getPlans().remove(this));
     }
 
     public PlanBuilder instanceConfig(Configuration config) {
@@ -89,7 +150,7 @@ public class PlanBuilder {
     }
 
     public PlanBuilder instanceConfig() {
-        config = new Configuration("services/payment/plan/" + planId + ".yml");
+        config = new Configuration("services/payment/plan/" + planData.getPlanId() + ".yml");
         return this;
     }
 }

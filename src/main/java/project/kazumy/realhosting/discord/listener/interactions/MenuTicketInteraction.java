@@ -1,6 +1,7 @@
 package project.kazumy.realhosting.discord.listener.interactions;
 
 import lombok.val;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
@@ -24,22 +25,26 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
     @Override
     public void execute(SelectMenuInteractionEvent event) {
         if (event.getMember() == null) return;
+        val ticketManager = this.initBotInstance().ticketManager;
 
-        if (InitBot.ticketManager.hasOpenedTicket(event.getMember())) {
+        if (ticketManager.hasOpenedTicket(event.getMember())) {
             event.deferReply(true).setContent(":x: Feche o ticket atual para abrir outro!").queue();
             return;
         }
 
+        if (event.getSelectedOptions().get(0).getValue().equals("comprar") && InitBot.paymentManager.hasPlanPending(event.getUser().getId())) {
+            event.deferReply(true).setContent(":x: Aparentemente você ainda tem um plano pendente, utilize o comando /painel para terminar o processo!").queue();
+            return;
+        }
+
         val ticket = Ticket.builder()
-                .author(event.getMember())
+                .author(event.getMember().getUser())
                 .category(event.getSelectedOptions().get(0).getValue())
                 .id(RandomStringUtils.randomNumeric(8)).build();
 
-        val ticketManager = InitBot.ticketManager;
-
         val category = ticketManager.getJda().getCategoryById(ticketManager.getConfig().getString("bot.guild.ticket-category-id"));
 
-        category.createTextChannel(ticket.getAuthor().getEffectiveName() + "-" + ticket.getCategory())
+        category.createTextChannel(ticket.getAuthor().getAsTag() + "-" + ticket.getCategory())
                 .addMemberPermissionOverride(
                         ticket.getAuthor().getIdLong(),
                         Arrays.asList(
@@ -57,6 +62,11 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
                     ticketManager.recordOpenedTicket(ticket);
 
                     if (ticket.getCategory().equals("comprar")) TermsOfService.SendTermsMenu(channel);
+                    if (ticket.getCategory().equals("aprimorar"))
+                        channel.sendMessageEmbeds(new EmbedBuilder()
+                                        .setColor(Color.GREEN)
+                                        .setDescription("Utilize o comando `/aprimorar` para aprimorar o plano desejado.")
+                                .build()).queue();
                 });
         ticketManager.getTicketMap().put(ticket.getAuthor().getId(), ticket);
 
