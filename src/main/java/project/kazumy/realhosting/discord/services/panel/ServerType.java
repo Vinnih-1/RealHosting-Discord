@@ -52,7 +52,7 @@ public enum ServerType {
     NODEJS_BOT("ghcr.io/parkervcp/yolks:nodejs_18",
             InitBot.panelManager.getApplication()
                     .retrieveEggById(InitBot.panelManager.getApplication()
-                            .retrieveNestById(5).execute(), 18).execute(),
+                            .retrieveNestById(5).execute(), 24).execute(),
             nodejsDiscordEnviroment());
 
     public static Map<String, EnvironmentValue<?>> spigotEnviroment() {
