@@ -45,54 +45,44 @@ public class RenewPlanCommand extends BaseSlashCommand {
                 val logsChat = event.getJDA().getTextChannelById(InitBot.config.getString("bot.guild.logs-chat-id"));
                 val qrCodeText = paymentManager.getPaymentQrCode(PaymentIntent.RENEW_PLAN, InitBot.config, plan);
                 val qrCodeImage = paymentManager.getPaymentQrCodeImage(qrCodeText, plan);
-                logsChat.sendMessage("QRCode PIX: " + event.getUser().getAsTag()).addFiles(FileUpload.fromData(qrCodeImage))
-                        .queue(qrcode -> {
-                            val embed = new EmbedBuilder()
-                                    .setAuthor(planData.getTitle(), planData.getLogo(), planData.getLogo())
-                                    .setFooter("Auto atendimento da RealHosting", planData.getLogo())
-                                    .setImage(qrcode.getAttachments().get(0).getProxyUrl())
-                                    .setColor(Color.GREEN)
-                                    .build();
+                logsChat.sendMessage("QRCode PIX: " + event.getUser().getAsTag())
+                        .addFiles(FileUpload.fromData(qrCodeImage)).queueAfter(2, TimeUnit.SECONDS, message -> {
+                            channel.sendMessage("RealHosting: Cobrança Automática de Serviços Prestados")
+                                    .addFiles(FileUpload.fromData(qrCodeImage))
+                                    .addEmbeds(new EmbedBuilder()
+                                            .setTitle(":white_check_mark: PIX! Basta copiar e colar.")
+                                            .setColor(Color.YELLOW)
+                                            .setDescription(qrCodeText)
+                                            .build()).queue(paymentMessage -> {
+                                        InitBot.paymentManager.getPaymentMP().detectRenewPayment(plan.getPlanData().getPlanId(), onSuccess -> {
+                                            plan.enablePlan(event.getGuild());
+                                            plan.updatePaymentIntent(PaymentIntent.NONE);
 
-                            channel.sendMessage("RealHosting: Cobrança Automática de Serviços Prestados").addEmbeds(embed, new EmbedBuilder()
-                                    .setTitle(":white_check_mark: PIX! Basta copiar e colar.")
-                                    .setColor(Color.YELLOW)
-                                    .setDescription(qrCodeText)
-                                    .build(), new EmbedBuilder()
-                                    .setTitle(":x: Vencimento do Pagamento")
-                                    .setDescription("O tempo limite de utilização deste QRCode é de 10 minuto(s), este QRCode será apagado após o prazo de 10 minutos.")
-                                    .setColor(Color.RED)
-                                    .build()).queue(paymentMessage -> {
-                                if (paymentMessage != null) paymentMessage.delete().queueAfter(10, TimeUnit.MINUTES);
-                            });
+                                            if (event.getChannel() == null) return;
+
+                                            if (!InitBot.panelManager.serverExistsByPlanId(plan.getPlanData().getPlanId())) {
+                                                channel.sendMessageEmbeds(new EmbedBuilder()
+                                                        .setColor(Color.RED)
+                                                        .setDescription(String.format("Não foi possível encontrar o servidor do plano %s para renovação! Por favor, abra um ticket.",
+                                                                plan.getPlanData().getPlanId()))
+                                                        .build()).queue();
+                                                return;
+                                            }
+                                            val server = InitBot.panelManager.getServerByPlanId(plan.getPlanData().getPlanId());
+                                            server.getController().unsuspend().executeAsync(success -> {
+                                                channel.sendMessageEmbeds(new EmbedBuilder()
+                                                        .setColor(Color.GREEN)
+                                                        .setDescription("Detectamos seu pagamento! Seu plano foi renovado por mais 1 mês.")
+                                                        .build()).queue();
+                                            });
+                                        });
+                                    }, failure -> {
+                                        event.getChannel().sendMessageEmbeds(new EmbedBuilder()
+                                                        .setColor(Color.RED)
+                                                        .setDescription(String.format(":x: <@%s>, você precisa estar com o DM aberto para renovar o seu plano!", event.getMember().getId()))
+                                                .build()).queue();
+                                            });
                         });
-                InitBot.paymentManager.getPaymentMP().detectRenewPayment(plan.getPlanData().getPlanId(), onSuccess -> {
-                    plan.enablePlan(event.getGuild());
-                    plan.updatePaymentIntent(PaymentIntent.NONE);
-
-                    if (event.getChannel() == null) return;
-
-                    if (!InitBot.panelManager.serverExistsByPlanId(plan.getPlanData().getPlanId())) {
-                        channel.sendMessageEmbeds(new EmbedBuilder()
-                                        .setColor(Color.RED)
-                                        .setDescription(String.format("Não foi possível encontrar o servidor do plano %s para renovação! Por favor, abra um ticket.",
-                                                plan.getPlanData().getPlanId()))
-                                .build()).queue();
-                        return;
-                    }
-                    val server = InitBot.panelManager.getServerByPlanId(plan.getPlanData().getPlanId());
-                    server.getController().unsuspend().executeAsync(success -> {
-                        channel.sendMessageEmbeds(new EmbedBuilder()
-                                .setColor(Color.GREEN)
-                                .setDescription("Detectamos seu pagamento! Seu plano foi renovado por mais 1 mês.")
-                                .build()).queue();
-                    });
-
-                });
-                event.getChannel().sendMessageEmbeds(new EmbedBuilder()
-                                .setColor(Color.GREEN)
-                                .setDescription(String.format(":white_check_mark: Um QRCode foi enviado em sua DM, %s", event.getUser().getAsTag()))
-                        .build()).queue();
                 return;
             }
             event.deferReply(true).setContent(":x: Não encontrei nenhum plano com esse identificador!").queue();
