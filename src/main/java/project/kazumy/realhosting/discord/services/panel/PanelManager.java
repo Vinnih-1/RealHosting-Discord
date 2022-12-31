@@ -185,11 +185,6 @@ public class PanelManager extends BaseService {
         return !getUsersByUsername(username).isEmpty();
     }
 
-    public void emailMenu(Configuration config, TextChannel channel) {
-        val embed = config.getEmbedMessageFromConfig(config, "panel");
-        channel.sendMessageEmbeds(embed.setColor(Color.GREEN).build()).queue();
-    }
-
     @Override
     public BaseService service(JDA jda, Configuration config) {
         for(int i = 5000; i <= 5500; i++) PORT_RANGE.add(i);

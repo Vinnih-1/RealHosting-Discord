@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 import project.kazumy.realhosting.discord.InitBot;
+import project.kazumy.realhosting.discord.configuration.embed.PanelEmbedValue;
 import project.kazumy.realhosting.discord.listener.InteractionService;
 import project.kazumy.realhosting.discord.services.panel.exceptions.PlanNotFoundException;
 import project.kazumy.realhosting.discord.services.payment.plan.*;
@@ -67,7 +68,7 @@ public class SelectPlanMenuInteraction extends InteractionService<SelectMenuInte
                                             InitBot.paymentManager.getPaymentMP().detectCreatePayment(plan, onSuccess -> {
                                                 if (event.getChannel() != null)
                                                     paymentMessage.delete().queue();
-                                                    InitBot.panelManager.emailMenu(InitBot.config, event.getChannel().asTextChannel());
+                                                event.getChannel().sendMessageEmbeds(PanelEmbedValue.getInstance().toEmbed()).queue();
                                                 onSuccess.enablePlan(event.getGuild());
                                             });
                                 });

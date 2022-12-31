@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEve
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.apache.commons.lang.RandomStringUtils;
 import project.kazumy.realhosting.discord.InitBot;
+import project.kazumy.realhosting.discord.configuration.embed.CloseTicketEmbedValue;
 import project.kazumy.realhosting.discord.listener.InteractionService;
 import project.kazumy.realhosting.discord.services.terms.TermsOfService;
 import project.kazumy.realhosting.discord.services.ticket.Ticket;
@@ -54,10 +55,7 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
                         ),
                         List.of(Permission.ADMINISTRATOR)
                 ).queue(channel -> {
-                    val embed = ticketManager.getConfig().getEmbedMessageFromConfig(ticketManager.getConfig(), "close-ticket");
-                    embed.setColor(Color.RED);
-
-                    channel.sendMessageEmbeds(embed.build()).addActionRow(Button.danger("close-ticket-button", Emoji.fromUnicode("U+2716"))).queue();
+                    channel.sendMessageEmbeds(CloseTicketEmbedValue.getInstance().toEmbed()).addActionRow(Button.danger("close-ticket-button", Emoji.fromUnicode("U+2716"))).queue();
                     ticket.setChannelId(channel.getId());
                     ticketManager.recordOpenedTicket(ticket);
 

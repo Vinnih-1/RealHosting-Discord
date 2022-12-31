@@ -21,12 +21,6 @@ public class CloseTicketButtonInteraction extends InteractionService<ButtonInter
         if (event.getMember() == null) return;
         event.deferReply().setContent(":x: Este ticket foi fechado por: " + event.getUser().getAsTag()).queue();
         val ticketManager = this.initBotInstance().ticketManager;
-        val channelManager = event.getChannel().asTextChannel().getManager();
-        channelManager.setName("closed-" + event.getChannel().getName()).queue();
-
-        event.getChannel().asTextChannel()
-                .getMemberPermissionOverrides()
-                .forEach(permission -> permission.delete().queue());
 
         InitBot.paymentManager.getPlansByUserId(event.getUser().getId()).stream()
                                 .filter(plan -> plan.getStageType() == StageType.CHOOSING_SERVER)
