@@ -1,4 +1,4 @@
-package project.kazumy.realhosting.discord.services.client;
+package project.kazumy.realhosting.discord.model.client;
 
 import org.simpleyaml.configuration.file.YamlFile;
 import project.kazumy.realhosting.discord.services.plan.Plan;

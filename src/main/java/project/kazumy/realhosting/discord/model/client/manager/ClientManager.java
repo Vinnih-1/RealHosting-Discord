@@ -1,11 +1,11 @@
-package project.kazumy.realhosting.discord.services.client.manager;
+package project.kazumy.realhosting.discord.model.client.manager;
 
 import lombok.SneakyThrows;
 import lombok.val;
 import org.simpleyaml.configuration.file.YamlFile;
 import org.simpleyaml.exceptions.InvalidConfigurationException;
-import project.kazumy.realhosting.discord.services.client.Client;
-import project.kazumy.realhosting.discord.services.client.impl.ClientImpl;
+import project.kazumy.realhosting.discord.model.client.Client;
+import project.kazumy.realhosting.discord.model.client.impl.ClientImpl;
 import project.kazumy.realhosting.discord.services.panel.ServerType;
 import project.kazumy.realhosting.discord.services.plan.PaymentIntent;
 import project.kazumy.realhosting.discord.services.plan.Plan;
@@ -15,6 +15,7 @@ import project.kazumy.realhosting.discord.services.plan.manager.PlanManager;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,7 +49,7 @@ public class ClientManager {
                 .forEach(config -> {
                     clientList.add(new ClientImpl(
                        config.getString("id"),
-                       null,
+                       getPlanByClientId(config.getString("id")),
                        new YamlFile(config.getString("id"))
                     ));
                 });
@@ -63,9 +64,9 @@ public class ClientManager {
                 .getKeys(false).stream()
                 .map(key -> configPlan.getConfigurationSection("client.plans." + key))
                 .map(config -> PlanImpl.builder()
-                        .create(null)
-                        .payment(null)
-                        .expiration(null)
+                        .creation(LocalDateTime.parse(config.getString("creation")))
+                        .payment(LocalDateTime.parse(config.getString("payment")))
+                        .expiration(LocalDateTime.parse(config.getString("expiration")))
                         .paymentIntent(PaymentIntent.valueOf(config.getString("intent")))
                         .serverType(ServerType.valueOf(config.getString("server")))
                         .stageType(StageType.valueOf(config.getString("stage")))
