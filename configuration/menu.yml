@@ -35,3 +35,74 @@ menu:
       logo: https://cdn.discordapp.com/attachments/967481970797985822/1032005392907112488/Dois_Laranjas.png
       id: '5'
       emoji: U+1F48E
+
+  ticket:
+    1:
+      name: 'Adquirir Serviços'
+      value: comprar
+      description: 'Contrate um dos planos do nosso serviço de hospedagem.'
+      emoji: U+1F4B5
+    2:
+      name: 'Aprimorar Serviços'
+      value: aprimorar
+      description: 'Aprimore seus serviços para um melhor aproveitamento.'
+      emoji: U+1F680
+    3:
+      name: 'Não... sério, preciso de ajuda!'
+      value: técnico
+      description: 'Contate-nos pra solucionar problemas em seu serviço.'
+      emoji: U+1F4BB
+    4:
+      name: 'Esclarecer Dúvidas'
+      value: dúvida
+      description: 'Acabe com aquela pulga atrás da orelha.'
+      emoji: U+1F4A1
+    5:
+      name: 'Crítica Construtiva'
+      value: sugestão
+      description: 'Dê uma crítica construtiva em algo que podemos melhorar.'
+      emoji: U+1F48C
+
+  egg:
+    '1':
+      name: Paper Spigot
+      value: server.type.paper_spigot
+      description: Usado para criar servidores de Minecraft
+      id: '1'
+      emoji: U+1F9F1
+    '2':
+      name: BungeeCord
+      value: server.type.bungeecord
+      description: Usado para criar uma rede de servidores
+      id: '2'
+      emoji: U+1F310
+    '3':
+      name: PocketMine
+      value: server.type.pocketmine
+      description: Usado para jogar Minecraft com amigos
+      id: '3'
+      emoji: U+260E
+    '4':
+      name: Nukkit
+      value: server.type.nukkit
+      description: Crie um servidor com plugins
+      id: '4'
+      emoji: U+1F4F1
+    '5':
+      name: Bedrock
+      value: server.type.bedrock
+      description: Jogue com seus amigos com Minecraft Bedrock
+      id: '5'
+      emoji: U+1F5A5
+    '6':
+      name: Aplicação Java
+      value: server.type.java_bot
+      description: Hospede aplicações feitas em Java
+      id: '6'
+      emoji: U+2699
+    '7':
+      name: Aplicação NodeJS
+      value: server.type.nodejs_bot
+      description: Hospede aplicações feitas em NodeJS
+      id: '7'
+      emoji: U+1F527

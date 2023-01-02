@@ -7,9 +7,10 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 import project.kazumy.realhosting.discord.InitBot;
+import project.kazumy.realhosting.discord.configuration.basic.GuildValue;
 import project.kazumy.realhosting.discord.listener.InteractionService;
-import project.kazumy.realhosting.discord.services.payment.plan.PaymentIntent;
-import project.kazumy.realhosting.discord.services.payment.plan.PlanType;
+import project.kazumy.realhosting.discord.services.plan.PaymentIntent;
+import project.kazumy.realhosting.discord.services.plan.PlanType;
 
 import java.awt.*;
 import java.math.BigDecimal;
@@ -26,7 +27,7 @@ public class UpgradeMenuInteraction extends InteractionService<SelectMenuInterac
 
     @Override
     public void execute(SelectMenuInteractionEvent event) {
-        val logsChat = event.getJDA().getTextChannelById(InitBot.config.getString("bot.guild.logs-chat-id"));
+        /*val logsChat = event.getJDA().getTextChannelById(GuildValue.get(GuildValue::logs));
         val section = InitBot.config.getConfigurationSection(event.getSelectedOptions().get(0).getValue());
         val price = event.getSelectedOptions().get(0).getLabel().split(":")[0]
                 .replace("R$", "")
@@ -105,7 +106,6 @@ public class UpgradeMenuInteraction extends InteractionService<SelectMenuInterac
                                                 .setAllowedBackups((int) selectedPlanType.getBackup())
                                                 .executeAsync(success -> {
                                                     plan.setForcedApproved(false);
-
                                                     val member = event.getGuild().getMemberById(plan.getPlanData().getUserId());
                                                     val dateTime = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
                                                     val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -140,7 +140,6 @@ public class UpgradeMenuInteraction extends InteractionService<SelectMenuInterac
                                     .setColor(Color.RED)
                                     .setDescription("Não consegui mais encontrar este plano!")
                             .build()).queue();
-                });
-
+                });*/
     }
 }

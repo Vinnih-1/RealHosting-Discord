@@ -8,22 +8,18 @@ import com.mattmalec.pterodactyl4j.application.entities.ApplicationUser;
 import com.mattmalec.pterodactyl4j.application.entities.PteroApplication;
 import lombok.Getter;
 import lombok.val;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import project.kazumy.realhosting.discord.InitBot;
-import project.kazumy.realhosting.discord.configuration.Configuration;
+import project.kazumy.realhosting.discord.configuration.basic.PanelValue;
+import project.kazumy.realhosting.discord.configuration.embed.PreExpirationEmbedValue;
 import project.kazumy.realhosting.discord.services.BaseService;
 import project.kazumy.realhosting.discord.services.panel.exceptions.EmailAlreadyExistsException;
 import project.kazumy.realhosting.discord.services.panel.exceptions.UsernameAlreadyExistsException;
 import project.kazumy.realhosting.discord.services.panel.exceptions.WrongEmailException;
 import project.kazumy.realhosting.discord.services.panel.exceptions.WrongUsernameException;
-import project.kazumy.realhosting.discord.services.payment.plan.PlanBuilder;
+import project.kazumy.realhosting.discord.services.plan.PlanBuilder;
 
-import java.awt.*;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
@@ -42,7 +38,7 @@ public class PanelManager extends BaseService {
         super(1L);
     }
 
-    public void expireServerTimer(Guild guild, Configuration config) {
+    public void expireServerTimer(Guild guild) {
         val timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -54,20 +50,9 @@ public class PanelManager extends BaseService {
                             guild.retrieveMemberById(plan.getPlanData().getUserId()).queue(member -> {
                                 member.getUser()
                                         .openPrivateChannel().queue(channel -> {
-                                            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                                            val embedConfig = config.getEmbedMessageFromConfig(config, "pre-expiration");
-                                            val embed = new EmbedBuilder();
-                                            embed.setColor(Color.YELLOW);
-                                            embed.setTitle(embedConfig.build().getTitle());
-                                            embedConfig.getFields().forEach(embed::addField);
-                                            embed.setDescription(String.format(embedConfig.getDescriptionBuilder().toString().replace("\\n", "\n"),
-                                                    plan.getPlanData().getPlanId(),
-                                                    plan.getExpirationDate().format(formatter),
-                                                    plan.getExpirationDate().minusDays(2L).format(formatter)));
-                                            channel.sendMessageEmbeds(embed.build()).queue();
+                                            channel.sendMessageEmbeds(PreExpirationEmbedValue.instance().toEmbed(plan)).queue();
                                             plan.setNotified(true);
                                             plan.saveConfig();
-
                                             Logger.getGlobal().info(String.format("Autor %s notificado sobre a falta de pagamento", plan.getPlanData().getUserAsTag()));
                                         });
                                     });
@@ -186,10 +171,11 @@ public class PanelManager extends BaseService {
     }
 
     @Override
-    public BaseService service(JDA jda, Configuration config) {
-        for(int i = 5000; i <= 5500; i++) PORT_RANGE.add(i);
+    public BaseService service(JDA jda) {
+        System.out.println(PanelValue.get(PanelValue::url) + PanelValue.get(PanelValue::token));
 
-        application = PteroBuilder.createApplication(config.getString("bot.panel.url"), config.getString("bot.panel.token"));
+        for(int i = 5000; i <= 5500; i++) PORT_RANGE.add(i);
+        application = PteroBuilder.createApplication(PanelValue.get(PanelValue::url), PanelValue.get(PanelValue::token));
 
         return this;
     }

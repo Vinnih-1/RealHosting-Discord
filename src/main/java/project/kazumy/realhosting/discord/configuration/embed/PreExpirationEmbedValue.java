@@ -5,14 +5,20 @@ import com.henryfabio.minecraft.configinjector.common.annotations.ConfigFile;
 import com.henryfabio.minecraft.configinjector.common.annotations.ConfigSection;
 import com.henryfabio.minecraft.configinjector.common.injector.ConfigurationInjectable;
 import lombok.Getter;
+import lombok.SneakyThrows;
+import lombok.experimental.Accessors;
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.simpleyaml.configuration.ConfigurationSection;
+import org.simpleyaml.configuration.file.YamlFile;
+import project.kazumy.realhosting.discord.services.plan.PlanBuilder;
 
 import java.awt.*;
+import java.time.format.DateTimeFormatter;
 import java.util.function.Function;
 
+@Getter @Accessors(fluent = true)
 @ConfigSection("embed.pre-expiration")
 @ConfigFile("embed.yml")
 public class PreExpirationEmbedValue implements ConfigurationInjectable {
@@ -24,22 +30,54 @@ public class PreExpirationEmbedValue implements ConfigurationInjectable {
     @ConfigField("description") private String description;
     @ConfigField("thumbnail") private String thumbnail;
     @ConfigField("site") private String site;
-    @ConfigField("fields.1") private ConfigurationSection field1;
-    @ConfigField("fields.2") private ConfigurationSection field2;
+    @ConfigField("fields") private ConfigurationSection section;
 
-    public MessageEmbed toEmbed() {
+    @SneakyThrows
+    public MessageEmbed toEmbed(PlanBuilder plan) {
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        val yamlFile = new YamlFile("configuration/embed.yml");
+        yamlFile.load();
         val embed = new EmbedBuilder();
         embed.setColor(Color.YELLOW);
         embed.setTitle(title);
         embed.setFooter(footer);
-        embed.setDescription(description);
-        embed.addField(field1.getString("name"), field1.getString("value"), field1.getBoolean("inline"));
-        embed.addField(field2.getString("name"), field2.getString("value"), field2.getBoolean("inline"));
+        embed.setDescription(String.format(description.replace("\\n", "\n"),
+                plan.getPlanData().getPlanId(),
+                plan.getExpirationDate().format(formatter),
+                plan.getExpirationDate().minusDays(2L).format(formatter)));
+        if (section == null) return embed.build();
 
+        val name = new StringBuilder();
+        val value = new StringBuilder();
+        val inline = new StringBuilder();
+        section.getKeys(true).stream()
+                .filter(field -> !yamlFile.getConfigurationSection(section.getCurrentPath()).getString(field).startsWith("MemorySection"))
+                .distinct()
+                .forEach(field -> {
+                    switch (field.split("\\.")[1]) {
+                        case "name":
+                            name.append(section.getString(field));
+                            break;
+
+                        case "value":
+                            value.append(section.getString(field));
+                            break;
+
+                        case "inline":
+                            inline.append(section.getString(field));
+                            break;
+                    }
+                    if (!name.toString().isEmpty() && !value.toString().isEmpty() && !inline.toString().isEmpty()) {
+                        embed.addField(name.toString(), value.toString(), Boolean.parseBoolean(inline.toString()));
+                        name.setLength(0);
+                        value.setLength(0);
+                        inline.setLength(0);
+                    }
+                });
         return embed.build();
     }
 
-    public <T> T get(Function<PreExpirationEmbedValue, T> function) {
+    public static <T> T get(Function<PreExpirationEmbedValue, T> function) {
         return function.apply(instance);
     }
 }

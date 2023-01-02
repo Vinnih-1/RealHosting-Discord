@@ -1,14 +1,11 @@
 package project.kazumy.realhosting.discord.listener.interactions;
 
 import lombok.val;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.listener.InteractionService;
-import project.kazumy.realhosting.discord.services.payment.plan.PlanBuilder;
-import project.kazumy.realhosting.discord.services.payment.plan.StageType;
-
-import java.awt.*;
+import project.kazumy.realhosting.discord.services.plan.PlanBuilder;
+import project.kazumy.realhosting.discord.services.plan.StageType;
 
 public class CloseTicketButtonInteraction extends InteractionService<ButtonInteractionEvent> {
 

@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.commands.base.BaseSlashCommand;
-import project.kazumy.realhosting.discord.services.payment.plan.StageType;
+import project.kazumy.realhosting.discord.services.plan.StageType;
 
 import java.awt.*;
 import java.time.LocalDateTime;

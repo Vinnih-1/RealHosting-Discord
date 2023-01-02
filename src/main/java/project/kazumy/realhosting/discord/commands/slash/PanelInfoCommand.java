@@ -10,8 +10,7 @@ import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.commands.base.BaseSlashCommand;
 import project.kazumy.realhosting.discord.services.panel.PanelManager;
 import project.kazumy.realhosting.discord.services.panel.UserPanel;
-import project.kazumy.realhosting.discord.services.payment.plan.PaymentIntent;
-import project.kazumy.realhosting.discord.services.payment.plan.StageType;
+import project.kazumy.realhosting.discord.services.plan.PaymentIntent;
 
 import java.awt.*;
 import java.util.Arrays;

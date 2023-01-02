@@ -6,10 +6,11 @@ import lombok.val;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.exceptions.ContextException;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import project.kazumy.realhosting.discord.configuration.Configuration;
+import project.kazumy.realhosting.discord.configuration.basic.GuildValue;
+import project.kazumy.realhosting.discord.configuration.basic.TicketValue;
+import project.kazumy.realhosting.discord.configuration.embed.TicketEmbedValue;
+import project.kazumy.realhosting.discord.configuration.menu.TicketMenuValue;
 import project.kazumy.realhosting.discord.services.BaseService;
 import project.kazumy.realhosting.discord.services.ticket.Ticket;
 
@@ -24,62 +25,18 @@ import java.util.logging.Logger;
 public class TicketManager extends BaseService {
 
     private final Map<String, Ticket> ticketMap = new HashMap<>();
-    private Configuration config;
-
     private JDA jda;
 
     public TicketManager() {
         super(3L);
     }
 
-    @SneakyThrows
-    public void setDefaultTicketMessage() {
-        config.addDefaults(consumer -> {
-            consumer.addDefault("bot.guild.ticket.title", "Title");
-            consumer.addDefault("bot.guild.ticket.footer", "Footer");
-            consumer.addDefault("bot.guild.ticket.description", "Hello World \\n Zumo was here!");
-            consumer.addDefault("bot.guild.ticket.thumbnail", "thumbnail-url");
-            consumer.addDefault("bot.guild.ticket.site", "site-url");
-            consumer.addDefault("bot.guild.ticket.fields.1.name", "My Name is");
-            consumer.addDefault("bot.guild.ticket.fields.1.value", "Zumo");
-            consumer.addDefault("bot.guild.ticket.fields.1.inline", true);
-            consumer.addDefault("bot.guild.ticket.fields.2.name", "My Job is");
-            consumer.addDefault("bot.guild.ticket.fields.2.value", "Supporter of RealHosting");
-            consumer.addDefault("bot.guild.ticket.fields.2.inline", true);
-
-            consumer.addDefault("bot.guild.close-ticket.title", ":x: Do you want to close this ticket?");
-            consumer.addDefault("bot.guild.close-ticket.footer", "Footer");
-            consumer.addDefault("bot.guild.close-ticket.thumbnail", "thumbnail-url");
-            consumer.addDefault("bot.guild.close-ticket.description", "Click on red button to close this ticket!");
-            consumer.addDefault("bot.guild.close-ticket.site", "site-url");
-            consumer.addDefault("bot.guild.close-ticket.fields.1.name", "My Name is");
-            consumer.addDefault("bot.guild.close-ticket.fields.1.value", "Zumo");
-            consumer.addDefault("bot.guild.close-ticket.fields.1.inline", true);
-            consumer.addDefault("bot.guild.close-ticket.fields.2.name", "My Job is");
-            consumer.addDefault("bot.guild.close-ticket.fields.2.value", "Supporter of RealHosting");
-            consumer.addDefault("bot.guild.close-ticket.fields.2.inline", true);
-        });
-        config.save();
-    }
-
     public void sendTicketMenu() {
-        val section = "bot.guild.ticket.";
-
-        val textChannel = jda.getTextChannelById(config.getString("bot.guild.ticket-chat-id"));
+        val textChannel = jda.getTextChannelById(TicketValue.get(TicketValue::channel));
         textChannel.retrievePinnedMessages().queue(message -> {
             if (message.stream().anyMatch(embed -> embed.getAuthor().isBot()))
                 return;
-
-            val embed = config.getEmbedMessageFromConfig(this.config, "ticket");
-            val menu = SelectMenu.create("menu-ticket")
-                    .addOption("Adquirir Serviços", "comprar", "Contrate um dos planos do nosso serviço de hospedagem.", Emoji.fromUnicode("U+1F4B5"))
-                    .addOption("Aprimorar Serviços", "aprimorar", "Aprimore seus serviços para um melhor aproveitamento.", Emoji.fromUnicode("U+1F680"))
-                    .addOption("Não... sério, preciso de ajuda!", "técnico", "Contate-nos pra solucionar problemas em seu serviço.", Emoji.fromUnicode("U+1F4BB"))
-                    .addOption("Esclarecer Dúvidas", "dúvida", "Acabe com aquela pulga atrás da orelha.", Emoji.fromUnicode("U+1F4A1"))
-                    .addOption("Crítica Construtiva", "sugestão", "Dê uma crítica construtiva em algo que podemos melhorar.", Emoji.fromUnicode("U+1F48C"))
-                    .build();
-
-            textChannel.sendMessageEmbeds(embed.build()).addActionRow(menu).queue();
+            textChannel.sendMessageEmbeds(TicketEmbedValue.instance().toEmbed()).addActionRow(TicketMenuValue.instance().toMenu("menu-ticket")).queue();
         });
     }
 
@@ -179,13 +136,11 @@ public class TicketManager extends BaseService {
     }
 
     @Override
-    public BaseService service(JDA jda, Configuration config) {
+    public BaseService service(JDA jda) {
         this.jda = jda;
-        this.config = config;
 
-        setDefaultTicketMessage();
-        sendTicketMenu();
-        loadOpenedTicket(jda.getGuildById("832601856403701771"));
+        //sendTicketMenu();
+        loadOpenedTicket(jda.getGuildById(GuildValue.get(GuildValue::id)));
 
         return this;
     }

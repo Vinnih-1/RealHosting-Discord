@@ -4,6 +4,7 @@ import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import project.kazumy.realhosting.discord.InitBot;
+import project.kazumy.realhosting.discord.configuration.menu.PlanMenuValue;
 import project.kazumy.realhosting.discord.listener.InteractionService;
 
 import java.awt.*;
@@ -18,7 +19,6 @@ public class UpgradeAgreeButtonInteraction extends InteractionService<ButtonInte
     public void execute(ButtonInteractionEvent event) {
         val paymentManager = InitBot.paymentManager;
         val panelManager = InitBot.panelManager;
-        val config = InitBot.config;
         val args = event.getButton().getId().split(";");
         val userId = args[1];
         val planString = args[2];
@@ -56,8 +56,8 @@ public class UpgradeAgreeButtonInteraction extends InteractionService<ButtonInte
                 .setDescription("Selecione qual plano você quer aprimorar.")
                 .setThumbnail(plan.getPlanData().getLogo())
                 .build();
-        val menu = config.getMenuFromConfig(config, "bot.guild.payment.plans", "upgrade-menu");
+
         event.getMessage().delete().queue();
-        event.getChannel().sendMessageEmbeds(embed).addActionRow(menu.build()).queue();
+        event.getChannel().sendMessageEmbeds(embed).addActionRow(PlanMenuValue.instance().toMenu("upgrade-menu")).queue();
     }
 }

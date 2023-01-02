@@ -1,4 +1,4 @@
-package project.kazumy.realhosting.discord.configuration.guild;
+package project.kazumy.realhosting.discord.configuration.basic;
 
 import com.henryfabio.minecraft.configinjector.common.annotations.ConfigField;
 import com.henryfabio.minecraft.configinjector.common.annotations.ConfigFile;
@@ -12,14 +12,14 @@ import java.util.function.Function;
 @ConfigSection("bot.guild")
 @Getter @Accessors(fluent = true)
 @ConfigFile("config.yml")
-public class GuildServerValue implements ConfigurationInjectable {
+public class GuildValue implements ConfigurationInjectable {
 
-    @Getter private static final GuildServerValue instance = new GuildServerValue();
+    @Getter private static final GuildValue instance = new GuildValue();
 
     @ConfigField("id") private String id;
-    @ConfigField("logs-chat-id") private String logsId;
+    @ConfigField("logs-chat-id") private String logs;
 
-    public <T> T get(Function<GuildServerValue, T> function) {
+    public static <T> T get(Function<GuildValue, T> function) {
         return function.apply(instance);
     }
 }

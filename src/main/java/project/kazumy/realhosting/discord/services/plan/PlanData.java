@@ -1,4 +1,4 @@
-package project.kazumy.realhosting.discord.services.payment.plan;
+package project.kazumy.realhosting.discord.services.plan;
 
 import lombok.Builder;
 import lombok.Data;

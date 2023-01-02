@@ -2,7 +2,6 @@ package project.kazumy.realhosting.discord.services;
 
 import org.reflections.Reflections;
 import project.kazumy.realhosting.discord.InitBot;
-import project.kazumy.realhosting.discord.configuration.Configuration;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -11,12 +10,12 @@ import java.util.logging.Logger;
 
 public class ServiceManager {
 
-    public static void loadServices(InitBot initBot, Configuration config) {
+    public static void loadServices(InitBot initBot) {
         new Reflections("project.kazumy.realhosting.discord.services").getSubTypesOf(BaseService.class)
                 .stream()
                 .map(service -> {
                     try {
-                        return service.getDeclaredConstructor().newInstance().service(initBot.jda, config);
+                        return service.getDeclaredConstructor().newInstance().service(initBot.jda);
                     } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                         Logger.getGlobal().severe("Some service could not be loaded: " + service.getName() + " " + e.getMessage());
                         System.exit(1);

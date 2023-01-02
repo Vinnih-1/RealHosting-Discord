@@ -1,0 +1,19 @@
+client:
+  id: 519070128341
+  plans:
+    1:
+      type: BASIC
+      stage: ACTIVED
+      intent: NONE
+      server: MINECRAFT
+      creation: ''
+      payment: ''
+      expiration: ''
+    2:
+      type: ADVANCED
+      stage: ACTIVED
+      intent: NONE
+      server: MINECRAFT
+      creation: ''
+      payment: ''
+      expiration: ''

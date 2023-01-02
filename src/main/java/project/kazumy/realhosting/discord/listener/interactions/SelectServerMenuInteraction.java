@@ -1,15 +1,18 @@
 package project.kazumy.realhosting.discord.listener.interactions;
 
 import lombok.val;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import org.apache.commons.lang.RandomStringUtils;
 import project.kazumy.realhosting.discord.InitBot;
+import project.kazumy.realhosting.discord.configuration.embed.PaymentEmbedValue;
+import project.kazumy.realhosting.discord.configuration.menu.PlanMenuValue;
 import project.kazumy.realhosting.discord.listener.InteractionService;
 import project.kazumy.realhosting.discord.services.panel.ServerType;
-import project.kazumy.realhosting.discord.services.payment.plan.*;
+import project.kazumy.realhosting.discord.services.plan.PaymentIntent;
+import project.kazumy.realhosting.discord.services.plan.PlanBuilder;
+import project.kazumy.realhosting.discord.services.plan.PlanData;
+import project.kazumy.realhosting.discord.services.plan.StageType;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
@@ -37,6 +40,7 @@ public class SelectServerMenuInteraction extends InteractionService<SelectMenuIn
         planData.setExternalReference(planData.getPlanId());
         plan.registerPlan();
         InitBot.paymentManager.getPlans().add(plan);
-        event.getMessage().delete().queue(success -> InitBot.paymentManager.sendBuyMenu(event.getChannel().asTextChannel(), InitBot.config, "buy-menu"));
+        event.getMessage().delete().queue(success -> event.getChannel().sendMessageEmbeds(PaymentEmbedValue.get(PaymentEmbedValue::toEmbed))
+                .addActionRow(PlanMenuValue.instance().toMenu("buy-menu")));
     }
 }

@@ -38,7 +38,7 @@ public final class TermsOfService extends BaseService {
     }
 
     @Override
-    public BaseService service(JDA jda, Configuration config) {
+    public BaseService service(JDA jda) {
         if (!checkIfTermsExists()) {
             Logger.getGlobal().severe("The bot could not initialize! Terms of Service file is missing...");
             System.exit(1);

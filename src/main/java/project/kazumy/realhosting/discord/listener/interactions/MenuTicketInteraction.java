@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEve
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.apache.commons.lang.RandomStringUtils;
 import project.kazumy.realhosting.discord.InitBot;
+import project.kazumy.realhosting.discord.configuration.basic.TicketValue;
 import project.kazumy.realhosting.discord.configuration.embed.CloseTicketEmbedValue;
 import project.kazumy.realhosting.discord.listener.InteractionService;
 import project.kazumy.realhosting.discord.services.terms.TermsOfService;
@@ -43,7 +44,7 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
                 .category(event.getSelectedOptions().get(0).getValue())
                 .id(RandomStringUtils.randomNumeric(8)).build();
 
-        val category = ticketManager.getJda().getCategoryById(ticketManager.getConfig().getString("bot.guild.ticket-category-id"));
+        val category = ticketManager.getJda().getCategoryById(TicketValue.get(TicketValue::category));
 
         category.createTextChannel(ticket.getAuthor().getAsTag() + "-" + ticket.getCategory())
                 .addMemberPermissionOverride(
@@ -55,7 +56,7 @@ public class MenuTicketInteraction extends InteractionService<SelectMenuInteract
                         ),
                         List.of(Permission.ADMINISTRATOR)
                 ).queue(channel -> {
-                    channel.sendMessageEmbeds(CloseTicketEmbedValue.getInstance().toEmbed()).addActionRow(Button.danger("close-ticket-button", Emoji.fromUnicode("U+2716"))).queue();
+                    channel.sendMessageEmbeds(CloseTicketEmbedValue.get(CloseTicketEmbedValue::toEmbed)).addActionRow(Button.danger("close-ticket-button", Emoji.fromUnicode("U+2716"))).queue();
                     ticket.setChannelId(channel.getId());
                     ticketManager.recordOpenedTicket(ticket);
 

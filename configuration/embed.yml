@@ -1,0 +1,96 @@
+embed:
+  ticket:
+    title: ':telephone: Atendimento da RealHosting'
+    footer: Atendimento oficial da RealHosting
+    description: Seja bem-vindo(a) ao atendimento da RealHosting. Para iniciar seu
+      atendimento selecione a categoria no meu abaixo.
+    thumbnail: https://media.discordapp.net/attachments/856621081438453770/1027391598541164574/Dois_Laranjas.png?width=534&height=534
+    site: https://app.realhosting.com.br
+
+  close-ticket:
+    title: ':x: Você quer fechar este ticket?'
+    footer: Atendimento oficial da RealHosting
+    thumbnail: https://media.discordapp.net/attachments/856621081438453770/1027391598541164574/Dois_Laranjas.png?width=534&height=534
+    description: Clique no botão vermelho para fechar este ticket!
+    site: https://app.realhosting.com.br
+    fields:
+      '1':
+        name: Horário de Atendimento
+        value: 14:30 às 23:00
+        inline: true
+      '2':
+        name: Dias de Atendimento
+        value: Segunda a Sexta (Salvo Feriados)
+        inline: true
+
+  payment:
+    title: ':desktop: Aqui você poderá escolher seu plano'
+    footer: Auto-Atendimento oficial da RealHosting
+    thumbnail: https://media.discordapp.net/attachments/856621081438453770/1027391598541164574/Dois_Laranjas.png?width=534&height=534
+    description: Clique no plano que mais lhe agrada e veja a mágica acontecer!
+    site: https://app.realhosting.com.br
+    fields:
+      '1':
+        name: Horário de Atendimento
+        value: 14:30 às 23:00
+        inline: true
+      '2':
+        name: Dias de Atendimento
+        value: Segunda a Sexta (Salvo Feriados)
+        inline: true
+
+  pre-expiration:
+    title: ':warning: Aviso de Vencimento de Plano'
+    footer: Atendimento oficial da RealHosting
+    description: 'Opa! Gostaria de avisá-lo, que, seu plano na RealHosting estará
+      sendo suspenso em um dia. Para seu plano não ser suspenso, basta realizar
+      o pagamento da forma normal, assim, estará podendo utilizar a hospedagem normalmente.
+      \n \nLink do Painel: https://app.realhosting.com.br \n \nIdentificador do
+      Plano %s \n \nData máxima de pagamento antes de ser suspenso: %s \n \nData
+      em que deve ser realizado de forma normal o pagamento, para não ocorrer avisos
+      prévios: %s \n \nPara renovar seu plano utilize o comando `/renovar` \n \nAtenciosamente,
+      RealHosting.'
+    thumbnail: https://media.discordapp.net/attachments/856621081438453770/1027391598541164574/Dois_Laranjas.png?width=534&height=534
+    site: https://app.realhosting.com.br
+    fields:
+      '1':
+        name: Horário de Atendimento
+        value: 14:30 às 23:00
+        inline: true
+      '2':
+        name: Dias de Atendimento
+        value: Segunda a Sexta (Salvo Feriados)
+        inline: true
+
+  server:
+    title: ':desktop: Aqui você poderá escolher o tipo do seu servidor'
+    footer: Auto-Atendimento oficial da RealHosting
+    thumbnail: https://media.discordapp.net/attachments/856621081438453770/1027391598541164574/Dois_Laranjas.png?width=534&height=534
+    description: Clique no tipo do servidor que você deseja fazer!
+    site: https://app.realhosting.com.br
+    fields:
+      '1':
+        name: Horário de Atendimento
+        value: 14:30 às 23:00
+        inline: true
+      '2':
+        name: Dias de Atendimento
+        value: Segunda a Sexta (Salvo Feriados)
+        inline: true
+
+  panel:
+    title: ':identification_card: Auto atendimento da RealHosting'
+    footer: Estamos quase terminando...
+    description: Utilize o comando /painel para preencher suas informações, caso
+      já tenha uma conta insira apenas o email que deseja adicionar o servidor.
+    thumbnail: https://media.discordapp.net/attachments/856621081438453770/1027391598541164574/Dois_Laranjas.png?width=534&height=534
+    site: https://app.realhosting.com.br
+    fields:
+      '1':
+        name: Horário de Atendimento
+        value: 14:30 às 23:00
+        inline: true
+      '2':
+        name: Dias de Atendimento
+        value: Segunda a Sexta (Salvo Feriados)
+        inline: true

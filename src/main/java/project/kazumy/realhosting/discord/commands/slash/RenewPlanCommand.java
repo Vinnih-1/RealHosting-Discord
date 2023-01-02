@@ -8,13 +8,12 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.FileUpload;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.commands.base.BaseSlashCommand;
-import project.kazumy.realhosting.discord.services.payment.plan.PaymentIntent;
-import project.kazumy.realhosting.discord.services.payment.plan.StageType;
+import project.kazumy.realhosting.discord.services.plan.PaymentIntent;
+import project.kazumy.realhosting.discord.services.plan.StageType;
 
 import java.awt.*;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 public class RenewPlanCommand extends BaseSlashCommand {
 
@@ -25,7 +24,7 @@ public class RenewPlanCommand extends BaseSlashCommand {
 
     @Override
     public void execute(SlashCommandInteractionEvent event) {
-        val typedPlan = event.getOption("plano").getAsString();
+        /*val typedPlan = event.getOption("plano").getAsString();
 
         event.getUser().openPrivateChannel().queue(channel -> {
             if (InitBot.paymentManager.hasPlanByPlanId(typedPlan)) {
@@ -88,6 +87,6 @@ public class RenewPlanCommand extends BaseSlashCommand {
             event.deferReply(true).setContent(":x: Não encontrei nenhum plano com esse identificador!").queue();
         }, failure -> {
             event.deferReply(true).setContent(":x: Você precisa estar com o DM aberto para renovar o seu plano!").queue();
-        });
+        });*/
     }
 }

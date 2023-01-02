@@ -1,4 +1,4 @@
-package project.kazumy.realhosting.discord.services.payment.plan;
+package project.kazumy.realhosting.discord.services.plan;
 
 import lombok.*;
 import net.dv8tion.jda.api.entities.Guild;

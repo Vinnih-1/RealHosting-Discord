@@ -14,10 +14,9 @@ import lombok.val;
 import net.dv8tion.jda.api.JDA;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.services.panel.PanelManager;
-import project.kazumy.realhosting.discord.services.payment.plan.PaymentIntent;
-import project.kazumy.realhosting.discord.services.payment.plan.PlanBuilder;
+import project.kazumy.realhosting.discord.services.plan.PaymentIntent;
+import project.kazumy.realhosting.discord.services.plan.PlanBuilder;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -33,7 +32,6 @@ public class PaymentMP {
 
     private final PaymentManager paymentManager;
     private final PanelManager panelManager;
-    private final Configuration config;
     private final JDA jda;
 
     private static final int SEARCH_LIMIT = 900;
@@ -201,7 +199,6 @@ public class PaymentMP {
 
     @SneakyThrows
     public File getAsImage(String qrCodeText, String userId) {
-
         val qr = QrCode.encodeText(qrCodeText, QrCode.Ecc.MEDIUM);
         val img = PaymentManager.toImage(qr, 10, 4);
         val qrCodeImage = new File( userId + ".png");

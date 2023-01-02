@@ -1,4 +1,4 @@
-package project.kazumy.realhosting.discord.services.plan;
+package project.kazumy.realhosting.discord.services.plan.pre;
 
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 

@@ -7,10 +7,13 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 import project.kazumy.realhosting.discord.InitBot;
+import project.kazumy.realhosting.discord.configuration.basic.GuildValue;
 import project.kazumy.realhosting.discord.configuration.embed.PanelEmbedValue;
 import project.kazumy.realhosting.discord.listener.InteractionService;
 import project.kazumy.realhosting.discord.services.panel.exceptions.PlanNotFoundException;
-import project.kazumy.realhosting.discord.services.payment.plan.*;
+import project.kazumy.realhosting.discord.services.plan.PaymentIntent;
+import project.kazumy.realhosting.discord.services.plan.PlanType;
+import project.kazumy.realhosting.discord.services.plan.StageType;
 
 import java.awt.*;
 import java.math.BigDecimal;
@@ -23,9 +26,8 @@ public class SelectPlanMenuInteraction extends InteractionService<SelectMenuInte
     }
 
     @Override
-    @SneakyThrows
     public void execute(SelectMenuInteractionEvent event) {
-        val logsChat = event.getJDA().getTextChannelById(InitBot.config.getString("bot.guild.logs-chat-id"));
+        /*val logsChat = event.getJDA().getTextChannelById(GuildValue.get(GuildValue::logs));
         val section = InitBot.config.getConfigurationSection(event.getSelectedOptions().get(0).getValue());
         val price = event.getSelectedOptions().get(0).getLabel().split(":")[0]
                 .replace("R$", "")
@@ -73,6 +75,6 @@ public class SelectPlanMenuInteraction extends InteractionService<SelectMenuInte
                                             });
                                 });
                             });
-                }, () -> event.deferReply().setContent(":x: " + new PlanNotFoundException().getMessage()).queue());
+                }, () -> event.deferReply().setContent(":x: " + new PlanNotFoundException().getMessage()).queue());*/
     }
 }

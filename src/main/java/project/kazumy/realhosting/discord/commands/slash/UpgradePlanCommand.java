@@ -9,14 +9,14 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.commands.base.BaseSlashCommand;
-import project.kazumy.realhosting.discord.services.payment.plan.PaymentIntent;
+import project.kazumy.realhosting.discord.configuration.menu.PlanMenuValue;
+import project.kazumy.realhosting.discord.services.plan.PaymentIntent;
 
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.logging.Logger;
 
 public class UpgradePlanCommand extends BaseSlashCommand {
 
@@ -86,6 +86,6 @@ public class UpgradePlanCommand extends BaseSlashCommand {
         embed.addField("Intenção de Pagamento", plan.getPaymentIntent().toString(), true);
         embed.addField("Referência Externa", externalReference == null ? "Nenhuma" : plan.getPlanData().getExternalReference(), true);
 
-        event.deferReply().addEmbeds(embed.build()).addActionRow(paymentManager.getBuyMenu(InitBot.config, "upgrade-menu").build()).queue();
+        event.deferReply().addEmbeds(embed.build()).addActionRow(PlanMenuValue.instance().toMenu("upgrade-menu")).queue();
     }
 }

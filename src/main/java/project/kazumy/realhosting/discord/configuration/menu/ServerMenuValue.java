@@ -6,6 +6,7 @@ import com.henryfabio.minecraft.configinjector.common.annotations.ConfigSection;
 import com.henryfabio.minecraft.configinjector.common.injector.ConfigurationInjectable;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.experimental.Accessors;
 import lombok.val;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
@@ -14,13 +15,14 @@ import org.simpleyaml.configuration.file.YamlFile;
 
 import java.util.function.Function;
 
+@Getter @Accessors(fluent = true)
 @ConfigSection("menu")
 @ConfigFile("menu.yml")
-public class PlanMenuValue implements ConfigurationInjectable {
+public class ServerMenuValue implements ConfigurationInjectable {
 
-    @Getter private static final PlanMenuValue instance = new PlanMenuValue();
+    @Getter private static final ServerMenuValue instance = new ServerMenuValue();
 
-    @ConfigField("plan") private ConfigurationSection menu;
+    @ConfigField("server") private ConfigurationSection menu;
 
     @SneakyThrows
     public SelectMenu toMenu(String id) {
@@ -65,7 +67,7 @@ public class PlanMenuValue implements ConfigurationInjectable {
         return menu.build();
     }
 
-    public <T> T get(Function<PlanMenuValue, T> function) {
+    public <T> T get(Function<ServerMenuValue, T> function) {
         return function.apply(instance);
     }
 }

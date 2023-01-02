@@ -6,6 +6,7 @@ import com.henryfabio.minecraft.configinjector.common.annotations.ConfigSection;
 import com.henryfabio.minecraft.configinjector.common.injector.ConfigurationInjectable;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.experimental.Accessors;
 import lombok.val;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
@@ -14,44 +15,45 @@ import org.simpleyaml.configuration.file.YamlFile;
 
 import java.util.function.Function;
 
+@Getter @Accessors(fluent = true)
 @ConfigSection("menu")
-@ConfigFile("plan.yml")
-public class PlanMenuValue implements ConfigurationInjectable {
+@ConfigFile("menu.yml")
+public class TicketMenuValue implements ConfigurationInjectable {
 
-    @Getter private static final PlanMenuValue instance = new PlanMenuValue();
+    @Getter private static final TicketMenuValue instance = new TicketMenuValue();
 
-    @ConfigField("plan") private ConfigurationSection plan;
+    @ConfigField("ticket") private ConfigurationSection menu;
 
     @SneakyThrows
     public SelectMenu toMenu(String id) {
-        val yamlFile = new YamlFile("configuration/plan.yml");
+        val yamlFile = new YamlFile("configuration/menu.yml");
         yamlFile.load();
         val menu = SelectMenu.create(id);
-        if (plan == null) return menu.build();
+        if (this.menu == null) return menu.build();
 
         val name = new StringBuilder();
         val value = new StringBuilder();
         val description = new StringBuilder();
         val emoji = new StringBuilder();
-        plan.getKeys(true).stream()
-                .filter(field -> !yamlFile.getConfigurationSection(plan.getCurrentPath()).getString(field).startsWith("MemorySection"))
+        this.menu.getKeys(true).stream()
+                .filter(field -> !yamlFile.getConfigurationSection(this.menu.getCurrentPath()).getString(field).startsWith("MemorySection"))
                 .distinct()
                 .forEach(field -> {
                     switch (field.split("\\.")[1]) {
                         case "name":
-                            name.append(plan.getString(field));
+                            name.append(this.menu.getString(field));
                             break;
 
                         case "value":
-                            value.append(plan.getString(field));
+                            value.append(this.menu.getString(field));
                             break;
 
                         case "description":
-                            description.append(plan.getString(field));
+                            description.append(this.menu.getString(field));
                             break;
 
                         case "emoji":
-                            emoji.append(plan.getString(field));
+                            emoji.append(this.menu.getString(field));
                             break;
                     }
                     if (!name.toString().isEmpty() && !value.toString().isEmpty() && !description.toString().isEmpty() && !emoji.toString().isEmpty()) {
@@ -65,7 +67,7 @@ public class PlanMenuValue implements ConfigurationInjectable {
         return menu.build();
     }
 
-    public <T> T get(Function<PlanMenuValue, T> function) {
+    public static <T> T get(Function<TicketMenuValue, T> function) {
         return function.apply(instance);
     }
 }

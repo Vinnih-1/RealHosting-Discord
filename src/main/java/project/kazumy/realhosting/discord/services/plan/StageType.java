@@ -1,6 +1,6 @@
-package project.kazumy.realhosting.discord.services.payment.plan;
+package project.kazumy.realhosting.discord.services.plan;
 
 public enum StageType {
 
-    CHOOSING_SERVER, PENDING_PAYMENT, SUSPENDED, PAYED, ACTIVED
+    CHOOSING_SERVER, SUSPENDED, ACTIVED
 }

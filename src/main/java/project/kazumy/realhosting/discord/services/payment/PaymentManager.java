@@ -5,24 +5,21 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.val;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import org.apache.commons.lang.RandomStringUtils;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
+import project.kazumy.realhosting.discord.configuration.basic.PaymentValue;
 import project.kazumy.realhosting.discord.services.BaseService;
 import project.kazumy.realhosting.discord.services.panel.ServerType;
-import project.kazumy.realhosting.discord.services.payment.plan.*;
+import project.kazumy.realhosting.discord.services.plan.*;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -51,7 +48,6 @@ public class PaymentManager extends BaseService {
                             config.set("plan.externalReference", "");
                             config.save();
                         }
-
                         val createDate = config.getString("plan.createDate");
                         val paymentDate = config.getString("plan.paymentDate");
                         val expireDate = config.getString("plan.expirationDate");
@@ -63,7 +59,6 @@ public class PaymentManager extends BaseService {
                             Logger.getGlobal().severe("Plano descartado com êxito.");
                             return;
                         }
-
                         val plan = PlanBuilder.builder()
                                 .planData(PlanData.builder()
                                         .externalReference(config.getString("plan.externalReference"))
@@ -158,40 +153,6 @@ public class PaymentManager extends BaseService {
                 .collect(Collectors.toSet());
     }
 
-    public void setDefaultBuyMessage(Configuration config) {
-        config.addDefaults(consumer -> {
-            consumer.addDefault("bot.guild.payment.title", ":desktop: Here you can choose your plan");
-            consumer.addDefault("bot.guild.payment.footer", "Self-Service official of RealHosting");
-            consumer.addDefault("bot.guild.payment.thumbnail", "thumbnail-url");
-            consumer.addDefault("bot.guild.payment.description", "Click on any plan and see the magic happens");
-            consumer.addDefault("bot.guild.payment.site", "site-url");
-            consumer.addDefault("bot.guild.payment.fields.1.name", "My Name is");
-            consumer.addDefault("bot.guild.payment.fields.1.value", "Zumo");
-            consumer.addDefault("bot.guild.payment.fields.1.inline", true);
-            consumer.addDefault("bot.guild.payment.fields.2.name", "My Job is");
-            consumer.addDefault("bot.guild.payment.fields.2.value", "Supporter of RealHosting");
-            consumer.addDefault("bot.guild.payment.fields.2.inline", true);
-        });
-    }
-
-    public void sendServerMenu(TextChannel channel, Configuration config) {
-        val embed = config.getEmbedMessageFromConfig(config, "server");
-        embed.setColor(Color.GREEN);
-        val menu = config.getMenuFromConfig(config, "bot.guild.server.type", "type-menu");
-        channel.sendMessageEmbeds(embed.build()).addActionRow(menu.build()).queue();
-    }
-
-    public void sendBuyMenu(TextChannel channel, Configuration config, String id) {
-        val embed = config.getEmbedMessageFromConfig(config, "payment");
-        embed.setColor(Color.GREEN);
-        val menu = config.getMenuFromConfig(config, "bot.guild.payment.plans", id);
-        channel.sendMessageEmbeds(embed.build()).addActionRow(menu.build()).queue();
-    }
-
-    public SelectMenu.Builder getBuyMenu(Configuration config, String id) {
-        return config.getMenuFromConfig(config, "bot.guild.payment.plans", id);
-    }
-
     public String getPaymentQrCode(PaymentIntent paymentIntent, Configuration config, PlanBuilder plan) {
         val userId = config.getString("bot.payment.mercado-pago.user-id");
         val posId = config.getString("bot.payment.mercado-pago.external-pos-id");
@@ -233,12 +194,11 @@ public class PaymentManager extends BaseService {
     }
 
     @Override
-    public BaseService service(JDA jda, Configuration config) {
-        this.setDefaultBuyMessage(config);
+    public BaseService service(JDA jda) {
         this.setPlans(new HashSet<>());
 
-        this.paymentMP = PaymentMP.of(this, InitBot.panelManager, config, jda);
-        this.paymentMP.setAccessToken(InitBot.config.getString("bot.payment.mercado-pago.access-token"));
+        this.paymentMP = PaymentMP.of(this, InitBot.panelManager, jda);
+        this.paymentMP.setAccessToken(PaymentValue.get(PaymentValue::accessToken));
 
         return this;
     }
