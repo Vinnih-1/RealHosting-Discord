@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public interface Plan {
 
-    LocalDateTime getCreate();
+    LocalDateTime getCreation();
 
     LocalDateTime getPayment();
 

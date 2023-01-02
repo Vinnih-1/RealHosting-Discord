@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @ToString
 public class PlanImpl implements Plan {
 
-    private final LocalDateTime create, payment, expiration;
+    private final LocalDateTime creation, payment, expiration;
     private final PaymentIntent paymentIntent;
     private final StageType stageType;
     private final ServerType serverType;
