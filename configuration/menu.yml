@@ -1,0 +1,37 @@
+menu:
+  plan:
+    '1':
+      name: 'R$ 2,50 : 1GB + 1 Núcleo(s) | BASIC'
+      value: bot.guild.payment.plans.1
+      description: O plano para quem quer fazer pequenos testes.
+      logo: https://cdn.discordapp.com/attachments/967481970797985822/1032005392357654619/Cinza.png
+      id: '1'
+      emoji: U+1FA99
+    '2':
+      name: 'R$ 5,00 : 2GB + 1 Núcleo(s) | MEDIAN'
+      value: bot.guild.payment.plans.2
+      description: O plano para quem quer jogar com amigos.
+      logo: https://cdn.discordapp.com/attachments/967481970797985822/1032005392357654619/Cinza.png
+      id: '2'
+      emoji: U+1F4B5
+    '3':
+      name: 'R$ 10,00 : 4GB + 2 Núcleo(s) | ADVANCED'
+      value: bot.guild.payment.plans.3
+      description: O plano para quem quer fazer um pequeno servidor.
+      logo: https://cdn.discordapp.com/attachments/967481970797985822/1032005393934725130/Azul_Escuro.png
+      id: '3'
+      emoji: U+1F4B2
+    '4':
+      name: 'R$ 20,00 : 8GB + 4 Núcleo(s) | MEGA'
+      value: bot.guild.payment.plans.4
+      description: O plano para quem quer fazer um servidor com plugins.
+      logo: https://cdn.discordapp.com/attachments/967481970797985822/1032005393364287538/Dois_Larankas.png
+      id: '4'
+      emoji: U+1F4B0
+    '5':
+      name: 'R$ 40,00 : 16GB + 6 Núcleo(s) | ULTRA'
+      value: bot.guild.payment.plans.5
+      description: O plano para quem quer fazer uma rede de servidores.
+      logo: https://cdn.discordapp.com/attachments/967481970797985822/1032005392907112488/Dois_Laranjas.png
+      id: '5'
+      emoji: U+1F48E

@@ -1,4 +1,4 @@
-package project.kazumy.realhosting.discord.services.payment.plan;
+package project.kazumy.realhosting.discord.services.plan;
 
 
 import com.mattmalec.pterodactyl4j.DataType;
