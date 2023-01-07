@@ -1,4 +1,4 @@
-package project.kazumy.realhosting.discord.services.panel;
+package project.kazumy.realhosting.discord.model.panel;
 
 import com.mattmalec.pterodactyl4j.EnvironmentValue;
 import com.mattmalec.pterodactyl4j.application.entities.ApplicationEgg;
@@ -14,45 +14,31 @@ import java.util.Map;
 public enum ServerType {
 
     PAPER_SPIGOT("quay.io/pterodactyl/core:java",
-            InitBot.panelManager.getApplication()
-                    .retrieveEggById(InitBot.panelManager.getApplication()
-                            .retrieveNestById(1).execute(), 1).execute(),
+            null,
             spigotEnviroment()),
 
     BUNGEECORD("quay.io/pterodactyl/core:java",
-            InitBot.panelManager.getApplication()
-                    .retrieveEggById(InitBot.panelManager.getApplication()
-                            .retrieveNestById(1).execute(), 3).execute(),
+            null,
             bungeecordEnviroment()),
 
     POCKET_MINE("ghcr.io/parkervcp/yolks:debian",
-            InitBot.panelManager.getApplication()
-                    .retrieveEggById(InitBot.panelManager.getApplication()
-                            .retrieveNestById(1).execute(), 23).execute(),
+            null,
             pocketmineEnviroment()),
 
     NUKKIT("ghcr.io/pterodactyl/yolks:java_17",
-            InitBot.panelManager.getApplication()
-                    .retrieveEggById(InitBot.panelManager.getApplication()
-                            .retrieveNestById(1).execute(), 22).execute(),
+            null,
             nukkitEnviroment()),
 
     BEDROCK("ghcr.io/parkervcp/yolks:debian",
-            InitBot.panelManager.getApplication()
-                    .retrieveEggById(InitBot.panelManager.getApplication()
-                            .retrieveNestById(1).execute(), 21).execute(),
+            null,
             bedrockEnviroment()),
 
     JAVA_BOT("ghcr.io/parkervcp/yolks:java_17",
-            InitBot.panelManager.getApplication()
-                    .retrieveEggById(InitBot.panelManager.getApplication()
-                            .retrieveNestById(5).execute(), 17).execute(),
+            null,
             javaDiscordEnviroment()),
 
     NODEJS_BOT("ghcr.io/parkervcp/yolks:nodejs_18",
-            InitBot.panelManager.getApplication()
-                    .retrieveEggById(InitBot.panelManager.getApplication()
-                            .retrieveNestById(5).execute(), 24).execute(),
+            null,
             nodejsDiscordEnviroment());
 
     public static Map<String, EnvironmentValue<?>> spigotEnviroment() {

@@ -1,15 +1,18 @@
-package project.kazumy.realhosting.discord.services.plan.impl;
+package project.kazumy.realhosting.discord.model.plan.impl;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
-import project.kazumy.realhosting.discord.services.plan.pre.PrePlan;
-import project.kazumy.realhosting.discord.services.plan.pre.PlanHardware;
+import project.kazumy.realhosting.discord.model.plan.pre.PrePlan;
+import project.kazumy.realhosting.discord.model.plan.pre.PlanHardware;
 
 import java.io.File;
 import java.math.BigDecimal;
 
+/**
+ * @author Vinícius Albert
+ */
 @Getter
 @ToString
 @RequiredArgsConstructor

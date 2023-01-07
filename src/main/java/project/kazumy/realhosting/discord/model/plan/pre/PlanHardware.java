@@ -1,9 +1,12 @@
-package project.kazumy.realhosting.discord.services.plan.pre;
+package project.kazumy.realhosting.discord.model.plan.pre;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
+/**
+ * @author Vinícius Albert
+ */
 @Getter
 @Builder
 @ToString

@@ -1,4 +1,4 @@
-package project.kazumy.realhosting.discord.services.plan;
+package project.kazumy.realhosting.discord.model.payment;
 
 public enum PaymentIntent {
 
