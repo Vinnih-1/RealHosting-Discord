@@ -1,5 +1,6 @@
 package project.kazumy.realhosting.discord.model.entity.client.manager;
 
+import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.simpleyaml.configuration.file.YamlFile;
@@ -19,7 +20,10 @@ import java.util.logging.Logger;
 /**
  * @author Vinícius Albert
  */
+@Data(staticConstructor = "of")
 public class ClientManager {
+
+    private static ClientManager instance;
 
     private final PlanService planService;
     private final Set<Client> clientList = new HashSet<>();
@@ -32,11 +36,11 @@ public class ClientManager {
      *
      * @param planService instância da classe PlanManager.
      */
-    public ClientManager(PlanService planService) {
-        this.planService = planService;
-
+    public ClientManager load(PlanService planService) {
         val folder = new File("services/payment/client");
         loadClient(folder);
+
+        return this;
     }
 
     /**
@@ -76,7 +80,7 @@ public class ClientManager {
      * em 'services/payment/client' ditado com a extensão .yml
      * para guardar todos os dados e planos do cliente especificado.
      *
-     * @param id identificador do novo cliente que está sendo criado.
+     * @param id identificador do novo cliente que está a ser criado.
      * @return uma instância do novo cliente.
      */
     @SneakyThrows
@@ -94,7 +98,7 @@ public class ClientManager {
     /**
      * Consulta na lista e busca pelo cliente que contenha o
      * identificador especificado. Caso o cliente não exista,
-     * ele cria um novo e retorna-o mesmo assim.
+     * ele cria um e retorna-o mesmo assim.
      *
      * @param id identificador do cliente.
      * @return uma instância do cliente.
@@ -103,5 +107,12 @@ public class ClientManager {
         return clientList.stream()
                 .filter(client -> client.getId().equals(id))
                 .findFirst().orElse(createNewClient(id));
+    }
+
+    public static ClientManager getInstance() {
+        if (instance == null) {
+            instance = new ClientManager(null);
+        }
+        return instance;
     }
 }
