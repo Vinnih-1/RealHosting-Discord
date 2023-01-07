@@ -7,11 +7,11 @@ import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.embed.PaymentEmbedValue;
 import project.kazumy.realhosting.discord.configuration.menu.PlanMenuValue;
 import project.kazumy.realhosting.discord.listener.InteractionService;
-import project.kazumy.realhosting.discord.services.panel.ServerType;
-import project.kazumy.realhosting.discord.services.plan.PaymentIntent;
+import project.kazumy.realhosting.discord.model.panel.ServerType;
+import project.kazumy.realhosting.discord.model.payment.PaymentIntent;
 import project.kazumy.realhosting.discord.services.plan.PlanBuilder;
 import project.kazumy.realhosting.discord.services.plan.PlanData;
-import project.kazumy.realhosting.discord.services.plan.StageType;
+import project.kazumy.realhosting.discord.model.panel.StageType;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;

@@ -10,8 +10,10 @@ import org.apache.commons.lang.RandomStringUtils;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
 import project.kazumy.realhosting.discord.configuration.basic.PaymentValue;
+import project.kazumy.realhosting.discord.model.panel.StageType;
+import project.kazumy.realhosting.discord.model.payment.PaymentIntent;
 import project.kazumy.realhosting.discord.services.BaseService;
-import project.kazumy.realhosting.discord.services.panel.ServerType;
+import project.kazumy.realhosting.discord.model.panel.ServerType;
 import project.kazumy.realhosting.discord.services.plan.*;
 
 import java.awt.image.BufferedImage;

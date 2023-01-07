@@ -4,7 +4,9 @@ import lombok.*;
 import net.dv8tion.jda.api.entities.Guild;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.Configuration;
-import project.kazumy.realhosting.discord.services.panel.ServerType;
+import project.kazumy.realhosting.discord.model.panel.StageType;
+import project.kazumy.realhosting.discord.model.payment.PaymentIntent;
+import project.kazumy.realhosting.discord.model.panel.ServerType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

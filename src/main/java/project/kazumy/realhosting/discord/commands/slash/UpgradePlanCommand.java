@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.commands.base.BaseSlashCommand;
 import project.kazumy.realhosting.discord.configuration.menu.PlanMenuValue;
-import project.kazumy.realhosting.discord.services.plan.PaymentIntent;
+import project.kazumy.realhosting.discord.model.payment.PaymentIntent;
 
 import java.awt.*;
 import java.time.LocalDateTime;

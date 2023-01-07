@@ -17,7 +17,7 @@ public class PaymentValue implements ConfigurationInjectable {
     @Getter private static final PaymentValue instance = new PaymentValue();
 
     @ConfigField("access-token") public String accessToken;
-    @ConfigField("external-pos-id") public String externalPosId;
+    @ConfigField("external-pos-id") public String posId;
     @ConfigField("user-id") public Integer userId;
 
     public static <T> T get(Function<PaymentValue, T> function) {

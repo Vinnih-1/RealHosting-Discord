@@ -13,11 +13,12 @@ import net.dv8tion.jda.api.entities.Guild;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.basic.PanelValue;
 import project.kazumy.realhosting.discord.configuration.embed.PreExpirationEmbedValue;
+import project.kazumy.realhosting.discord.model.panel.ServerType;
 import project.kazumy.realhosting.discord.services.BaseService;
-import project.kazumy.realhosting.discord.services.panel.exceptions.EmailAlreadyExistsException;
-import project.kazumy.realhosting.discord.services.panel.exceptions.UsernameAlreadyExistsException;
-import project.kazumy.realhosting.discord.services.panel.exceptions.WrongEmailException;
-import project.kazumy.realhosting.discord.services.panel.exceptions.WrongUsernameException;
+import project.kazumy.realhosting.discord.model.panel.exceptions.EmailAlreadyExistsException;
+import project.kazumy.realhosting.discord.model.panel.exceptions.UsernameAlreadyExistsException;
+import project.kazumy.realhosting.discord.model.panel.exceptions.WrongEmailException;
+import project.kazumy.realhosting.discord.model.panel.exceptions.WrongUsernameException;
 import project.kazumy.realhosting.discord.services.plan.PlanBuilder;
 
 import java.util.*;
@@ -172,8 +173,6 @@ public class PanelManager extends BaseService {
 
     @Override
     public BaseService service(JDA jda) {
-        System.out.println(PanelValue.get(PanelValue::url) + PanelValue.get(PanelValue::token));
-
         for(int i = 5000; i <= 5500; i++) PORT_RANGE.add(i);
         application = PteroBuilder.createApplication(PanelValue.get(PanelValue::url), PanelValue.get(PanelValue::token));
 

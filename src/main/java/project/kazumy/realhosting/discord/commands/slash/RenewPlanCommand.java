@@ -1,19 +1,11 @@
 package project.kazumy.realhosting.discord.commands.slash;
 
-import lombok.val;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.utils.FileUpload;
-import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.commands.base.BaseSlashCommand;
-import project.kazumy.realhosting.discord.services.plan.PaymentIntent;
-import project.kazumy.realhosting.discord.services.plan.StageType;
 
-import java.awt.*;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 public class RenewPlanCommand extends BaseSlashCommand {
 

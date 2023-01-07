@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.JDA;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import project.kazumy.realhosting.discord.services.panel.PanelManager;
-import project.kazumy.realhosting.discord.services.plan.PaymentIntent;
+import project.kazumy.realhosting.discord.model.payment.PaymentIntent;
 import project.kazumy.realhosting.discord.services.plan.PlanBuilder;
 
 import javax.imageio.ImageIO;
@@ -56,7 +56,6 @@ public class PaymentMP {
             expirationDate.append(expiration.split("\\.")[0]);
 
         expirationDate.append(".042-04:00");
-
         request.setMethod(Method.POST);
         request.setBaseUri("api.mercadopago.com");
         request.addHeader("Authorization", "Bearer " + accessToken);
@@ -81,7 +80,6 @@ public class PaymentMP {
                 "  ]\n" +
                 "}");
         request.setEndpoint(String.format("/instore/orders/qr/seller/collectors/%s/pos/%s/qrs", userId, posId));
-
         System.out.println(request.getBody());
 
         return client.api(request);
