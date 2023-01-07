@@ -1,4 +1,4 @@
-package project.kazumy.realhosting.discord.model.panel;
+package project.kazumy.realhosting.model.panel;
 
 import com.mattmalec.pterodactyl4j.EnvironmentValue;
 import com.mattmalec.pterodactyl4j.application.entities.ApplicationEgg;

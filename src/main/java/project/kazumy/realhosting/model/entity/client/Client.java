@@ -1,7 +1,7 @@
-package project.kazumy.realhosting.discord.model.entity.client;
+package project.kazumy.realhosting.model.entity.client;
 
 import org.simpleyaml.configuration.file.YamlFile;
-import project.kazumy.realhosting.discord.model.plan.Plan;
+import project.kazumy.realhosting.model.plan.Plan;
 
 import java.util.List;
 import java.util.function.Consumer;

@@ -1,11 +1,11 @@
-package project.kazumy.realhosting.discord.model.plan;
+package project.kazumy.realhosting.model.plan;
 
-import project.kazumy.realhosting.discord.model.entity.client.Client;
-import project.kazumy.realhosting.discord.model.panel.StageType;
-import project.kazumy.realhosting.discord.model.payment.PaymentIntent;
-import project.kazumy.realhosting.discord.model.plan.impl.PlanImpl;
-import project.kazumy.realhosting.discord.model.panel.ServerType;
-import project.kazumy.realhosting.discord.model.plan.pre.PrePlan;
+import project.kazumy.realhosting.model.entity.client.Client;
+import project.kazumy.realhosting.model.panel.StageType;
+import project.kazumy.realhosting.model.payment.PaymentIntent;
+import project.kazumy.realhosting.model.plan.impl.PlanImpl;
+import project.kazumy.realhosting.model.panel.ServerType;
+import project.kazumy.realhosting.model.plan.pre.PrePlan;
 
 import java.time.LocalDateTime;
 import java.util.function.Consumer;

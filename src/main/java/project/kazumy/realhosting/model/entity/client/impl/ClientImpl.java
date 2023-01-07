@@ -1,11 +1,11 @@
-package project.kazumy.realhosting.discord.model.entity.client.impl;
+package project.kazumy.realhosting.model.entity.client.impl;
 
 import lombok.*;
 import org.simpleyaml.configuration.file.YamlFile;
-import project.kazumy.realhosting.discord.model.entity.client.Client;
-import project.kazumy.realhosting.discord.model.panel.Panel;
-import project.kazumy.realhosting.discord.model.payment.Payment;
-import project.kazumy.realhosting.discord.model.plan.Plan;
+import project.kazumy.realhosting.model.entity.client.Client;
+import project.kazumy.realhosting.model.panel.Panel;
+import project.kazumy.realhosting.model.payment.Payment;
+import project.kazumy.realhosting.model.plan.Plan;
 
 import java.util.List;
 import java.util.Objects;

@@ -1,4 +1,4 @@
-package project.kazumy.realhosting.discord.model.panel;
+package project.kazumy.realhosting.model.panel;
 
 import com.mattmalec.pterodactyl4j.DataType;
 import com.mattmalec.pterodactyl4j.PteroBuilder;
@@ -8,7 +8,7 @@ import com.mattmalec.pterodactyl4j.application.entities.PteroApplication;
 import lombok.val;
 import org.apache.commons.lang.RandomStringUtils;
 import project.kazumy.realhosting.discord.configuration.basic.PanelValue;
-import project.kazumy.realhosting.discord.model.plan.Plan;
+import project.kazumy.realhosting.model.plan.Plan;
 import project.kazumy.realhosting.discord.services.panel.PanelService;
 
 import java.util.function.Consumer;

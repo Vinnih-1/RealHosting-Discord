@@ -1,11 +1,11 @@
-package project.kazumy.realhosting.discord.model.plan.impl;
+package project.kazumy.realhosting.model.plan.impl;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
-import project.kazumy.realhosting.discord.model.plan.pre.PrePlan;
-import project.kazumy.realhosting.discord.model.plan.pre.PlanHardware;
+import project.kazumy.realhosting.model.plan.pre.PrePlan;
+import project.kazumy.realhosting.model.plan.pre.PlanHardware;
 
 import java.io.File;
 import java.math.BigDecimal;

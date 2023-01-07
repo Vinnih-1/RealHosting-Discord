@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.listener.InteractionService;
 import project.kazumy.realhosting.discord.services.plan.PlanBuilder;
-import project.kazumy.realhosting.discord.model.panel.StageType;
+import project.kazumy.realhosting.model.panel.StageType;
 
 public class CloseTicketButtonInteraction extends InteractionService<ButtonInteractionEvent> {
 

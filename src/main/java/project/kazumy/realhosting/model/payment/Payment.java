@@ -1,4 +1,4 @@
-package project.kazumy.realhosting.discord.model.payment;
+package project.kazumy.realhosting.model.payment;
 
 import com.mercadopago.MercadoPagoConfig;
 import com.mercadopago.client.payment.PaymentClient;
@@ -12,7 +12,7 @@ import lombok.val;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import project.kazumy.realhosting.discord.configuration.basic.PaymentValue;
-import project.kazumy.realhosting.discord.model.plan.Plan;
+import project.kazumy.realhosting.model.plan.Plan;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;

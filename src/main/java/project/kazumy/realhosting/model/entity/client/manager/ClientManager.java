@@ -1,12 +1,12 @@
-package project.kazumy.realhosting.discord.model.entity.client.manager;
+package project.kazumy.realhosting.model.entity.client.manager;
 
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.simpleyaml.configuration.file.YamlFile;
 import org.simpleyaml.exceptions.InvalidConfigurationException;
-import project.kazumy.realhosting.discord.model.entity.client.Client;
-import project.kazumy.realhosting.discord.model.entity.client.impl.ClientImpl;
+import project.kazumy.realhosting.model.entity.client.Client;
+import project.kazumy.realhosting.model.entity.client.impl.ClientImpl;
 import project.kazumy.realhosting.discord.services.plan.PlanService;
 
 import java.io.File;
@@ -31,12 +31,10 @@ public class ClientManager {
     /**
      * Quando instanciado, carrega todos os arquivos yaml que estejam
      * na pasta localizada em 'services/payment/client', e coloca-os
-     * para a lista clientList. Também, passando uma instância planManager
-     * para uso na própria classe.
+     * para a lista clientList.
      *
-     * @param planService instância da classe PlanManager.
      */
-    public ClientManager load(PlanService planService) {
+    public ClientManager load() {
         val folder = new File("services/payment/client");
         loadClient(folder);
 

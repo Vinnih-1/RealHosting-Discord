@@ -1,4 +1,4 @@
-package project.kazumy.realhosting.discord.model.panel;
+package project.kazumy.realhosting.model.panel;
 
 public enum StageType {
 

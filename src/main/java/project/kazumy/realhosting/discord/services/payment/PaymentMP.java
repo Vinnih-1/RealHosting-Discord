@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.JDA;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import project.kazumy.realhosting.discord.services.panel.PanelManager;
-import project.kazumy.realhosting.discord.model.payment.PaymentIntent;
+import project.kazumy.realhosting.model.payment.PaymentIntent;
 import project.kazumy.realhosting.discord.services.plan.PlanBuilder;
 
 import javax.imageio.ImageIO;

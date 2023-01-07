@@ -13,12 +13,12 @@ import net.dv8tion.jda.api.entities.Guild;
 import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.configuration.basic.PanelValue;
 import project.kazumy.realhosting.discord.configuration.embed.PreExpirationEmbedValue;
-import project.kazumy.realhosting.discord.model.panel.ServerType;
+import project.kazumy.realhosting.model.panel.ServerType;
 import project.kazumy.realhosting.discord.services.BaseService;
-import project.kazumy.realhosting.discord.model.panel.exceptions.EmailAlreadyExistsException;
-import project.kazumy.realhosting.discord.model.panel.exceptions.UsernameAlreadyExistsException;
-import project.kazumy.realhosting.discord.model.panel.exceptions.WrongEmailException;
-import project.kazumy.realhosting.discord.model.panel.exceptions.WrongUsernameException;
+import project.kazumy.realhosting.model.panel.exceptions.EmailAlreadyExistsException;
+import project.kazumy.realhosting.model.panel.exceptions.UsernameAlreadyExistsException;
+import project.kazumy.realhosting.model.panel.exceptions.WrongEmailException;
+import project.kazumy.realhosting.model.panel.exceptions.WrongUsernameException;
 import project.kazumy.realhosting.discord.services.plan.PlanBuilder;
 
 import java.util.*;

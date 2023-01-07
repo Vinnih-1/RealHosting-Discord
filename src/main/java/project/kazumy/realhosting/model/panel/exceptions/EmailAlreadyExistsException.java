@@ -1,4 +1,4 @@
-package project.kazumy.realhosting.discord.model.panel.exceptions;
+package project.kazumy.realhosting.model.panel.exceptions;
 
 public class EmailAlreadyExistsException extends Exception {
 

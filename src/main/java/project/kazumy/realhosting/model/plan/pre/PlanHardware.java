@@ -1,4 +1,4 @@
-package project.kazumy.realhosting.discord.model.plan.pre;
+package project.kazumy.realhosting.model.plan.pre;
 
 import lombok.Builder;
 import lombok.Getter;
