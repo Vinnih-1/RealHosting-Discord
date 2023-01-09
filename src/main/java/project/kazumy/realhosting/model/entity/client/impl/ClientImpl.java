@@ -20,13 +20,13 @@ import java.util.function.Consumer;
 public class ClientImpl extends Payment implements Client {
 
     private final String id;
-    private final List<Plan> plan;
+    private final List<Plan> plans;
     private final YamlFile config;
     private final Panel panel = new Panel().authenticate();
 
     /**
      * Espera a efetivação do pagamento por parte do cliente
-     * sobre o plano que está sendo adquirido.
+     * sobre o plano adquirido.
      *
      * @param plan plano especificado.
      * @param success executado quando o pagamento é efetivado e encontrado.

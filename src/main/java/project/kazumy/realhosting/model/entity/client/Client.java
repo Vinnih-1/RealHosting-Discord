@@ -24,7 +24,7 @@ public interface Client {
      *
      * @return lista de planos.
      */
-    List<Plan> getPlan();
+    List<Plan> getPlans();
 
     /**
      * Retorna o arquivo de configuração do cliente
