@@ -1,41 +1,23 @@
 import lombok.SneakyThrows;
 import lombok.val;
-import org.simpleyaml.configuration.file.YamlFile;
-import project.kazumy.realhosting.discord.services.panel.ServerType;
-import project.kazumy.realhosting.discord.services.plan.PaymentIntent;
-import project.kazumy.realhosting.discord.services.plan.StageType;
-import project.kazumy.realhosting.discord.services.plan.impl.PlanImpl;
-import project.kazumy.realhosting.discord.services.plan.manager.PlanManager;
-import project.kazumy.realhosting.discord.services.plan.pre.PrePlan;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import net.dv8tion.jda.api.JDABuilder;
+import project.kazumy.realhosting.discord.configuration.embed.CloseTicketEmbedValue;
+import project.kazumy.realhosting.discord.configuration.embed.PanelEmbedValue;
+import project.kazumy.realhosting.discord.configuration.embed.PaymentEmbedValue;
+import project.kazumy.realhosting.discord.configuration.menu.ServerMenuValue;
+import project.kazumy.realhosting.discord.configuration.registry.ConfigurationRegistry;
 
 public class MainRealTest {
-
-    private static List<PrePlan> prePlanList = new ArrayList<>();
-
     @SneakyThrows
     public static void main(String[] args) {
-        val c = new YamlFile("services/payment/client/519070128341.yml");
-        c.load();
-
-        val planManager = new PlanManager();
-        planManager.service(null);
-
-        c.getConfigurationSection("client.plans")
-                .getKeys(false).stream()
-                .map(key -> c.getConfigurationSection("client.plans." + key))
-                .map(config -> PlanImpl.builder()
-                        .create(null)
-                        .payment(null)
-                        .expiration(null)
-                        .paymentIntent(PaymentIntent.valueOf(config.getString("intent")))
-                        .serverType(ServerType.valueOf(config.getString("server")))
-                        .stageType(StageType.valueOf(config.getString("stage")))
-                        .prePlan(planManager.getPrePlanByType(config.getString("type")))
-                        .build())
-                .collect(Collectors.toList());
+        new ConfigurationRegistry().register();
+        val jda = JDABuilder.createDefault("MTA0NjQwOTU2OTczMzIwMTkzMQ.GPSTyO.0jFfMT1CnG5LIOF0xd1ESmiVZpfuhf-E5NtQ8I")
+                .addEventListeners(new EventListenerTest())
+                .build().awaitReady();
+        val guild = jda.getGuildById("896553346738057226");
+        guild.upsertCommand("modals", "teste de modals").queue();
+        guild.getTextChannelById("1043521638223851520").sendMessageEmbeds(PanelEmbedValue.get(PanelEmbedValue::toEmbed))
+                .addActionRow(ServerMenuValue.instance().toMenu("server"))
+                .queue();
     }
 }
