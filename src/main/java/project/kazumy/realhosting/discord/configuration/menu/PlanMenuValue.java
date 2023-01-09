@@ -67,7 +67,7 @@ public class PlanMenuValue implements ConfigurationInjectable {
         return menu.build();
     }
 
-    public static <T> T get(Function<PlanMenuValue, T> function) {
+    public <T> T get(Function<PlanMenuValue, T> function) {
         return function.apply(instance);
     }
 }
