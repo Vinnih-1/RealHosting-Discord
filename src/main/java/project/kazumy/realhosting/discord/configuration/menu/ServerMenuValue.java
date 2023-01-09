@@ -22,13 +22,14 @@ public class ServerMenuValue implements ConfigurationInjectable {
 
     @Getter private static final ServerMenuValue instance = new ServerMenuValue();
 
-    @ConfigField("server") private ConfigurationSection menu;
+    @ConfigField("egg") private ConfigurationSection menu;
 
     @SneakyThrows
     public SelectMenu toMenu(String id) {
         val yamlFile = new YamlFile("configuration/menu.yml");
         yamlFile.load();
         val menu = SelectMenu.create(id);
+
         if (this.menu == null) return menu.build();
 
         val name = new StringBuilder();
@@ -67,7 +68,7 @@ public class ServerMenuValue implements ConfigurationInjectable {
         return menu.build();
     }
 
-    public <T> T get(Function<ServerMenuValue, T> function) {
+    public static <T> T get(Function<ServerMenuValue, T> function) {
         return function.apply(instance);
     }
 }
