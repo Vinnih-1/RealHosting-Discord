@@ -1,72 +1,26 @@
 package project.kazumy.realhosting.discord.services.ticket;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.SneakyThrows;
-import lombok.val;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageHistory;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import project.kazumy.realhosting.discord.InitBot;
-import project.kazumy.realhosting.discord.configuration.Configuration;
+import project.kazumy.realhosting.discord.services.ticket.category.TicketCategory;
 
-import java.io.File;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-@Data
-@Builder()
-public class Ticket {
+public interface Ticket {
 
-    private String id, category, channelId;
+    Long getId();
 
-    private User author;
+    String getName();
 
-    private Configuration config;
+    String getOwner();
 
-    private List<Message> history;
+    TicketCategory getCategory();
 
-    @SneakyThrows
-    public void saveTicket() {
-        val ticketManager = InitBot.ticketManager;
-        val channel = ticketManager.getJda().getTextChannelById(this.getChannelId());
-        val chatHistory = MessageHistory.getHistoryFromBeginning(channel).submit();
-        this.setHistory(new ArrayList<>(chatHistory.get().getRetrievedHistory()));
+    List<String> getParticipants();
 
-        ticketManager.destroyRecordedTicket(this);
-        ticketManager.getTicketMap().remove(this.getAuthor().getId());
+    List<Message> getHistory();
 
-        val config = new Configuration("services/tickets/saved-ticket/" + author.getId() + "/" + author.getAsTag() + "-" + id + ".yml")
-                .buildIfNotExists();
+    LocalDateTime getCreation();
 
-        Collections.reverse(history);
-
-        history.forEach(message -> {
-            val date = message.getTimeCreated()
-                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
-                    .withZone(ZoneId.of("America/Sao_Paulo")));
-            config.set("ID: " + message.getId() + " " + date + " - " + message.getAuthor().getAsTag() + ": ", message.getContentStripped());
-        });
-        config.save();
-        channel.delete().queueAfter(10, TimeUnit.SECONDS);
-    }
-
-    public File getOpenedTicketFolder() {
-        return new File("services/tickets/opened-ticket/");
-    }
-
-    public Configuration getOpenedTicketConfig() {
-        return new Configuration("services/tickets/opened-ticket/" + this.getAuthor().getAsTag() + ".yml");
-    }
-
-    public TextChannel getTicketChannel(JDA jda) {
-        return jda.getTextChannelById(this.getChannelId());
-    }
+    LocalDateTime getCancellation();
 }

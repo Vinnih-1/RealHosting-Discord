@@ -3,8 +3,9 @@ package project.kazumy.realhosting.discord.commands.prefix;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import project.kazumy.realhosting.discord.InitBot;
 import project.kazumy.realhosting.discord.commands.base.BasePrefixCommand;
+import project.kazumy.realhosting.configuration.embed.PaymentEmbedValue;
+import project.kazumy.realhosting.configuration.menu.PlanMenuValue;
 
 public class SellMenuCommand extends BasePrefixCommand {
     public SellMenuCommand() {
@@ -13,6 +14,7 @@ public class SellMenuCommand extends BasePrefixCommand {
 
     @Override
     public void execute(Member member, Message message, String[] args) {
-        InitBot.paymentManager.sendBuyMenu(message.getChannel().asTextChannel(), InitBot.config, "price-menu");
+        message.getChannel().sendMessageEmbeds(PaymentEmbedValue.get(PaymentEmbedValue::toEmbed))
+                .addActionRow(PlanMenuValue.instance().toMenu("price-menu"));
     }
 }

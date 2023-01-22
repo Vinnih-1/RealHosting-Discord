@@ -1,0 +1,19 @@
+client:
+  id: 519070128341
+  plans:
+    1:
+      type: BASIC
+      stage: ACTIVED
+      intent: NONE
+      server: BUNGEECORD
+      creation: '2022-12-17T16:49:32.778329'
+      payment: '2022-12-17T16:49:32.778329'
+      expiration: '2022-12-17T16:49:32.778329'
+    2:
+      type: BASIC
+      stage: ACTIVED
+      intent: NONE
+      server: BUNGEECORD
+      creation: '2022-12-17T16:49:32.778329'
+      payment: '2022-12-17T16:49:32.778329'
+      expiration: '2022-12-17T16:49:32.778329'

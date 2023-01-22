@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/RealHosting-Discord.main.iml" filepath="$PROJECT_DIR$/.idea/modules/RealHosting-Discord.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/org.example.RealHosting-Discord.main.iml" filepath="$PROJECT_DIR$/.idea/modules/org.example.RealHosting-Discord.main.iml" />
     </modules>
   </component>
 </project>

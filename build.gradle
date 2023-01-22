@@ -32,7 +32,10 @@ dependencies {
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'com.mattmalec:Pterodactyl4J:2.BETA_136'
+    implementation 'com.github.HenryFabio.configuration-injector:bukkit:1.0.2'
+
     implementation fileTree('libs')
+    implementation fileTree('./libs/configuration-injector-free-1.0.2.jar')
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'

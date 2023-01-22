@@ -1,0 +1,108 @@
+menu:
+  plan:
+    '1':
+      name: 'R$ 2,50 : 1GB + 1 Núcleo(s) | BASIC'
+      value: bot.guild.payment.plans.1
+      description: O plano para quem quer fazer pequenos testes.
+      logo: https://cdn.discordapp.com/attachments/967481970797985822/1032005392357654619/Cinza.png
+      id: '1'
+      emoji: U+1FA99
+    '2':
+      name: 'R$ 5,00 : 2GB + 1 Núcleo(s) | MEDIAN'
+      value: bot.guild.payment.plans.2
+      description: O plano para quem quer jogar com amigos.
+      logo: https://cdn.discordapp.com/attachments/967481970797985822/1032005392357654619/Cinza.png
+      id: '2'
+      emoji: U+1F4B5
+    '3':
+      name: 'R$ 10,00 : 4GB + 2 Núcleo(s) | ADVANCED'
+      value: bot.guild.payment.plans.3
+      description: O plano para quem quer fazer um pequeno servidor.
+      logo: https://cdn.discordapp.com/attachments/967481970797985822/1032005393934725130/Azul_Escuro.png
+      id: '3'
+      emoji: U+1F4B2
+    '4':
+      name: 'R$ 20,00 : 8GB + 4 Núcleo(s) | MEGA'
+      value: bot.guild.payment.plans.4
+      description: O plano para quem quer fazer um servidor com plugins.
+      logo: https://cdn.discordapp.com/attachments/967481970797985822/1032005393364287538/Dois_Larankas.png
+      id: '4'
+      emoji: U+1F4B0
+    '5':
+      name: 'R$ 40,00 : 16GB + 6 Núcleo(s) | ULTRA'
+      value: bot.guild.payment.plans.5
+      description: O plano para quem quer fazer uma rede de servidores.
+      logo: https://cdn.discordapp.com/attachments/967481970797985822/1032005392907112488/Dois_Laranjas.png
+      id: '5'
+      emoji: U+1F48E
+
+  ticket:
+    1:
+      name: 'Adquirir Serviços'
+      value: comprar
+      description: 'Contrate um dos planos do nosso serviço de hospedagem.'
+      emoji: U+1F4B5
+    2:
+      name: 'Aprimorar Serviços'
+      value: aprimorar
+      description: 'Aprimore seus serviços para um melhor aproveitamento.'
+      emoji: U+1F680
+    3:
+      name: 'Não... sério, preciso de ajuda!'
+      value: técnico
+      description: 'Contate-nos pra solucionar problemas em seu serviço.'
+      emoji: U+1F4BB
+    4:
+      name: 'Esclarecer Dúvidas'
+      value: dúvida
+      description: 'Acabe com aquela pulga atrás da orelha.'
+      emoji: U+1F4A1
+    5:
+      name: 'Crítica Construtiva'
+      value: sugestão
+      description: 'Dê uma crítica construtiva em algo que podemos melhorar.'
+      emoji: U+1F48C
+
+  egg:
+    '1':
+      name: Paper Spigot
+      value: server.type.paper_spigot
+      description: Usado para criar servidores de Minecraft
+      id: '1'
+      emoji: U+1F9F1
+    '2':
+      name: BungeeCord
+      value: server.type.bungeecord
+      description: Usado para criar uma rede de servidores
+      id: '2'
+      emoji: U+1F310
+    '3':
+      name: PocketMine
+      value: server.type.pocketmine
+      description: Usado para jogar Minecraft com amigos
+      id: '3'
+      emoji: U+260E
+    '4':
+      name: Nukkit
+      value: server.type.nukkit
+      description: Crie um servidor com plugins
+      id: '4'
+      emoji: U+1F4F1
+    '5':
+      name: Bedrock
+      value: server.type.bedrock
+      description: Jogue com seus amigos com Minecraft Bedrock
+      id: '5'
+      emoji: U+1F5A5
+    '6':
+      name: Aplicação Java
+      value: server.type.java_bot
+      description: Hospede aplicações feitas em Java
+      id: '6'
+      emoji: U+2699
+    '7':
+      name: Aplicação NodeJS
+      value: server.type.nodejs_bot
+      description: Hospede aplicações feitas em NodeJS
+      id: '7'
+      emoji: U+1F527
