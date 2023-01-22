@@ -4,7 +4,6 @@ import com.mattmalec.pterodactyl4j.EnvironmentValue;
 import com.mattmalec.pterodactyl4j.application.entities.ApplicationEgg;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import project.kazumy.realhosting.discord.InitBot;
 
 import java.util.HashMap;
 import java.util.Map;

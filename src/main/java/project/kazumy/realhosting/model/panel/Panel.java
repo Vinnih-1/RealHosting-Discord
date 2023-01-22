@@ -7,10 +7,11 @@ import com.mattmalec.pterodactyl4j.application.entities.ApplicationUser;
 import com.mattmalec.pterodactyl4j.application.entities.PteroApplication;
 import lombok.val;
 import org.apache.commons.lang.RandomStringUtils;
-import project.kazumy.realhosting.discord.configuration.basic.PanelValue;
+import project.kazumy.realhosting.configuration.basic.PanelValue;
 import project.kazumy.realhosting.model.plan.Plan;
-import project.kazumy.realhosting.discord.services.panel.PanelService;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -18,6 +19,8 @@ import java.util.logging.Logger;
  * @author Vinícius Albert
  */
 public class Panel {
+
+    public static final Set<Integer> PORT_RANGE = new HashSet<>();
 
     private PteroApplication application;
 
@@ -30,6 +33,7 @@ public class Panel {
      * @return uma instância desta classe.
      */
     public Panel authenticate() {
+        for(int i = 5000; i <= 5500; i++) PORT_RANGE.add(i);
         application = PteroBuilder.createApplication(PanelValue.get(PanelValue::url), PanelValue.get(PanelValue::token));
         return this;
     }
@@ -106,7 +110,7 @@ public class Panel {
                 .setEnvironment(plan.getServerType().getEnviroment())
                 .setDockerImage(plan.getServerType().getDockerImage())
                 .setAllocations(1L)
-                .setPortRange(PanelService.PORT_RANGE)
+                .setPortRange(PORT_RANGE)
                 .executeAsync(success, failure);
     }
 }

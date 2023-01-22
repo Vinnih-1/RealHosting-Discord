@@ -7,7 +7,7 @@ import org.simpleyaml.configuration.file.YamlFile;
 import org.simpleyaml.exceptions.InvalidConfigurationException;
 import project.kazumy.realhosting.model.entity.client.Client;
 import project.kazumy.realhosting.model.entity.client.impl.ClientImpl;
-import project.kazumy.realhosting.discord.services.plan.PlanService;
+import project.kazumy.realhosting.model.plan.PlanService;
 
 import java.io.File;
 import java.io.IOException;

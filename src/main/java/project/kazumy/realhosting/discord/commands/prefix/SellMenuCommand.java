@@ -4,8 +4,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import project.kazumy.realhosting.discord.commands.base.BasePrefixCommand;
-import project.kazumy.realhosting.discord.configuration.embed.PaymentEmbedValue;
-import project.kazumy.realhosting.discord.configuration.menu.PlanMenuValue;
+import project.kazumy.realhosting.configuration.embed.PaymentEmbedValue;
+import project.kazumy.realhosting.configuration.menu.PlanMenuValue;
 
 public class SellMenuCommand extends BasePrefixCommand {
     public SellMenuCommand() {

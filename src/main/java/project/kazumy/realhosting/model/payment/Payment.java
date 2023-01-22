@@ -11,7 +11,7 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import project.kazumy.realhosting.discord.configuration.basic.PaymentValue;
+import project.kazumy.realhosting.configuration.basic.PaymentValue;
 import project.kazumy.realhosting.model.plan.Plan;
 
 import java.time.LocalDateTime;
