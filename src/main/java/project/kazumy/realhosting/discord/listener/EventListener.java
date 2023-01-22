@@ -1,11 +1,13 @@
 package project.kazumy.realhosting.discord.listener;
 
 import lombok.val;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenuInteraction;
 import org.jetbrains.annotations.NotNull;
 import project.kazumy.realhosting.discord.DiscordMain;
 import project.kazumy.realhosting.discord.commands.manager.CommandManager;
@@ -31,14 +33,26 @@ public class EventListener extends ListenerAdapter {
     }
 
     @Override
-    public void onSelectMenuInteraction(@NotNull SelectMenuInteractionEvent event) {
+    public void onStringSelectInteraction(@NotNull StringSelectInteractionEvent event) {
         interactionManager.getInteractionList()
                 .stream()
                 .filter(interaction -> interaction.getId().equals(event.getSelectMenu().getId()))
                 .findAny()
-                .ifPresentOrElse(interaction -> ((InteractionService<SelectMenuInteractionEvent>)interaction).execute(event),
+                .ifPresentOrElse(interaction -> ((InteractionService<SelectMenuInteraction>)interaction).execute(event),
                         () -> {
                             Logger.getGlobal().severe("Unloaded interaction id: " + event.getSelectMenu().getId());
+                        });
+    }
+
+    @Override
+    public void onModalInteraction(ModalInteractionEvent event) {
+        interactionManager.getInteractionList()
+                .stream()
+                .filter(interaction -> interaction.getId().equals(event.getModalId()))
+                .findAny()
+                .ifPresentOrElse(interaction -> ((InteractionService<ModalInteractionEvent>)interaction).execute(event),
+                        () -> {
+                            Logger.getGlobal().severe("Unloaded interaction id: " + event.getModalId());
                         });
     }
 
