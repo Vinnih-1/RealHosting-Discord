@@ -10,6 +10,7 @@ import lombok.experimental.Accessors;
 import lombok.val;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.YamlFile;
 
@@ -28,7 +29,7 @@ public class TicketMenuValue implements ConfigurationInjectable {
     public SelectMenu toMenu(String id) {
         val yamlFile = new YamlFile("configuration/menu.yml");
         yamlFile.load();
-        val menu = SelectMenu.create(id);
+        val menu = StringSelectMenu.create(id);
         if (this.menu == null) return menu.build();
 
         val name = new StringBuilder();
