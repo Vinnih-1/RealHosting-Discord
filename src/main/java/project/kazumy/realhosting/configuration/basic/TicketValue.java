@@ -17,6 +17,7 @@ public class TicketValue implements ConfigurationInjectable {
     @Getter private static final TicketValue instance = new TicketValue();
 
     @ConfigField("ticket-category-id") private String category;
+    @ConfigField("feedback-chat-id") private String feedbackChatId;
     @ConfigField("terms") private String terms;
 
     public static <T> T get(Function<TicketValue, T> function) {

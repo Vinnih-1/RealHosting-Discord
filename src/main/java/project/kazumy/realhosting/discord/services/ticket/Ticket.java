@@ -1,6 +1,5 @@
 package project.kazumy.realhosting.discord.services.ticket;
 
-import net.dv8tion.jda.api.entities.Message;
 import project.kazumy.realhosting.discord.services.ticket.category.TicketCategory;
 
 import java.time.LocalDateTime;
@@ -8,7 +7,7 @@ import java.util.List;
 
 public interface Ticket {
 
-    Long getId();
+    Integer getId();
 
     String getName();
 
@@ -16,9 +15,17 @@ public interface Ticket {
 
     TicketCategory getCategory();
 
+    String getChatId();
+
+    boolean isClosed();
+
+    String getFeedback();
+
+    void setFeedback(String feedback);
+
     List<String> getParticipants();
 
-    List<Message> getHistory();
+    List<String> getHistory();
 
     LocalDateTime getCreation();
 
