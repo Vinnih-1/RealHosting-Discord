@@ -7,8 +7,7 @@ import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEve
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-import project.kazumy.realhosting.discord.DiscordMain;
-import project.kazumy.realhosting.discord.commands.manager.CommandManager;
+import project.kazumy.realhosting.discord.InitBot;
 
 import java.util.Arrays;
 import java.util.logging.Logger;
@@ -17,22 +16,14 @@ public class EventListener extends ListenerAdapter {
 
     private static final String PREFIX = "@";
 
-    private final CommandManager commandManager = new CommandManager();
-    private final InteractionManager interactionManager;
-
-    private final DiscordMain discordMain;
-
-    public EventListener(DiscordMain discordMain) {
-        this.discordMain = discordMain;
-        this.interactionManager = InteractionManager.of(discordMain).init();
-
-        commandManager.loadPrefixCommands();
-        commandManager.loadSlashCommands();
+    private final InitBot instance;
+    public EventListener(InitBot instance) {
+        this.instance = instance;
     }
 
     @Override
     public void onSelectMenuInteraction(@NotNull SelectMenuInteractionEvent event) {
-        interactionManager.getInteractionList()
+        instance.interactionManager.getInteractionList()
                 .stream()
                 .filter(interaction -> interaction.getId().equals(event.getSelectMenu().getId()))
                 .findAny()
@@ -44,7 +35,7 @@ public class EventListener extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        interactionManager.getInteractionList()
+        instance.interactionManager.getInteractionList()
                 .stream()
                 .filter(interaction -> event.getComponentId().contains(interaction.getId()))
                 .findAny()
@@ -54,7 +45,7 @@ public class EventListener extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        commandManager.getSlashCommands()
+        instance.commandManager.getSlashCommands()
                 .stream()
                 .filter(command -> event.getName().equals(command.getName()))
                 .findAny()
@@ -67,7 +58,7 @@ public class EventListener extends ListenerAdapter {
         val message = event.getMessage().getContentRaw();
         val commandMessage = message.split(" ")[0].replaceFirst(PREFIX, "");
         if (!message.startsWith(PREFIX)) return;
-        commandManager.getPrefixCommands()
+        instance.commandManager.getPrefixCommands()
                 .stream()
                 .filter(command -> commandMessage.equals(command.getName()))
                 .filter(command -> event.getMember().hasPermission(command.getPermission()))
@@ -79,7 +70,7 @@ public class EventListener extends ListenerAdapter {
                     event.getMessage().delete().queue();
                     command.execute(event.getMember(), event.getMessage(), args);
                 }, () -> {
-                    Logger.getGlobal().severe("Unloaded prefix command id " + commandMessage);
+                    Logger.getGlobal().severe("Unloaded slash command id " + commandMessage);
                 });
     }
 }

@@ -1,83 +1,192 @@
 package project.kazumy.realhosting.discord.services.ticket.manager;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.val;
-import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageHistory;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import project.kazumy.realhosting.configuration.basic.TicketValue;
-import project.kazumy.realhosting.configuration.embed.CloseTicketEmbedValue;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.exceptions.ContextException;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import project.kazumy.realhosting.discord.configuration.Configuration;
+import project.kazumy.realhosting.discord.services.BaseService;
 import project.kazumy.realhosting.discord.services.ticket.Ticket;
-import project.kazumy.realhosting.discord.services.ticket.repository.TicketRepository;
 
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.io.File;
 import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
 
-@Data(staticConstructor = "of")
-public class TicketManager {
+@Getter
+@SuppressWarnings("all")
+public class TicketManager extends BaseService {
 
-    private final Guild guild;
-    private final TicketRepository repository;
+    private final Map<String, Ticket> ticketMap = new HashMap<>();
+    private Configuration config;
 
-    public void makeTicket(Ticket ticket, Consumer<TextChannel> onSuccess) {
-                guild.getCategoryById(TicketValue.get(TicketValue::category))
-                .createTextChannel(ticket.getName())
-                .addMemberPermissionOverride(Long.parseLong(ticket.getOwner()),
-                        Arrays.asList(Permission.VIEW_CHANNEL,
-                                Permission.MESSAGE_ATTACH_FILES,
-                                Permission.MESSAGE_SEND),
-                        Arrays.asList(Permission.ADMINISTRATOR))
-                .queue(success -> {
-                    onSuccess.accept(success);
-                    repository.save(ticket);
-                    success.sendMessageEmbeds(CloseTicketEmbedValue.get(CloseTicketEmbedValue::toEmbed))
-                            .addActionRow(Button.success("user-ticket-button", "Adicionar participante"),
-                                    Button.danger("cancel-ticket-button", "Cancelar ticket"))
-                                    .queue(message -> success.pinMessageById(message.getId()).queue());
+    private JDA jda;
+
+    public TicketManager() {
+        super(3L);
+    }
+
+    @SneakyThrows
+    public void setDefaultTicketMessage() {
+        config.addDefaults(consumer -> {
+            consumer.addDefault("bot.guild.ticket.title", "Title");
+            consumer.addDefault("bot.guild.ticket.footer", "Footer");
+            consumer.addDefault("bot.guild.ticket.description", "Hello World \\n Zumo was here!");
+            consumer.addDefault("bot.guild.ticket.thumbnail", "thumbnail-url");
+            consumer.addDefault("bot.guild.ticket.site", "site-url");
+            consumer.addDefault("bot.guild.ticket.fields.1.name", "My Name is");
+            consumer.addDefault("bot.guild.ticket.fields.1.value", "Zumo");
+            consumer.addDefault("bot.guild.ticket.fields.1.inline", true);
+            consumer.addDefault("bot.guild.ticket.fields.2.name", "My Job is");
+            consumer.addDefault("bot.guild.ticket.fields.2.value", "Supporter of RealHosting");
+            consumer.addDefault("bot.guild.ticket.fields.2.inline", true);
+
+            consumer.addDefault("bot.guild.close-ticket.title", ":x: Do you want to close this ticket?");
+            consumer.addDefault("bot.guild.close-ticket.footer", "Footer");
+            consumer.addDefault("bot.guild.close-ticket.thumbnail", "thumbnail-url");
+            consumer.addDefault("bot.guild.close-ticket.description", "Click on red button to close this ticket!");
+            consumer.addDefault("bot.guild.close-ticket.site", "site-url");
+            consumer.addDefault("bot.guild.close-ticket.fields.1.name", "My Name is");
+            consumer.addDefault("bot.guild.close-ticket.fields.1.value", "Zumo");
+            consumer.addDefault("bot.guild.close-ticket.fields.1.inline", true);
+            consumer.addDefault("bot.guild.close-ticket.fields.2.name", "My Job is");
+            consumer.addDefault("bot.guild.close-ticket.fields.2.value", "Supporter of RealHosting");
+            consumer.addDefault("bot.guild.close-ticket.fields.2.inline", true);
+        });
+        config.save();
+    }
+
+    public void sendTicketMenu() {
+        val section = "bot.guild.ticket.";
+
+        val textChannel = jda.getTextChannelById(config.getString("bot.guild.ticket-chat-id"));
+        textChannel.retrievePinnedMessages().queue(message -> {
+            if (message.stream().anyMatch(embed -> embed.getAuthor().isBot()))
+                return;
+
+            val embed = config.getEmbedMessageFromConfig(this.config, "ticket");
+            val menu = SelectMenu.create("menu-ticket")
+                    .addOption("Adquirir Serviços", "comprar", "Contrate um dos planos do nosso serviço de hospedagem.", Emoji.fromUnicode("U+1F4B5"))
+                    .addOption("Aprimorar Serviços", "aprimorar", "Aprimore seus serviços para um melhor aproveitamento.", Emoji.fromUnicode("U+1F680"))
+                    .addOption("Não... sério, preciso de ajuda!", "técnico", "Contate-nos pra solucionar problemas em seu serviço.", Emoji.fromUnicode("U+1F4BB"))
+                    .addOption("Esclarecer Dúvidas", "dúvida", "Acabe com aquela pulga atrás da orelha.", Emoji.fromUnicode("U+1F4A1"))
+                    .addOption("Crítica Construtiva", "sugestão", "Dê uma crítica construtiva em algo que podemos melhorar.", Emoji.fromUnicode("U+1F48C"))
+                    .build();
+
+            textChannel.sendMessageEmbeds(embed.build()).addActionRow(menu).queue();
+        });
+    }
+
+    public Ticket getTicketByTextChannelId(String textChannelId) {
+        return getTicketMap().entrySet()
+                .stream()
+                .filter(value -> value.getValue().getChannelId().equals(textChannelId))
+                .findFirst().get().getValue();
+    }
+
+    public String getTicketIdByUserId(String userId) {
+        return getTicketByUserId(userId).getId();
+    }
+
+    public Ticket getTicketByUserId(String userId) {
+        return getTicketMap().entrySet()
+                .stream()
+                .filter(value -> value.getValue().getAuthor().getId().equals(userId))
+                .findFirst().get().getValue();
+    }
+
+    public Ticket getTicketById(String id) {
+        return getTicketMap().entrySet()
+                .stream().filter(value -> value.getValue().getId().equals(id))
+                .findFirst().get().getValue();
+    }
+
+    public boolean hasOpenedTicket(String id) {
+        return getTicketMap().entrySet()
+                .stream().anyMatch(value -> value.getValue().getId().equals(id));
+    }
+
+    public boolean hasOpenedTicketByChannelId(String channelId) {
+        return getTicketMap().entrySet()
+                .stream().anyMatch(value -> value.getValue().getChannelId().equals(channelId));
+    }
+
+    public boolean hasOpenedTicket(Member member) {
+        return this.ticketMap.containsKey(member.getId());
+    }
+
+    @SneakyThrows
+    public void recordOpenedTicket(Ticket ticket) {
+        val config = new Configuration("services/tickets/opened-ticket/" + ticket.getAuthor().getAsTag() + ".yml")
+                .buildIfNotExists();
+        config.set("ticket.id", ticket.getId());
+        config.set("ticket.author", ticket.getAuthor().getId());
+        config.set("ticket.channelId", ticket.getChannelId());
+        config.set("ticket.category", ticket.getCategory());
+        config.set("ticket.history", ticket.getHistory());
+        config.save();
+    }
+
+    @SneakyThrows
+    public void destroyRecordedTicket(Ticket ticket) {
+        val config = new Configuration("services/tickets/opened-ticket/" + ticket.getAuthor().getAsTag() + ".yml")
+                .buildIfNotExists()
+                ;
+        new File("services/tickets/opened-ticket/" + ticket.getChannelId() + ".png")
+                .delete();
+
+        config.deleteFile();
+    }
+
+    public void loadOpenedTicket(Guild guild) {
+        val ticketFolder = new File("services/tickets/opened-ticket/");
+
+        if (!ticketFolder.exists()) return;
+
+        Arrays.asList(ticketFolder.listFiles())
+                .stream()
+                .filter(file -> file.getName().endsWith(".yml"))
+                .forEach(file -> {
+            val config = new Configuration("services/tickets/opened-ticket/" + file.getName())
+                    .buildIfNotExists();
+            try {
+                jda.retrieveUserById(config.getString("ticket.author")).queue(user -> {
+                    if (jda.getTextChannelById(config.getString("ticket.channelId")) == null) {
+                        Logger.getGlobal().severe("Erro ao carregar o ticket " + file.getName() + "! O canal não foi encontrado.");
+                        return;
+                    }
+                    val ticket = Ticket.builder()
+                            .id(config.getString("ticket.id"))
+                            .channelId(config.getString("ticket.channelId"))
+                            .category(config.getString("ticket.category"))
+                            .author(user)
+                            .build();
+
+                    ticket.setConfig(ticket.getOpenedTicketConfig());
+                    this.ticketMap.put(config.getString("ticket.author"), ticket);
+                    Logger.getGlobal().info("Ticket " + file.getName() + " carregado para a memória.");
                 });
-    }
-
-    public void cancelTicket(Ticket ticket, Consumer<Void> onSuccess) {
-        val channel = guild.getTextChannelById(ticket.getChatId());
-        repository.close(ticket);
-        onSuccess.accept(null);
-        channel.delete().queueAfter(4, TimeUnit.SECONDS);
-    }
-
-    public void saveMessages(Ticket ticket, Consumer<Ticket> onSuccess) {
-        historyMessages(ticket, messages -> {
-            messages.stream()
-                    .map(message -> String.format("[%s] - %s: %s (%s)",
-                            message.getAuthor().getAsTag(),
-                            message.getTimeCreated()
-                                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
-                                            .withZone(ZoneId.of("America/Sao_Paulo"))),
-                            message.getContentRaw(),
-                            message.getAttachments().isEmpty() ? "" : message.getAttachments().toString()
-                    ))
-                    .forEach(ticket.getHistory()::add);
-            onSuccess.accept(ticket);
+            } catch (Exception ex) {
+                Logger.getGlobal().severe(String.format("Não foi possível carregar o ticket %s", config.getString("ticket.id")));
+            }
         });
     }
 
-    public void saveParticipants(Ticket ticket) {
-        historyMessages(ticket, messages -> {
-            messages.stream()
-                    .filter(message -> !ticket.getParticipants().contains(message.getAuthor().getId()))
-                    .map(message -> message.getAuthor().getId())
-                    .forEach(ticket.getParticipants()::add);
-        });
-    }
+    @Override
+    public BaseService service(JDA jda, Configuration config) {
+        this.jda = jda;
+        this.config = config;
 
-    public void historyMessages(Ticket ticket, Consumer<List<Message>> consumer) {
-        MessageHistory.getHistoryFromBeginning(guild.getTextChannelById(ticket.getChatId()))
-                .queue(success -> consumer.accept(success.getRetrievedHistory()));
+        setDefaultTicketMessage();
+        sendTicketMenu();
+        loadOpenedTicket(jda.getGuildById("832601856403701771"));
+
+        return this;
     }
 }

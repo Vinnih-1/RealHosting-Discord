@@ -25,7 +25,6 @@ public class CommandManager {
         });
 
     }
-
     public void loadSlashCommands() {
         new Reflections("project.kazumy.realhosting.discord.commands.slash").getSubTypesOf(BaseSlashCommand.class)
                 .stream()
@@ -38,7 +37,6 @@ public class CommandManager {
                     }
                 }).forEach(slashCommands::add);
     }
-
     public void loadPrefixCommands() {
         new Reflections("project.kazumy.realhosting.discord.commands.prefix").getSubTypesOf(BasePrefixCommand.class)
                 .stream()
