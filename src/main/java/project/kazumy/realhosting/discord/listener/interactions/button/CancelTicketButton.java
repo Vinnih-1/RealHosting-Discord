@@ -32,7 +32,7 @@ public class CancelTicketButton extends InteractionService<ButtonInteractionEven
                     .queue();
             return;
         }
-        discordMain.getTicketManager().saveParticipants(ticket);
+        discordMain.getTicketManager().saveAllParticipants(ticket);
         discordMain.getTicketManager().saveMessages(ticket, success -> {
             discordMain.getTicketManager().cancelTicket(success, (unused) -> {
                 event.deferReply().addEmbeds(new EmbedBuilder()
