@@ -47,7 +47,7 @@ public class TicketRepository {
         });
     }
 
-    public void feedback(Ticket ticket) {
+    public void update(Ticket ticket) {
         executor.updateQuery("INSERT INTO ticket (id, name, owner, category, chat, closed, feedback, participants, history, creation, cancellation)" +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", statement -> {
             statement.set(1, ticket.getId());
