@@ -1,7 +1,6 @@
 package project.kazumy.realhosting.discord.services.ticket.impl;
 
 import lombok.*;
-import net.dv8tion.jda.api.entities.Message;
 import project.kazumy.realhosting.discord.services.ticket.Ticket;
 import project.kazumy.realhosting.discord.services.ticket.category.TicketCategory;
 
