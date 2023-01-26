@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.val;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageHistory;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -38,8 +39,19 @@ public class TicketManager {
                 });
     }
 
-    public void saveFeedback(Ticket ticket) {
-        repository.feedback(ticket);
+    public void addParticipant(Ticket ticket, TextChannel channel, Member member) {
+        channel.upsertPermissionOverride(member).grant(
+                Permission.VIEW_CHANNEL,
+                Permission.MESSAGE_SEND,
+                Permission.MESSAGE_ATTACH_FILES
+        ).queue(success -> {
+            ticket.getParticipants().add(success.getId());
+            updateTicket(ticket);
+        });
+    }
+
+    public void updateTicket(Ticket ticket) {
+        repository.update(ticket);
     }
 
     public void cancelTicket(Ticket ticket, Consumer<Void> onSuccess) {
@@ -65,7 +77,7 @@ public class TicketManager {
         });
     }
 
-    public void saveParticipants(Ticket ticket) {
+    public void saveAllParticipants(Ticket ticket) {
         historyMessages(ticket, messages -> {
             messages.stream()
                     .filter(message -> !ticket.getParticipants().contains(message.getAuthor().getId()))
