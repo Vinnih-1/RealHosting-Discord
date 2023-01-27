@@ -2,9 +2,12 @@ package project.kazumy.realhosting.model.panel;
 
 import com.mattmalec.pterodactyl4j.DataType;
 import com.mattmalec.pterodactyl4j.PteroBuilder;
+import com.mattmalec.pterodactyl4j.application.entities.ApplicationEgg;
 import com.mattmalec.pterodactyl4j.application.entities.ApplicationServer;
 import com.mattmalec.pterodactyl4j.application.entities.ApplicationUser;
 import com.mattmalec.pterodactyl4j.application.entities.PteroApplication;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.val;
 import org.apache.commons.lang.RandomStringUtils;
 import project.kazumy.realhosting.configuration.basic.PanelValue;
@@ -13,7 +16,6 @@ import project.kazumy.realhosting.model.plan.Plan;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 
 /**
  * @author Vinícius Albert
@@ -25,6 +27,10 @@ public class Panel {
     private PteroApplication application;
 
     private ApplicationUser user;
+
+    @Getter @Setter private ApplicationEgg egg;
+
+    @Getter private String password;
 
     /**
      * Autentica esta instância com o painel da RealHosting,
@@ -54,15 +60,20 @@ public class Panel {
      *
      * @param email email do usuário especificado.
      */
-    public void syncUserByEmail(String email, Consumer<ApplicationUser> success, Consumer<Throwable> failure) {
-        application.retrieveUsersByEmail(email, true).executeAsync(onSuccess -> {
-            if (onSuccess.get(0) == null) {
-                Logger.getGlobal().severe("Houve uma falha ao sincronizar o usuário a este email!");
-                return;
+    public void syncUserByEmail(String email, Consumer<ApplicationUser> success, Consumer<Panel> failure) {
+        new Thread(() -> {
+            try {
+                val user = application.retrieveUsersByEmail(email, true).execute().get(0);
+                this.user = user;
+                success.accept(user);
+            } catch (Exception exception) {
+                failure.accept(this);
             }
-            this.user = onSuccess.get(0);
-            success.accept(this.user);
-        }, failure);
+        }).start();
+    }
+
+    public boolean userExistsByUsername(String username) {
+        return !application.retrieveUsersByUsername(username, true).execute().isEmpty();
     }
 
     /**
@@ -75,15 +86,21 @@ public class Panel {
      * @param success executado quando a operação é bem sucedida.
      * @param failure executado quando há algum erro na operação.
      */
-    public void createUser(String firsname, String lastname, String username, String email, Consumer<ApplicationUser> success, Consumer<Throwable> failure) {
-        val password = RandomStringUtils.randomAlphanumeric(8);
-        application.getUserManager().createUser()
-                .setFirstName(firsname)
-                .setLastName(lastname)
-                .setUserName(username)
-                .setEmail(email)
-                .setPassword(password)
-                .executeAsync(success, failure);
+    public void createUser(String firsname, String lastname, String username, String email, Consumer<ApplicationUser> success, Consumer<Void> failure) {
+        new Thread(() -> {
+            val password = RandomStringUtils.randomAlphanumeric(8);
+            this.password = password;
+            val user = application.getUserManager().createUser()
+                    .setFirstName(firsname)
+                    .setLastName(lastname)
+                    .setUserName(username)
+                    .setEmail(email)
+                    .setPassword(password)
+                    .execute();
+            this.user = user;
+            if (user != null) success.accept(user);
+            else failure.accept(null);
+        }).start();
     }
 
     /**
@@ -94,23 +111,28 @@ public class Panel {
      * @param success executado quando o servidor foi criado com êxito.
      * @param failure executado quando houver alguma falha ao criar o servidor.
      */
-    public void createServer(Plan plan, Consumer<ApplicationServer> success, Consumer<Throwable> failure) {
-        val hardware = plan.getPrePlan().getHardware();
-
-        application.createServer()
-                .setOwner(user)
-                .setCPU(hardware.getCpu())
-                .setMemory(hardware.getRam(), DataType.MB)
-                .setDisk(hardware.getDisk(), DataType.MB)
-                .setDatabases(hardware.getDatabase())
-                .setBackups(hardware.getBackup())
-                .setName(plan.getPrePlan().getTitle())
-                .setDescription(plan.getId())
-                .setEgg(plan.getServerType().getEgg())
-                .setEnvironment(plan.getServerType().getEnviroment())
-                .setDockerImage(plan.getServerType().getDockerImage())
-                .setAllocations(1L)
-                .setPortRange(PORT_RANGE)
-                .executeAsync(success, failure);
+    public void createServer(Plan plan, Consumer<ApplicationServer> success, Consumer<Void> failure) {
+        new Thread(() -> {
+            val hardware = plan.getPrePlan().getHardware();
+            val server = application.createServer()
+                    .setOwner(user)
+                    .setCPU(hardware.getCpu())
+                    .setMemory(hardware.getRam(), DataType.MB)
+                    .setDisk(hardware.getDisk(), DataType.MB)
+                    .setDatabases(hardware.getDatabase())
+                    .setBackups(hardware.getBackup())
+                    .setName(plan.getPrePlan().getTitle())
+                    .setDescription(plan.getId())
+                    .setEgg(application.retrieveEggById(application.retrieveNestById(
+                            plan.getServerType().getNestId()).execute(),
+                            plan.getServerType().getEggId()).execute())
+                    .setEnvironment(plan.getServerType().getEnviroment())
+                    .setDockerImage(plan.getServerType().getDockerImage())
+                    .setAllocations(1L)
+                    .setPortRange(PORT_RANGE)
+                    .execute();
+            if (server != null) success.accept(server);
+            else failure.accept(null);
+        }).start();
     }
 }
