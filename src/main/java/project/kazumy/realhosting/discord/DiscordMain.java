@@ -8,10 +8,12 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import project.kazumy.realhosting.configuration.basic.GuildValue;
-import project.kazumy.realhosting.configuration.registry.ConfigurationRegistry;
 import project.kazumy.realhosting.discord.listener.EventListener;
 import project.kazumy.realhosting.discord.services.ticket.manager.TicketManager;
 import project.kazumy.realhosting.discord.services.ticket.repository.TicketRepository;
+import project.kazumy.realhosting.model.entity.client.manager.ClientManager;
+import project.kazumy.realhosting.model.panel.Panel;
+import project.kazumy.realhosting.model.plan.PlanService;
 
 import java.util.logging.Logger;
 
@@ -20,11 +22,14 @@ import java.util.logging.Logger;
 public class DiscordMain {
 
     private final SQLExecutor executor;
+    private final ClientManager clientManager;
+    private final PlanService planService;
+    private final Panel panel;
+
     private TicketManager ticketManager;
     private JDA jda;
 
     public DiscordMain startup(String token) {
-        new ConfigurationRegistry().register();
         try {
             this.jda = JDABuilder.createDefault(token)
                     .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MEMBERS)
