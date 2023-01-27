@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.YamlFile;
+import project.kazumy.realhosting.model.plan.Plan;
 
 import java.awt.*;
 import java.util.function.Function;
@@ -31,7 +32,7 @@ public class PaymentEmbedValue implements ConfigurationInjectable {
     @ConfigField("fields") private ConfigurationSection section;
 
     @SneakyThrows
-    public MessageEmbed toEmbed() {
+    public MessageEmbed toEmbed(Plan plan) {
         val yamlFile = new YamlFile("configuration/embed.yml");
         yamlFile.load();
         val embed = new EmbedBuilder();
@@ -54,7 +55,9 @@ public class PaymentEmbedValue implements ConfigurationInjectable {
                             break;
 
                         case "value":
-                            value.append(section.getString(field));
+                            value.append(section.getString(field)
+                                    .replace("%servidor", plan.getServerType().toString())
+                                    .replace("%id", plan.getId()));
                             break;
 
                         case "inline":
