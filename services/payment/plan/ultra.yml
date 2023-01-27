@@ -1,0 +1,14 @@
+plan:
+  id: '5'
+  title: 'R$ 40,00 : 16GB + 6 Núcleo(s) | ULTRA'
+  price: 40.00
+  emoji: U+1F48E
+  type: 'ULTRA'
+  logo: 'resource/ultra.png'
+  description: O plano para quem quer fazer uma rede de servidores.
+  hardware:
+    cpu: 600
+    ram: 16384
+    disk: 20000
+    backup: 1
+    database: 1

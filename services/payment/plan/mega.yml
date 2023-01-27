@@ -1,0 +1,14 @@
+plan:
+  id: '4'
+  title: 'R$ 20,00 : 8GB + 4 Núcleo(s) | MEGA'
+  price: 20.00
+  emoji: U+1F4B0
+  type: 'MEGA'
+  logo: 'resource/mega.png'
+  description: O plano para quem quer fazer um servidor com plugins.
+  hardware:
+    cpu: 400
+    ram: 8192
+    disk: 10000
+    backup: 1
+    database: 1

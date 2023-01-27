@@ -1,0 +1,14 @@
+plan:
+  id: '2'
+  title: 'R$ 5,00 : 2GB + 1 Núcleo(s) | MEDIAN'
+  price: 5.00
+  emoji: U+1F4B5
+  type: 'MEDIAN'
+  logo: 'resource/median.png'
+  description: O plano para quem quer jogar com amigos.
+  hardware:
+    cpu: 100
+    ram: 2048
+    disk: 5000
+    backup: 1
+    database: 1

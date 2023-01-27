@@ -1,0 +1,14 @@
+plan:
+  id: '3'
+  title: 'R$ 10,00 : 4GB + 2 Núcleo(s) | ADVANCED'
+  price: 2.50
+  emoji: U+1F4B2
+  type: 'ADVANCED'
+  logo: 'resource/advanced.png'
+  description: O plano para quem quer fazer um pequeno servidor.
+  hardware:
+    cpu: 200
+    ram: 4096
+    disk: 10000
+    backup: 1
+    database: 1
