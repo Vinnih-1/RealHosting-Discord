@@ -23,6 +23,11 @@ public class CancelTicketButtonInteraction extends InteractionService<ButtonInte
     public void execute(ButtonInteractionEvent event) {
         val ticket = discordMain.getTicketManager().findTicketByChatId(event.getChannel().getId());
 
+        if (ticket == null) {
+            event.getChannel().delete().queue();
+            return;
+        }
+
         if (!ticket.getOwner().equals(event.getUser().getId())) {
             event.deferReply(true).addEmbeds(new EmbedBuilder()
                             .setColor(Color.GRAY)
