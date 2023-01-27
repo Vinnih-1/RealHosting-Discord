@@ -6,12 +6,13 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import project.kazumy.realhosting.configuration.embed.TicketEmbedValue;
 import project.kazumy.realhosting.configuration.menu.TicketMenuValue;
+import project.kazumy.realhosting.discord.DiscordMain;
 import project.kazumy.realhosting.discord.commands.base.BasePrefixCommand;
 
 public class TicketMenuCommand extends BasePrefixCommand {
 
-    public TicketMenuCommand() {
-        super("ticketmenu", Permission.ADMINISTRATOR);
+    public TicketMenuCommand(DiscordMain discordMain) {
+        super("ticketmenu", Permission.ADMINISTRATOR, discordMain);
     }
 
     @Override

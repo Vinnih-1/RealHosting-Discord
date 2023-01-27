@@ -28,7 +28,7 @@ public class EventListener extends ListenerAdapter {
         this.discordMain = discordMain;
         this.interactionManager = InteractionManager.of(discordMain).init();
 
-        commandManager.loadPrefixCommands();
+        commandManager.loadPrefixCommands(discordMain);
         commandManager.loadSlashCommands();
     }
 

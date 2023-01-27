@@ -4,6 +4,7 @@ import lombok.Getter;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.reflections.Reflections;
+import project.kazumy.realhosting.discord.DiscordMain;
 import project.kazumy.realhosting.discord.commands.base.BasePrefixCommand;
 import project.kazumy.realhosting.discord.commands.base.BaseSlashCommand;
 
@@ -39,12 +40,12 @@ public class CommandManager {
                 }).forEach(slashCommands::add);
     }
 
-    public void loadPrefixCommands() {
+    public void loadPrefixCommands(DiscordMain discordMain) {
         new Reflections("project.kazumy.realhosting.discord.commands.prefix").getSubTypesOf(BasePrefixCommand.class)
                 .stream()
                 .map(command -> {
                     try {
-                        return command.newInstance();
+                        return command.getDeclaredConstructor(DiscordMain.class).newInstance(discordMain);
                     } catch (Exception e) {
                         Logger.getGlobal().severe("Algum comando prefix não pôde ser carregado: " + e.getMessage());
                         return null;
