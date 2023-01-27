@@ -7,7 +7,7 @@ import org.simpleyaml.configuration.file.YamlFile;
 import org.simpleyaml.exceptions.InvalidConfigurationException;
 import project.kazumy.realhosting.model.panel.ServerType;
 import project.kazumy.realhosting.model.panel.StageType;
-import project.kazumy.realhosting.model.payment.PaymentIntent;
+import project.kazumy.realhosting.model.payment.intent.PaymentIntent;
 import project.kazumy.realhosting.model.plan.impl.PlanImpl;
 import project.kazumy.realhosting.model.plan.impl.PrePlanImpl;
 import project.kazumy.realhosting.model.plan.pre.PlanHardware;
@@ -99,6 +99,12 @@ public class PlanService {
                 .findAny().orElse(null);
     }
 
+    public PrePlan getPrePlanById(String id) {
+        return prePlanList.stream()
+                .filter(prePlan -> prePlan.getId().equals(id))
+                .findAny().orElse(null);
+    }
+
     /**
      * Retorna todos os planos que um cliente tem
      * utilizando o arquivo de configuração do cliente
@@ -118,6 +124,7 @@ public class PlanService {
                 .getKeys(false).stream()
                 .map(key -> clientConfig.getConfigurationSection("client.plans." + key))
                 .map(config -> PlanImpl.builder()
+                        .id(config.getName())
                         .creation(LocalDateTime.parse(config.getString("creation")))
                         .payment(LocalDateTime.parse(config.getString("payment")))
                         .expiration(LocalDateTime.parse(config.getString("expiration")))
