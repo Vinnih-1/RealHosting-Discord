@@ -31,6 +31,28 @@ public class SQLProvider {
                 "    cancellation TEXT\n" +
                 ");");
 
+        executor.updateQuery("CREATE TABLE IF NOT EXISTS clients (\n" +
+                "    id        TEXT (18) UNIQUE ON CONFLICT REPLACE\n" +
+                "                        NOT NULL,\n" +
+                "    firstname TEXT,\n" +
+                "    lastname  TEXT,\n" +
+                "    username  TEXT,\n" +
+                "    email     TEXT\n" +
+                ");\n");
+
+        executor.updateQuery("CREATE TABLE IF NOT EXISTS plans (\n" +
+                "    id         TEXT (15) UNIQUE ON CONFLICT REPLACE\n" +
+                "                         NOT NULL,\n" +
+                "    owner      TEXT (18) NOT NULL,\n" +
+                "    intent     TEXT      NOT NULL,\n" +
+                "    type       TEXT      NOT NULL,\n" +
+                "    stage      TEXT      NOT NULL,\n" +
+                "    server     TEXT      NOT NULL,\n" +
+                "    creation   TEXT      NOT NULL,\n" +
+                "    payment    TEXT      NOT NULL,\n" +
+                "    expiration TEXT      NOT NULL\n" +
+                ");");
+
         return executor;
     }
 }
