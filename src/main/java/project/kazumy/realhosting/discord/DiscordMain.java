@@ -13,7 +13,7 @@ import project.kazumy.realhosting.discord.services.ticket.manager.TicketManager;
 import project.kazumy.realhosting.discord.services.ticket.repository.TicketRepository;
 import project.kazumy.realhosting.model.entity.client.manager.ClientManager;
 import project.kazumy.realhosting.model.panel.Panel;
-import project.kazumy.realhosting.model.plan.PlanService;
+import project.kazumy.realhosting.model.plan.manager.PlanManager;
 
 import java.util.logging.Logger;
 
@@ -23,7 +23,7 @@ public class DiscordMain {
 
     private final SQLExecutor executor;
     private final ClientManager clientManager;
-    private final PlanService planService;
+    private final PlanManager planManager;
     private final Panel panel;
 
     private TicketManager ticketManager;
