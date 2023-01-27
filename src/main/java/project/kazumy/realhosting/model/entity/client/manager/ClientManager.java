@@ -47,7 +47,7 @@ public class ClientManager {
      * @param folder pasta em que os arquivos estão localizados.
      */
     private void loadClient(File folder) {
-        val client = new AtomicInteger();
+        val clientCounter = new AtomicInteger();
         val initialTime = System.currentTimeMillis();
 
         Arrays.stream(folder.listFiles())
@@ -63,14 +63,21 @@ public class ClientManager {
                 })
                 .filter(config -> config.getString("id") != null)
                 .forEach(config -> {
-                    clientList.add(new ClientImpl(
-                       config.getString("id"),
-                       planService.getPlanByClientId(config.getString("id")),
-                       new YamlFile(new File("services/payment/client", config.getString("id") + ".yml"))
-                    ));
-                    client.incrementAndGet();
+                    val client = new ClientImpl(
+                            config.getString("id"),
+                            planService.getPlanByClientId(config.getString("id")),
+                            new YamlFile(new File("services/payment/client", config.getString("id") + ".yml")),
+                            planService
+                    );
+                    client.setName(config.getString("name"));
+                    client.setLastname(config.getString("lastname"));
+                    client.setUsername(config.getString("username"));
+                    client.setEmail(config.getString("email"));
+
+                    clientList.add(client);
+                    clientCounter.incrementAndGet();
                 });
-        Logger.getGlobal().info(String.format("Um total de %s clientes carregados em %sms", client.get(), System.currentTimeMillis() - initialTime));
+        Logger.getGlobal().info(String.format("Um total de %s clientes carregados em %sms", clientCounter.get(), System.currentTimeMillis() - initialTime));
     }
 
     /**
@@ -87,7 +94,7 @@ public class ClientManager {
         clientConfig.createOrLoad();
         clientConfig.addDefault("client.id", id);
         clientConfig.save();
-        val client = new ClientImpl(id, null, clientConfig);
+        val client = new ClientImpl(id, null, clientConfig, planService);
         clientList.add(client);
 
         return client;

@@ -1,6 +1,7 @@
 package project.kazumy.realhosting.model.entity.client;
 
 import org.simpleyaml.configuration.file.YamlFile;
+import project.kazumy.realhosting.model.panel.Panel;
 import project.kazumy.realhosting.model.plan.Plan;
 
 import java.util.List;
@@ -17,6 +18,28 @@ public interface Client {
      * @return identificador do cliente.
      */
     String getId();
+
+    String getName();
+
+    String getLastname();
+
+    String getUsername();
+
+    String getEmail();
+
+    String getQrData();
+
+    void setName(String name);
+
+    void setLastname(String lastname);
+
+    void setUsername(String username);
+
+    void setEmail(String email);
+
+    void setQrData(String qrData);
+
+    Panel getPanel();
 
     /**
      * Retorna uma lista contendo todos os planos do cliente.
@@ -42,4 +65,6 @@ public interface Client {
      * @param success executado quando o pagamento é efetivado e encontrado.
      */
     void purchase(Plan plan, Consumer<Client> success);
+
+    void saveData();
 }
