@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionE
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
-import project.kazumy.realhosting.configuration.menu.PlanMenuValue;
 import project.kazumy.realhosting.discord.DiscordMain;
 import project.kazumy.realhosting.discord.listener.InteractionService;
 
@@ -23,12 +22,12 @@ public class PurchasePlanMenuInteraction extends InteractionService<StringSelect
         val planId = event.getMessage().getEmbeds().get(0).getFields().get(1).getValue();
         val client = discordMain.getClientManager().getClientById(event.getMember().getId());
 
-        discordMain.getPlanService().getPlanByClientId(event.getMember().getId()).stream()
+        discordMain.getPlanManager().getPlanByClientId(event.getMember().getId()).stream()
                 .filter(plan -> plan.getId().equals(planId)).findFirst()
                 .ifPresent(plan -> {
-                    plan.setPrePlan(discordMain.getPlanService().getPrePlanById(event.getSelectedOptions().get(0)
+                    plan.setPrePlan(discordMain.getPlanManager().getPrePlanById(event.getSelectedOptions().get(0)
                             .getValue().split("\\.")[4]));
-                    plan.savePlan(client);
+                    discordMain.getPlanManager().savePlan(plan);
 
                     val modal = Modal.create("purchase-plan-modal", "Preencha os Dados")
                             .addActionRow(

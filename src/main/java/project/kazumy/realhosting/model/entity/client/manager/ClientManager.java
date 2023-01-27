@@ -3,19 +3,10 @@ package project.kazumy.realhosting.model.entity.client.manager;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.simpleyaml.configuration.file.YamlFile;
-import org.simpleyaml.exceptions.InvalidConfigurationException;
 import project.kazumy.realhosting.model.entity.client.Client;
 import project.kazumy.realhosting.model.entity.client.impl.ClientImpl;
-import project.kazumy.realhosting.model.plan.PlanService;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
+import project.kazumy.realhosting.model.entity.client.repository.ClientRepository;
+import project.kazumy.realhosting.model.plan.manager.PlanManager;
 
 /**
  * @author Vinícius Albert
@@ -23,62 +14,8 @@ import java.util.logging.Logger;
 @Data(staticConstructor = "of")
 public class ClientManager {
 
-    private static ClientManager instance;
-
-    private final PlanService planService;
-    private final Set<Client> clientList = new HashSet<>();
-
-    /**
-     * Quando instanciado, carrega todos os arquivos yaml que estejam
-     * na pasta localizada em 'services/payment/client', e coloca-os
-     * para a lista clientList.
-     *
-     */
-    public ClientManager load() {
-        val folder = new File("services/payment/client");
-        loadClient(folder);
-
-        return this;
-    }
-
-    /**
-     * Carrega todos os clientes para uma lista.
-     *
-     * @param folder pasta em que os arquivos estão localizados.
-     */
-    private void loadClient(File folder) {
-        val clientCounter = new AtomicInteger();
-        val initialTime = System.currentTimeMillis();
-
-        Arrays.stream(folder.listFiles())
-                .filter(file -> file.getName().endsWith(".yml"))
-                .map(file -> new YamlFile(new File(folder, file.getName())))
-                .map(config -> {
-                    try {
-                        config.load();
-                        return config.getConfigurationSection("client");
-                    } catch (InvalidConfigurationException | IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .filter(config -> config.getString("id") != null)
-                .forEach(config -> {
-                    val client = new ClientImpl(
-                            config.getString("id"),
-                            planService.getPlanByClientId(config.getString("id")),
-                            new YamlFile(new File("services/payment/client", config.getString("id") + ".yml")),
-                            planService
-                    );
-                    client.setName(config.getString("name"));
-                    client.setLastname(config.getString("lastname"));
-                    client.setUsername(config.getString("username"));
-                    client.setEmail(config.getString("email"));
-
-                    clientList.add(client);
-                    clientCounter.incrementAndGet();
-                });
-        Logger.getGlobal().info(String.format("Um total de %s clientes carregados em %sms", clientCounter.get(), System.currentTimeMillis() - initialTime));
-    }
+    private final ClientRepository repository;
+    private final PlanManager planManager;
 
     /**
      * Cria um arquivo de um novo cliente na pasta especificada
@@ -90,13 +27,8 @@ public class ClientManager {
      */
     @SneakyThrows
     public Client createNewClient(String id) {
-        val clientConfig = new YamlFile(new File("services/payment/client", id + ".yml"));
-        clientConfig.createOrLoad();
-        clientConfig.addDefault("client.id", id);
-        clientConfig.save();
-        val client = new ClientImpl(id, null, clientConfig, planService);
-        clientList.add(client);
-
+        val client = new ClientImpl(id, null);
+        repository.save(client);
         return client;
     }
 
@@ -109,15 +41,11 @@ public class ClientManager {
      * @return uma instância do cliente.
      */
     public Client getClientById(String id) {
-        return clientList.stream()
-                .filter(client -> client.getId().equals(id))
-                .findFirst().orElse(createNewClient(id));
+        val client = repository.findClientById(id);
+        return client == null ? createNewClient(id) : client;
     }
 
-    public static ClientManager getInstance() {
-        if (instance == null) {
-            instance = new ClientManager(null);
-        }
-        return instance;
+    public void saveClient(Client client) {
+        repository.save(client);
     }
 }

@@ -47,15 +47,16 @@ public class PurchasePlanModalInteraction extends InteractionService<ModalIntera
         client.setLastname(event.getValue("lastname").getAsString());
         client.setUsername(event.getValue("username").getAsString());
         client.setEmail(event.getValue("email").getAsString());
-        client.saveData();
+        discordMain.getClientManager().saveClient(client);
 
-        discordMain.getPlanService().getPlanByClientId(event.getMember().getId()).stream()
+        discordMain.getPlanManager().getPlanByClientId(event.getMember().getId()).stream()
                 .filter(plan -> plan.getId().equals(planId)).findFirst()
                 .ifPresent(plan -> {
-                    client.purchase(plan, success -> {
+                    plan.setPrePlan(discordMain.getPlanManager().getPrePlanByType(discordMain.getPlanManager().getPrePlanTypeFromPlanById(planId)));
+                    val qrData = discordMain.getPlanManager().purchase(plan, success -> {
                         plan.setPaymentIntent(PaymentIntent.NONE);
                         plan.setStageType(StageType.ACTIVED);
-                        plan.savePlan(client);
+                        discordMain.getPlanManager().savePlan(plan);
 
                         client.getPanel().syncUserByEmail(client.getEmail(), user -> {
                             client.getPanel().createServer(plan, server -> {
@@ -116,14 +117,14 @@ public class PurchasePlanModalInteraction extends InteractionService<ModalIntera
                                     .build()).queue();
                         }));
                     });
-                    event.getMessage().delete().queue();
                     event.deferReply(false).setContent("Cobrança Automática de Serviços Prestados")
                             .addEmbeds(new EmbedBuilder()
                                     .setColor(Color.GRAY)
                                     .setTitle(":white_check_mark: | PIX! Basta copiar e colar!")
-                                    .setDescription(client.getQrData())
+                                    .setDescription(qrData)
                                     .build())
-                            .addFiles(FileUpload.fromData(PaymentUtils.getAsImage(event.getMember().getId(), client.getQrData()))).timeout(1, TimeUnit.MINUTES).queue();
+                            .addFiles(FileUpload.fromData(PaymentUtils.getAsImage(event.getMember().getId(), qrData))).timeout(1, TimeUnit.MINUTES).queue();
+                    event.getMessage().delete().queue();
                 });
     }
 }

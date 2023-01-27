@@ -1,10 +1,10 @@
 package project.kazumy.realhosting.model.entity.client;
 
-import org.simpleyaml.configuration.file.YamlFile;
 import project.kazumy.realhosting.model.panel.Panel;
 import project.kazumy.realhosting.model.plan.Plan;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -27,8 +27,6 @@ public interface Client {
 
     String getEmail();
 
-    String getQrData();
-
     void setName(String name);
 
     void setLastname(String lastname);
@@ -47,15 +45,7 @@ public interface Client {
      *
      * @return lista de planos.
      */
-    List<Plan> getPlans();
-
-    /**
-     * Retorna o arquivo de configuração do cliente
-     * localizado na pasta 'services/payment/cliente/(client.id).yml'
-     *
-     * @return arquivo de configuração do cliente.
-     */
-    YamlFile getConfig();
+    Set<Plan> getPlans();
 
     /**
      * Espera a efetivação do pagamento por parte do cliente
@@ -64,7 +54,5 @@ public interface Client {
      * @param plan plano especificado.
      * @param success executado quando o pagamento é efetivado e encontrado.
      */
-    void purchase(Plan plan, Consumer<Client> success);
-
-    void saveData();
+    /*void purchase(Plan plan, Consumer<Client> success);*/
 }

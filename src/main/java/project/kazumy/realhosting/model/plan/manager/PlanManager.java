@@ -1,33 +1,38 @@
-package project.kazumy.realhosting.model.plan;
+package project.kazumy.realhosting.model.plan.manager;
 
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.val;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.simpleyaml.configuration.file.YamlFile;
 import org.simpleyaml.exceptions.InvalidConfigurationException;
-import project.kazumy.realhosting.model.panel.ServerType;
-import project.kazumy.realhosting.model.panel.StageType;
-import project.kazumy.realhosting.model.payment.intent.PaymentIntent;
-import project.kazumy.realhosting.model.plan.impl.PlanImpl;
+import project.kazumy.realhosting.model.payment.Payment;
+import project.kazumy.realhosting.model.plan.Plan;
 import project.kazumy.realhosting.model.plan.impl.PrePlanImpl;
 import project.kazumy.realhosting.model.plan.pre.PlanHardware;
 import project.kazumy.realhosting.model.plan.pre.PrePlan;
+import project.kazumy.realhosting.model.plan.repository.PlanRepository;
 
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * @author Vinícius Albert
  */
-public class PlanService {
+@RequiredArgsConstructor
+public class PlanManager {
+
+    private final PlanRepository repository;
+    @Setter private Payment payment;
 
     private final List<PrePlan> prePlanList = new ArrayList<>();
 
@@ -35,22 +40,22 @@ public class PlanService {
      * Carrega esta classe de serviço e diz qual
      * a prioridade na fila de carregamento.
      */
-    public PlanService() {
+    /*public PlanManager() {
         val folder = new File("services/payment/plan");
         val resources = new File("resources");
         if (!folder.exists()) folder.mkdirs();
         if (!resources.exists()) resources.mkdirs();
         loadPrePlan(folder, resources);
-    }
+    }*/
 
     /**
      * Carrega todos os planos pré-moldados da pasta
      * localizada em 'services/payment/plan' com a extensão .yml
      *
-     * @param folder pasta em que se encontra os arquivos.
-     * @param resources arquivo de imagem de cada plano.
      */
-    private void loadPrePlan(File folder, File resources) {
+    public PlanManager loadPrePlan() {
+        val folder = new File("services/payment/plan");
+        val resources = new File("resources");
         val plan = new AtomicInteger();
         val initialTime = System.currentTimeMillis();
 
@@ -85,6 +90,7 @@ public class PlanService {
                     plan.incrementAndGet();
                 });
         Logger.getGlobal().info(String.format("Um total de %s planos carregados em %sms", plan.get(), System.currentTimeMillis() - initialTime));
+        return this;
     }
 
     /**
@@ -116,24 +122,26 @@ public class PlanService {
      * Pode returnar nulo, caso o cliente não detenha nenhum plano.
      */
     @SneakyThrows
-    public List<Plan> getPlanByClientId(String id) {
-        if (!hasPlanByClientId(id)) return null;
-        val clientConfig = new YamlFile(String.format("services/payment/client/%s.yml", id));
-        clientConfig.load();
-        return clientConfig.getConfigurationSection("client.plans")
-                .getKeys(false).stream()
-                .map(key -> clientConfig.getConfigurationSection("client.plans." + key))
-                .map(config -> PlanImpl.builder()
-                        .id(config.getName())
-                        .creation(LocalDateTime.parse(config.getString("creation")))
-                        .payment(LocalDateTime.parse(config.getString("payment")))
-                        .expiration(LocalDateTime.parse(config.getString("expiration")))
-                        .paymentIntent(PaymentIntent.valueOf(config.getString("intent")))
-                        .serverType(ServerType.valueOf(config.getString("server")))
-                        .stageType(StageType.valueOf(config.getString("stage")))
-                        .prePlan(getPrePlanByType(config.getString("type")))
-                        .build())
-                .collect(Collectors.toList());
+    public Set<Plan> getPlanByClientId(String id) {
+        return repository.findPlansByClientId(id);
+    }
+
+    public Plan getPlanById(String id) {
+        return repository.findPlanById(id);
+    }
+
+    public String getPrePlanTypeFromPlanById(String planId) {
+        return repository.findPrePlanTypeById(planId);
+    }
+
+    public void savePlan(Plan plan) {
+        repository.save(plan);
+    }
+
+    public String purchase(Plan plan, Consumer<Void> success) {
+        val request = payment.request(plan);
+        payment.wait(plan.getId(), success);
+        return request;
     }
 
     /**
@@ -143,12 +151,12 @@ public class PlanService {
      * @param id identificador único do cliente.
      * @return verdadeiro ou falso, dependendo se o cliente tem ou não algum plano.
      */
-    @SneakyThrows
+/*    @SneakyThrows
     public boolean hasPlanByClientId(String id) {
         val folder = new File("services/payment/client");
         if (!folder.exists()) return false;
         val yamlFile = new YamlFile(new File(folder, id + ".yml"));
         yamlFile.load();
         return yamlFile.getConfigurationSection("client.plans") != null;
-    }
+    }*/
 }

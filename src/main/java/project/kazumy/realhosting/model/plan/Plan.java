@@ -24,6 +24,8 @@ public interface Plan {
      */
     String getId();
 
+    String getOwner();
+
     /**
      * Retorna a data em que o plano foi criado.
      *
@@ -92,7 +94,7 @@ public interface Plan {
      *
      * @param client instância do cliente que está efetuando o pagamento.
      */
-    void savePlan(Client client);
+    /*void savePlan(Client client);*/
 
     /**
      *
@@ -103,5 +105,5 @@ public interface Plan {
      * @param client instância do cliente que está efetuando o pagamento.
      * @param success callback para quando os dados terminarem de ser salvos.
      */
-    void savePlan(Client client, Consumer<Plan> success);
+    /*void savePlan(Client client, Consumer<Plan> success);*/
 }

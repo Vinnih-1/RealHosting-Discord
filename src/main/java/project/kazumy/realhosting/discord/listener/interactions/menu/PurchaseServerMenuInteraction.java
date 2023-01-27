@@ -30,19 +30,19 @@ public class PurchaseServerMenuInteraction extends InteractionService<StringSele
         val type = event.getSelectedOptions().get(0).getValue().split("\\.")[2].toUpperCase();
         val plan = PlanImpl.builder()
                 .id(RandomStringUtils.randomAlphanumeric(15))
+                .owner(event.getMember().getId())
                 .creation(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))
                 .payment(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))
                 .expiration(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")).plusDays(30L))
                 .serverType(ServerType.valueOf(type))
                 .stageType(StageType.CHOOSING_SERVER)
                 .paymentIntent(PaymentIntent.CREATE_PLAN)
-                .prePlan(discordMain.getPlanService().getPrePlanByType("BASIC"))
+                .prePlan(discordMain.getPlanManager().getPrePlanByType("BASIC"))
                 .build();
 
-        plan.savePlan(client, success -> {
-            event.deferReply().addEmbeds(PaymentEmbedValue.instance().toEmbed(plan))
-                    .addActionRow(PlanMenuValue.instance().toMenu("purchase-plan-menu"))
-                    .queue();
-        });
+        discordMain.getPlanManager().savePlan(plan);
+        event.deferReply().addEmbeds(PaymentEmbedValue.instance().toEmbed(plan))
+                .addActionRow(PlanMenuValue.instance().toMenu("purchase-plan-menu"))
+                .queue();
     }
 }
