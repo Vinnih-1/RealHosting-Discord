@@ -31,12 +31,12 @@ embed:
     site: https://app.realhosting.com.br
     fields:
       '1':
-        name: Horário de Atendimento
-        value: 14:30 às 23:00
+        name: Tipo de Servidor
+        value: '%servidor'
         inline: true
       '2':
-        name: Dias de Atendimento
-        value: Segunda a Sexta (Salvo Feriados)
+        name: Identificador
+        value: '%id'
         inline: true
 
   pre-expiration:
@@ -93,4 +93,57 @@ embed:
       '2':
         name: Dias de Atendimento
         value: Segunda a Sexta (Salvo Feriados)
+        inline: true
+
+  feedback:
+    title: ':star: | Avaliação de Atendimento'
+    footer: Avalie como foi seu atendimento
+    description: É importante para nós saber se você foi bem atendido, para que possamos melhorar em futuros novos atendimentos.
+      Se possível, descreva como você foi atendido de forma breve e sincera.
+    thumbnail: https://media.discordapp.net/attachments/856621081438453770/1027391598541164574/Dois_Laranjas.png?width=534&height=534
+    site: https://app.realhosting.com.br
+    fields:
+      '1':
+        name: Total de Participantes
+        value: '%participantes'
+        inline: true
+      '2':
+        name: Total de Mensagens
+        value: '%mensagens'
+        inline: true
+      '3':
+        name: Identificador
+        value: '%ticketChatId'
+        inline: false
+        
+  upgrade:
+    title: ':moneybag: Aprimoramento de Servidores'
+    footer: Utilize este ticket para aprimorar serviços
+    description: Escolha abaixo qual servidor você gostaria de aprimorar.
+    thumbnail: https://media.discordapp.net/attachments/856621081438453770/1027391598541164574/Dois_Laranjas.png?width=534&height=534
+    site: https://app.realhosting.com.br
+    fields:
+      '1':
+        name: Clientes ativos
+        value: '%clientes'
+        inline: true
+      '2':
+        name: Servidores hospedados
+        value: '%servidores'
+        inline: true
+        
+  support:
+    title: ':wrench: Suporte da RealHosting'
+    footer: Por favor, não mencione ninguém a menos que necessário
+    description: Pedimos para que aguarde pacientemente até que alguém da nossa equipe venha lhe atender.
+    thumbnail: https://media.discordapp.net/attachments/856621081438453770/1027391598541164574/Dois_Laranjas.png?width=534&height=534
+    site: https://app.realhosting.com.br
+    fields:
+      '1':
+        name: Clientes ativos
+        value: '%clientes'
+        inline: true
+      '2':
+        name: Servidores hospedados
+        value: '%servidores'
         inline: true

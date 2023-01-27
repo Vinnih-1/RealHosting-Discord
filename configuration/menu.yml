@@ -39,29 +39,36 @@ menu:
   ticket:
     1:
       name: 'Adquirir Serviços'
-      value: comprar
+      value: purchase
       description: 'Contrate um dos planos do nosso serviço de hospedagem.'
       emoji: U+1F4B5
     2:
       name: 'Aprimorar Serviços'
-      value: aprimorar
+      value: upgrade
       description: 'Aprimore seus serviços para um melhor aproveitamento.'
       emoji: U+1F680
     3:
       name: 'Não... sério, preciso de ajuda!'
-      value: técnico
+      value: support
       description: 'Contate-nos pra solucionar problemas em seu serviço.'
       emoji: U+1F4BB
-    4:
-      name: 'Esclarecer Dúvidas'
-      value: dúvida
-      description: 'Acabe com aquela pulga atrás da orelha.'
-      emoji: U+1F4A1
-    5:
-      name: 'Crítica Construtiva'
-      value: sugestão
-      description: 'Dê uma crítica construtiva em algo que podemos melhorar.'
-      emoji: U+1F48C
+
+  feedback:
+    1:
+      name: 'Adorei! O atendimento foi ótimo'
+      value: great
+      description: 'Selecione esta opção se atendimento foi sido ótimo'
+      emoji: U+1F970
+    2:
+      name: 'Mediano! O atendimento poderia ser melhor'
+      value: median
+      description: 'Selecione esta opção se atendimento foi sido mediano'
+      emoji: U+1F60C
+    3:
+      name: 'Ruim! Não gostei do atendimento'
+      value: bad
+      description: 'Selecione esta opção se atendimento foi sido ruim'
+      emoji: U+2639
 
   egg:
     '1':
