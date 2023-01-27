@@ -1,7 +1,10 @@
 package project.kazumy.realhosting.model.panel;
 
 import com.mattmalec.pterodactyl4j.EnvironmentValue;
+import com.mattmalec.pterodactyl4j.application.entities.ApplicationAllocation;
 import com.mattmalec.pterodactyl4j.application.entities.ApplicationEgg;
+import com.mattmalec.pterodactyl4j.application.entities.ApplicationServer;
+import com.mattmalec.pterodactyl4j.application.entities.PteroApplication;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,32 +16,25 @@ import java.util.Map;
 public enum ServerType {
 
     PAPER_SPIGOT("quay.io/pterodactyl/core:java",
-            null,
-            spigotEnviroment()),
+            spigotEnviroment(), 1, 1),
 
     BUNGEECORD("quay.io/pterodactyl/core:java",
-            null,
-            bungeecordEnviroment()),
+            bungeecordEnviroment(), 1, 3),
 
     POCKET_MINE("ghcr.io/parkervcp/yolks:debian",
-            null,
-            pocketmineEnviroment()),
+            pocketmineEnviroment(), 1, 23),
 
     NUKKIT("ghcr.io/pterodactyl/yolks:java_17",
-            null,
-            nukkitEnviroment()),
+            nukkitEnviroment(), 1, 22),
 
     BEDROCK("ghcr.io/parkervcp/yolks:debian",
-            null,
-            bedrockEnviroment()),
+            bedrockEnviroment(), 1, 21),
 
     JAVA_BOT("ghcr.io/parkervcp/yolks:java_17",
-            null,
-            javaDiscordEnviroment()),
+            javaDiscordEnviroment(), 5, 17),
 
     NODEJS_BOT("ghcr.io/parkervcp/yolks:nodejs_18",
-            null,
-            nodejsDiscordEnviroment());
+            nodejsDiscordEnviroment(), 5, 18);
 
     public static Map<String, EnvironmentValue<?>> spigotEnviroment() {
         Map<String, EnvironmentValue<?>> map = new HashMap<>();
@@ -94,6 +90,6 @@ public enum ServerType {
     }
 
     private final String dockerImage;
-    private final ApplicationEgg egg;
     private final Map<String, EnvironmentValue<?>> enviroment;
+    private final int nestId, eggId;
 }
