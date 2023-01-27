@@ -7,12 +7,16 @@ import com.sendgrid.Client;
 import com.sendgrid.Method;
 import com.sendgrid.Request;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import project.kazumy.realhosting.configuration.basic.PaymentValue;
+import project.kazumy.realhosting.model.entity.client.impl.ClientImpl;
+import project.kazumy.realhosting.model.payment.intent.PaymentIntent;
 import project.kazumy.realhosting.model.plan.Plan;
+import project.kazumy.realhosting.model.plan.PlanService;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -44,10 +48,10 @@ public class Payment {
      * @return uma instância da classe Payment.
      */
     @SneakyThrows
-    public Payment request(Plan plan) {
+    public Payment request(Plan plan, ClientImpl client) {
         this.plan = plan;
         MercadoPagoConfig.setAccessToken(PaymentValue.get(PaymentValue::accessToken));
-        val client = new Client();
+        val paymentClient = new Client();
         val request = new Request();
 
         request.setMethod(Method.POST);
@@ -75,8 +79,9 @@ public class Payment {
                 "}");
         request.setEndpoint(String.format("/instore/orders/qr/seller/collectors/%s/pos/%s/qrs", PaymentValue.get(PaymentValue::userId), PaymentValue.get(PaymentValue::posId)));
         System.out.println(request.getBody());
-        val response = client.api(request);
+        val response = paymentClient.api(request);
         this.qrData = String.valueOf(((JSONObject) new JSONParser().parse(response.getBody())).get("qr_data"));
+        client.setQrData(qrData);
         return this;
     }
 
@@ -86,7 +91,7 @@ public class Payment {
      *
      * @param success responsável por continuar os procedimentos após o pagamento.
      */
-    public void wait(Consumer<Plan> success) {
+    public void wait(Consumer<Plan> success, PlanService planService, ClientImpl client) {
         val timer = new Timer();
         val limit = LocalDateTime.now(ZoneId.of("America/Sao_Paulo")).plusMinutes(30L);
         timer.schedule(new TimerTask() {
@@ -94,6 +99,13 @@ public class Payment {
             @SneakyThrows
             public void run() {
                 if (limit.isBefore(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))) this.cancel();
+                plan = planService.getPlanByClientId(client.getId()).get(0);
+                System.out.println(plan.getPaymentIntent());
+                if (plan.getPaymentIntent() == PaymentIntent.FORCE_APPROVAL) {
+                    success.accept(plan);
+                    this.cancel();
+                    return;
+                }
                 val client = new PaymentClient();
                 val filters = (Map) new HashMap<String, Object>();
                 filters.put("external_reference", plan.getId());
