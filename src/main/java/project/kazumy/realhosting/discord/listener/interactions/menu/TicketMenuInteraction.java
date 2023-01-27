@@ -2,13 +2,8 @@ package project.kazumy.realhosting.discord.listener.interactions.menu;
 
 import lombok.val;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenuInteraction;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import project.kazumy.realhosting.configuration.embed.CloseTicketEmbedValue;
 import project.kazumy.realhosting.discord.DiscordMain;
 import project.kazumy.realhosting.discord.listener.InteractionService;
@@ -18,6 +13,7 @@ import project.kazumy.realhosting.discord.services.ticket.impl.TicketImpl;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class TicketMenuInteraction extends InteractionService<StringSelectInteractionEvent> {
 
@@ -51,6 +47,15 @@ public class TicketMenuInteraction extends InteractionService<StringSelectIntera
                     .addActionRow(Button.success("user-ticket-button", "Adicionar participante").withEmoji(Emoji.fromUnicode("U+1F464")),
                             Button.danger("cancel-ticket-button", "Cancelar ticket").withEmoji(Emoji.fromUnicode("U+2716")))
                     .queue(message -> success.pinMessageById(message.getId()).queue());
+
+            Arrays.stream(TicketCategory.values())
+                    .map(category -> category.toString().toLowerCase())
+                    .filter(category -> event.getSelectedOptions().get(0).getValue().equals(category))
+                    .map(category -> TicketCategory.valueOf(category.toUpperCase()))
+                    .forEach(category -> {
+                        if (category.getMenu() != null) success.sendMessageEmbeds(category.getEmbed()).addActionRow(category.getMenu()).queue();
+                        else success.sendMessageEmbeds(category.getEmbed()).queue();
+                    });
         });
     }
 }
