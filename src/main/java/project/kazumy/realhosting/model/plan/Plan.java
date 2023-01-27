@@ -2,7 +2,7 @@ package project.kazumy.realhosting.model.plan;
 
 import project.kazumy.realhosting.model.entity.client.Client;
 import project.kazumy.realhosting.model.panel.StageType;
-import project.kazumy.realhosting.model.payment.PaymentIntent;
+import project.kazumy.realhosting.model.payment.intent.PaymentIntent;
 import project.kazumy.realhosting.model.plan.impl.PlanImpl;
 import project.kazumy.realhosting.model.panel.ServerType;
 import project.kazumy.realhosting.model.plan.pre.PrePlan;
@@ -55,6 +55,10 @@ public interface Plan {
      */
     PaymentIntent getPaymentIntent();
 
+    void setPaymentIntent(PaymentIntent paymentIntent);
+
+    void setStageType(StageType stageType);
+
     /**
      * Retorna o estado atual em que o plano se encontra.
      *
@@ -77,6 +81,8 @@ public interface Plan {
      * @return um pré plano.
      */
     PrePlan getPrePlan();
+
+    void setPrePlan(PrePlan prePlan);
 
     /**
      *
