@@ -24,11 +24,12 @@ public class ForceApprovalCommand extends BasePrefixCommand {
     public void execute(Member member, Message message, String[] args) {
         if (args.length < 2) return;
         val client = discordMain.getClientManager().getClientById(args[0]);
-        discordMain.getPlanService().getPlanByClientId(args[0]).stream()
+        discordMain.getPlanManager().getPlanByClientId(args[0]).stream()
                 .filter(plan -> plan.getId().equals(args[1])).findFirst()
                 .ifPresentOrElse(plan -> {
                     plan.setPaymentIntent(PaymentIntent.FORCE_APPROVAL);
-                    plan.savePlan(client);
+                    plan.setPrePlan(discordMain.getPlanManager().getPrePlanByType(discordMain.getPlanManager().getPrePlanTypeFromPlanById(plan.getId())));
+                    discordMain.getPlanManager().savePlan(plan);
                 }, () -> {
                     message.getChannel().sendMessageEmbeds(new EmbedBuilder()
                                     .setColor(Color.RED)
