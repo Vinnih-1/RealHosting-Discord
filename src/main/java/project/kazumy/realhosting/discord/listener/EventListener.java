@@ -30,7 +30,7 @@ public class EventListener extends ListenerAdapter {
         this.interactionManager = InteractionManager.of(discordMain).init();
 
         commandManager.loadPrefixCommands(discordMain);
-        commandManager.loadSlashCommands();
+        commandManager.loadSlashCommands(discordMain);
     }
 
     @Override
