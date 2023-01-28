@@ -55,8 +55,8 @@ public class SupportTicketEmbedValue implements ConfigurationInjectable {
 
                         case "value":
                             value.append(section.getString(field)
-                                    .replace("%clientes", "x")
-                                    .replace("%servidores", "x"));
+                                    .replace("%clientes", "+ de 20")
+                                    .replace("%servidores", "+ de 30"));
                             break;
 
                         case "inline":
