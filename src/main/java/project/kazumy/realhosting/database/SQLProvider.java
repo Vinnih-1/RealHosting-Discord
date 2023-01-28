@@ -53,6 +53,15 @@ public class SQLProvider {
                 "    expiration TEXT      NOT NULL\n" +
                 ");");
 
+        executor.updateQuery("CREATE TABLE IF NOT EXISTS coupons (\n" +
+                "    name       TEXT NOT NULL\n" +
+                "                    UNIQUE ON CONFLICT REPLACE,\n" +
+                "    limits     TEXT,\n" +
+                "    percentage TEXT NOT NULL,\n" +
+                "    createat   TEXT NOT NULL,\n" +
+                "    expireat TEXT NOT NULL\n" +
+                ");\n");
+
         return executor;
     }
 }
