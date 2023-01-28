@@ -14,10 +14,12 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import project.kazumy.realhosting.configuration.basic.PaymentValue;
 import project.kazumy.realhosting.model.entity.client.manager.ClientManager;
+import project.kazumy.realhosting.model.payment.coupon.repository.CouponRepository;
 import project.kazumy.realhosting.model.payment.intent.PaymentIntent;
 import project.kazumy.realhosting.model.plan.Plan;
 import project.kazumy.realhosting.model.plan.manager.PlanManager;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.HashMap;
@@ -54,8 +56,6 @@ public class Payment {
         val paymentClient = new Client();
         val request = new Request();
 
-        System.out.println(plan);
-
         request.setMethod(Method.POST);
         request.setBaseUri("api.mercadopago.com");
         request.addHeader("Authorization", "Bearer " + PaymentValue.get(PaymentValue::accessToken));
@@ -83,6 +83,15 @@ public class Payment {
         System.out.println(request.getBody());
         val response = paymentClient.api(request);
         return String.valueOf(((JSONObject) new JSONParser().parse(response.getBody())).get("qr_data"));
+    }
+
+    public void checkCoupon(Plan plan, CouponRepository repository) {
+        if (plan.getCoupon().isEmpty()) return;
+        val coupon = repository.findCouponByName(plan.getCoupon());
+        if (coupon.getLimits() == 0) return;
+        if (coupon.getExpirateAt().isBefore(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))) return;
+        val discount = (coupon.getPercentage() * plan.getPrePlan().getPrice().doubleValue()) / 100;
+        plan.getPrePlan().setPrice(new BigDecimal(plan.getPrePlan().getPrice().doubleValue() - discount));
     }
 
     /**
