@@ -22,9 +22,16 @@ public class PlanImpl extends Panel implements Plan {
     @EqualsAndHashCode.Include private final String id;
 
     private final LocalDateTime creation, payment, expiration;
-    @Setter private PaymentIntent paymentIntent;
-    @Setter private StageType stageType;
+
     private final ServerType serverType;
-    @Setter private PrePlan prePlan;
+
     private final String owner;
+
+    @Setter private PaymentIntent paymentIntent;
+
+    @Setter private StageType stageType;
+
+    @Setter private PrePlan prePlan;
+
+    @Setter private String coupon;
 }

@@ -11,6 +11,7 @@ import project.kazumy.realhosting.configuration.embed.UserCreatedSuccessEmbedVal
 import project.kazumy.realhosting.discord.DiscordMain;
 import project.kazumy.realhosting.discord.listener.InteractionService;
 import project.kazumy.realhosting.model.panel.StageType;
+import project.kazumy.realhosting.model.payment.coupon.repository.CouponRepository;
 import project.kazumy.realhosting.model.payment.intent.PaymentIntent;
 import project.kazumy.realhosting.model.payment.utils.PaymentUtils;
 
@@ -67,6 +68,8 @@ public class PurchasePlanModalInteraction extends InteractionService<ModalIntera
                 .filter(plan -> plan.getId().equals(planId)).findFirst()
                 .ifPresent(plan -> {
                     plan.setPrePlan(discordMain.getPlanManager().getPrePlanByType(discordMain.getPlanManager().getPrePlanTypeFromPlanById(planId)));
+                    plan.setCoupon(event.getValue("coupon").getAsString());
+                    discordMain.getPlanManager().getPayment().checkCoupon(plan, CouponRepository.of(discordMain.getExecutor()));
                     val qrData = discordMain.getPlanManager().purchase(plan, success -> {
                         plan.setPaymentIntent(PaymentIntent.NONE);
                         plan.setStageType(StageType.ACTIVED);

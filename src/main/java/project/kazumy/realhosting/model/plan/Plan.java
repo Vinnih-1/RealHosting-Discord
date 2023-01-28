@@ -1,14 +1,12 @@
 package project.kazumy.realhosting.model.plan;
 
-import project.kazumy.realhosting.model.entity.client.Client;
+import project.kazumy.realhosting.model.panel.ServerType;
 import project.kazumy.realhosting.model.panel.StageType;
 import project.kazumy.realhosting.model.payment.intent.PaymentIntent;
 import project.kazumy.realhosting.model.plan.impl.PlanImpl;
-import project.kazumy.realhosting.model.panel.ServerType;
 import project.kazumy.realhosting.model.plan.pre.PrePlan;
 
 import java.time.LocalDateTime;
-import java.util.function.Consumer;
 
 /**
  * @author Vinícius Albert
@@ -32,6 +30,10 @@ public interface Plan {
      * @return data de criação do plano.
      */
     LocalDateTime getCreation();
+
+    String getCoupon();
+
+    void setCoupon(String coupon);
 
     /**
      * Retorna a data em que o plano foi pago.
