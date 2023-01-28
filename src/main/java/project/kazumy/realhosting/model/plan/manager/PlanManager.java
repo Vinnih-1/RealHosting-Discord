@@ -37,18 +37,6 @@ public class PlanManager {
     private final List<PrePlan> prePlanList = new ArrayList<>();
 
     /**
-     * Carrega esta classe de serviço e diz qual
-     * a prioridade na fila de carregamento.
-     */
-    /*public PlanManager() {
-        val folder = new File("services/payment/plan");
-        val resources = new File("resources");
-        if (!folder.exists()) folder.mkdirs();
-        if (!resources.exists()) resources.mkdirs();
-        loadPrePlan(folder, resources);
-    }*/
-
-    /**
      * Carrega todos os planos pré-moldados da pasta
      * localizada em 'services/payment/plan' com a extensão .yml
      *
@@ -143,20 +131,4 @@ public class PlanManager {
         payment.wait(plan.getId(), success);
         return request;
     }
-
-    /**
-     * Verifica se o identificador do cliente
-     * especificado contém algum plano.
-     *
-     * @param id identificador único do cliente.
-     * @return verdadeiro ou falso, dependendo se o cliente tem ou não algum plano.
-     */
-/*    @SneakyThrows
-    public boolean hasPlanByClientId(String id) {
-        val folder = new File("services/payment/client");
-        if (!folder.exists()) return false;
-        val yamlFile = new YamlFile(new File(folder, id + ".yml"));
-        yamlFile.load();
-        return yamlFile.getConfigurationSection("client.plans") != null;
-    }*/
 }
