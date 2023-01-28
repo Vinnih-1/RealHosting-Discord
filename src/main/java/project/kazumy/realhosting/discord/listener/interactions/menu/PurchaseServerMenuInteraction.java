@@ -26,7 +26,6 @@ public class PurchaseServerMenuInteraction extends InteractionService<StringSele
 
     @Override
     public void execute(StringSelectInteractionEvent event) {
-        val client = discordMain.getClientManager().getClientById(event.getMember().getId());
         val type = event.getSelectedOptions().get(0).getValue().split("\\.")[2].toUpperCase();
         val plan = PlanImpl.builder()
                 .id(RandomStringUtils.randomAlphanumeric(15))
@@ -39,9 +38,10 @@ public class PurchaseServerMenuInteraction extends InteractionService<StringSele
                 .paymentIntent(PaymentIntent.CREATE_PLAN)
                 .prePlan(discordMain.getPlanManager().getPrePlanByType("BASIC"))
                 .build();
-
         discordMain.getPlanManager().savePlan(plan);
-        event.deferReply().addEmbeds(PaymentEmbedValue.instance().toEmbed(plan))
+        event.editSelectMenu(event.getSelectMenu().createCopy().setDefaultValues("").build()).queue();
+
+        event.getChannel().sendMessageEmbeds(PaymentEmbedValue.instance().toEmbed(plan))
                 .addActionRow(PlanMenuValue.instance().toMenu("purchase-plan-menu"))
                 .queue();
     }
