@@ -1,6 +1,7 @@
 package project.kazumy.realhosting.discord.listener;
 
 import lombok.val;
+import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -30,6 +31,11 @@ public class EventListener extends ListenerAdapter {
 
         commandManager.loadPrefixCommands(discordMain);
         commandManager.loadSlashCommands();
+    }
+
+    @Override
+    public void onGuildReady(GuildReadyEvent event) {
+        commandManager.registerSlashCommand(event.getGuild());
     }
 
     @Override
