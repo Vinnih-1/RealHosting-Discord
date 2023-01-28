@@ -12,16 +12,17 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.YamlFile;
+import project.kazumy.realhosting.model.plan.Plan;
 
 import java.awt.*;
 import java.util.function.Function;
 
 @Getter @Accessors(fluent = true)
-@ConfigSection("embed.user-created-success")
+@ConfigSection("embed.user-created-failure")
 @ConfigFile("embed.yml")
-public class UserCreatedSuccessEmbedValue implements ConfigurationInjectable {
+public class UserCreatedFailureEmbedValue implements ConfigurationInjectable {
 
-    @Getter private static final UserCreatedSuccessEmbedValue instance = new UserCreatedSuccessEmbedValue();
+    @Getter private static final UserCreatedFailureEmbedValue instance = new UserCreatedFailureEmbedValue();
 
     @ConfigField("title") private String title;
     @ConfigField("footer") private String footer;
@@ -31,11 +32,11 @@ public class UserCreatedSuccessEmbedValue implements ConfigurationInjectable {
     @ConfigField("fields") private ConfigurationSection section;
 
     @SneakyThrows
-    public MessageEmbed toEmbed(String email, String password) {
+    public MessageEmbed toEmbed(Plan plan) {
         val yamlFile = new YamlFile("configuration/embed.yml");
         yamlFile.load();
         val embed = new EmbedBuilder();
-        embed.setColor(Color.GRAY);
+        embed.setColor(Color.RED);
         embed.setTitle(title);
         embed.setFooter(footer);
         embed.setDescription(description);
@@ -55,8 +56,7 @@ public class UserCreatedSuccessEmbedValue implements ConfigurationInjectable {
 
                         case "value":
                             value.append(section.getString(field)
-                                    .replace("%email", email)
-                                    .replace("%password", password));
+                                    .replace("%id", plan.getId()));
                             break;
 
                         case "inline":
@@ -73,7 +73,7 @@ public class UserCreatedSuccessEmbedValue implements ConfigurationInjectable {
         return embed.build();
     }
 
-    public static <T> T get(Function<UserCreatedSuccessEmbedValue, T> function) {
+    public static <T> T get(Function<UserCreatedFailureEmbedValue, T> function) {
         return function.apply(instance);
     }
 }

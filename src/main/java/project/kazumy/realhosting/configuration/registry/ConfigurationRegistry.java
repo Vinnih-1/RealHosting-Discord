@@ -21,6 +21,10 @@ public class ConfigurationRegistry {
                         PaymentValue.instance(),
                         TicketValue.instance(),
 
+                        ServerCreatedFailureEmbedValue.instance(),
+                        ServerCreatedSuccessEmbedValue.instance(),
+                        UserCreatedFailureEmbedValue.instance(),
+                        UserCreatedFailureEmbedValue.instance(),
                         SupportTicketEmbedValue.instance(),
                         UpgradeTicketEmbedValue.instance(),
                         FeedbackTicketEmbedValue.instance(),

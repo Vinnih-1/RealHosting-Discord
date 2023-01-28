@@ -4,7 +4,6 @@ import com.henryfabio.minecraft.configinjector.common.annotations.ConfigField;
 import com.henryfabio.minecraft.configinjector.common.annotations.ConfigFile;
 import com.henryfabio.minecraft.configinjector.common.annotations.ConfigSection;
 import com.henryfabio.minecraft.configinjector.common.injector.ConfigurationInjectable;
-import com.mattmalec.pterodactyl4j.application.entities.ApplicationServer;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
@@ -13,17 +12,16 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.simpleyaml.configuration.ConfigurationSection;
 import org.simpleyaml.configuration.file.YamlFile;
-import project.kazumy.realhosting.model.plan.Plan;
 
 import java.awt.*;
 import java.util.function.Function;
 
 @Getter @Accessors(fluent = true)
-@ConfigSection("embed.server-created-success")
+@ConfigSection("embed.user-created-success")
 @ConfigFile("embed.yml")
-public class ServerCreatedSuccessEmbedValue implements ConfigurationInjectable {
+public class UserCreatedSuccessEmbedValue implements ConfigurationInjectable {
 
-    @Getter private static final ServerCreatedSuccessEmbedValue instance = new ServerCreatedSuccessEmbedValue();
+    @Getter private static final UserCreatedSuccessEmbedValue instance = new UserCreatedSuccessEmbedValue();
 
     @ConfigField("title") private String title;
     @ConfigField("footer") private String footer;
@@ -33,11 +31,11 @@ public class ServerCreatedSuccessEmbedValue implements ConfigurationInjectable {
     @ConfigField("fields") private ConfigurationSection section;
 
     @SneakyThrows
-    public MessageEmbed toEmbed(ApplicationServer server, Plan plan) {
+    public MessageEmbed toEmbed(String email, String password) {
         val yamlFile = new YamlFile("configuration/embed.yml");
         yamlFile.load();
         val embed = new EmbedBuilder();
-        embed.setColor(Color.GRAY);
+        embed.setColor(Color.GREEN);
         embed.setTitle(title);
         embed.setFooter(footer);
         embed.setDescription(description);
@@ -57,8 +55,8 @@ public class ServerCreatedSuccessEmbedValue implements ConfigurationInjectable {
 
                         case "value":
                             value.append(section.getString(field)
-                                    .replace("%servidor", server.getName())
-                                    .replace("%id", plan.getId()));
+                                    .replace("%email", email)
+                                    .replace("%password", password));
                             break;
 
                         case "inline":
@@ -75,7 +73,7 @@ public class ServerCreatedSuccessEmbedValue implements ConfigurationInjectable {
         return embed.build();
     }
 
-    public static <T> T get(Function<ServerCreatedSuccessEmbedValue, T> function) {
+    public static <T> T get(Function<UserCreatedSuccessEmbedValue, T> function) {
         return function.apply(instance);
     }
 }
