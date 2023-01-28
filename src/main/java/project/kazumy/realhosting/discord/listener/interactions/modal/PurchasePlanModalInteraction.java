@@ -4,6 +4,10 @@ import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
+import project.kazumy.realhosting.configuration.embed.ServerCreatedFailureEmbedValue;
+import project.kazumy.realhosting.configuration.embed.ServerCreatedSuccessEmbedValue;
+import project.kazumy.realhosting.configuration.embed.UserCreatedFailureEmbedValue;
+import project.kazumy.realhosting.configuration.embed.UserCreatedSuccessEmbedValue;
 import project.kazumy.realhosting.discord.DiscordMain;
 import project.kazumy.realhosting.discord.listener.InteractionService;
 import project.kazumy.realhosting.model.panel.StageType;
@@ -11,7 +15,6 @@ import project.kazumy.realhosting.model.payment.intent.PaymentIntent;
 import project.kazumy.realhosting.model.payment.utils.PaymentUtils;
 
 import java.awt.*;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class PurchasePlanModalInteraction extends InteractionService<ModalInteractionEvent> {
@@ -33,15 +36,26 @@ public class PurchasePlanModalInteraction extends InteractionService<ModalIntera
                     .build()).queue();
             return;
         }
+        event.deferReply(true).addEmbeds(new EmbedBuilder()
+                .setColor(Color.GRAY)
+                .setDescription(String.format("<@%s>, estamos processando o seu pedido. Aguarde um momento...",
+                        event.getMember().getId()))
+                .build()).queue();
+
         val planId = event.getMessage().getEmbeds().get(0).getFields().get(1).getValue();
         val client = discordMain.getClientManager().getClientById(event.getMember().getId());
+        val panelUsers = client.getPanel().usersExistsByUsername(event.getValue("username").getAsString());
 
-        if (client.getPanel().userExistsByUsername(event.getValue("username").getAsString())) {
-            event.deferReply(true).addEmbeds(new EmbedBuilder()
-                    .setColor(Color.RED)
-                    .setDescription(":x: **|** Este usuário que você inseriu já existe!")
-                    .build()).queue();
-            return;
+        if (!panelUsers.isEmpty()) {
+            val panelUser = panelUsers.get(0);
+            if (panelUser.getUserName().equalsIgnoreCase(event.getValue("username").getAsString())
+                    && !panelUser.getEmail().equalsIgnoreCase(event.getValue("email").getAsString())) {
+                event.getChannel().sendMessageEmbeds(new EmbedBuilder()
+                        .setColor(Color.RED)
+                        .setDescription(":x: **|** Este usuário que você inseriu já existe!")
+                        .build()).queue();
+                return;
+            }
         }
         client.setName(event.getValue("name").getAsString());
         client.setLastname(event.getValue("lastname").getAsString());
@@ -60,70 +74,30 @@ public class PurchasePlanModalInteraction extends InteractionService<ModalIntera
 
                         client.getPanel().syncUserByEmail(client.getEmail(), user -> {
                             client.getPanel().createServer(plan, server -> {
-                                event.getChannel().sendMessageEmbeds(new EmbedBuilder()
-                                        .setColor(Color.GREEN)
-                                        .setTitle(":white_check_mark:  |  Seu servidor foi criado com êxito")
-                                        .setDescription("Observe que após a data de criação do servidor, você terá mais 30 (trinta) " +
-                                                "dias para utilizar deste serviço, podendo ser renovado quando você quiser.")
-                                        .addField("Nome do Servidor", server.getName(), true)
-                                        .addField("Identificador", planId, true)
-                                        .setFooter("Aproveite! Os nossos serviços estão disponíveis")
-                                        .build()).queue();
+                                event.getChannel().sendMessageEmbeds(ServerCreatedSuccessEmbedValue.instance().toEmbed(server, plan)).queue();
                             }, error -> {
-                                event.getChannel().sendMessageEmbeds(new EmbedBuilder()
-                                        .setColor(Color.RED)
-                                        .setTitle(":warning:  |  Houve uma falha na criação deste servidor")
-                                        .setDescription("Desculpe-nos pelo incômodo, resolveremos isso o mais rápido possível.")
-                                        .setFooter("Identificador", planId)
-                                        .setFooter("Houve um erro inesperado! Contate a equipe.")
-                                        .build()).queue();
+                                event.getChannel().sendMessageEmbeds(ServerCreatedFailureEmbedValue.instance().toEmbed(plan)).queue();
                             });
                         }, failure -> failure.createUser(client.getName(), client.getLastname(), client.getUsername(), client.getEmail(), user -> {
                             client.getPanel().createServer(plan, server -> {
                                 event.getChannel().sendMessageEmbeds(
-                                        new EmbedBuilder()
-                                                .setColor(Color.GREEN)
-                                                .setTitle(":bust_in_silhouette:  |  Seu usuário foi criado com êxito")
-                                                .setDescription("Seu usuário foi criado e está pronto para ser utilizado dentro do nosso [painel](https://app.realhosting.com.br/)")
-                                                .addField("Email", client.getEmail(), true)
-                                                .addField("Password", client.getPanel().getPassword(), true)
-                                                .setFooter("Seu usuário foi criado no painel")
-                                                .build(),
-                                        new EmbedBuilder()
-                                                .setColor(Color.GREEN)
-                                                .setTitle(":white_check_mark:  |  Seu servidor foi criado com êxito")
-                                                .setDescription("Observe que após a data de criação do servidor, você terá mais 30 (trinta) " +
-                                                        "dias para utilizar deste serviço, podendo ser renovado quando você quiser.")
-                                                .addField("Nome do Servidor", server.getName(), true)
-                                                .addField("Identificador", planId, true)
-                                                .setFooter("Aproveite! Os nossos serviços estão disponíveis")
-                                        .build()).queue();
+                                        UserCreatedSuccessEmbedValue.instance().toEmbed(client.getEmail(), client.getPanel().getPassword()),
+                                        ServerCreatedSuccessEmbedValue.instance().toEmbed(server, plan)).queue();
                             }, error -> {
-                                event.getChannel().sendMessageEmbeds(new EmbedBuilder()
-                                                .setColor(Color.RED)
-                                                .setTitle(":warning:  |  Houve uma falha na criação deste servidor")
-                                                .setDescription("Desculpe-nos pelo incômodo, resolveremos isso o mais rápido possível.")
-                                                .setFooter("Identificador", planId)
-                                                .setFooter("Houve um erro inesperado! Contate a equipe.")
-                                        .build()).queue();
+                                event.getChannel().sendMessageEmbeds(ServerCreatedFailureEmbedValue.instance().toEmbed(plan)).queue();
                             });
                         }, error -> {
-                            event.getChannel().sendMessageEmbeds(new EmbedBuilder()
-                                    .setColor(Color.RED)
-                                    .setTitle(":warning:  |  Houve uma falha na criação deste usuário")
-                                    .setDescription("Desculpe-nos pelo incômodo, resolveremos isso o mais rápido possível.")
-                                    .setFooter("Identificador", planId)
-                                    .setFooter("Houve um erro inesperado! Contate a equipe.")
-                                    .build()).queue();
+                            event.getChannel().sendMessageEmbeds(UserCreatedFailureEmbedValue.instance().toEmbed(plan)).queue();
                         }));
                     });
-                    event.deferReply(false).setContent("Cobrança Automática de Serviços Prestados")
+
+                    event.getChannel().sendMessage("Cobrança Automática de Serviços Prestados")
                             .addEmbeds(new EmbedBuilder()
                                     .setColor(Color.GRAY)
                                     .setTitle(":white_check_mark: | PIX! Basta copiar e colar!")
                                     .setDescription(qrData)
                                     .build())
-                            .addFiles(FileUpload.fromData(PaymentUtils.getAsImage(event.getMember().getId(), qrData))).timeout(1, TimeUnit.MINUTES).queue();
+                            .addFiles(FileUpload.fromData(PaymentUtils.getAsImage(event.getMember().getId(), qrData))).queue();
                     event.getMessage().delete().queue();
                 });
     }
