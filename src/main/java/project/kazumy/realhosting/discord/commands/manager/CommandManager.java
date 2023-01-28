@@ -1,6 +1,7 @@
 package project.kazumy.realhosting.discord.commands.manager;
 
 import lombok.Getter;
+import lombok.val;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.reflections.Reflections;
@@ -21,8 +22,10 @@ public class CommandManager {
 
     public void registerSlashCommand(Guild guild) {
         slashCommands.forEach(command -> {
-            guild.upsertCommand(new CommandDataImpl(command.getName(), command.getDescription())
-                    .addOptions(command.getOptions())).queue();
+            val commandData = new CommandDataImpl(command.getName(), command.getDescription());
+            if (command.getOptions() != null) commandData.addOptions(command.getOptions());
+
+            guild.upsertCommand(commandData).queue();
         });
 
     }
@@ -51,9 +54,5 @@ public class CommandManager {
                         return null;
                     }
                 }).forEach(prefixCommands::add);
-    }
-
-    public void addSlashCommand(BaseSlashCommand command){
-        this.slashCommands.add(command);
     }
 }
