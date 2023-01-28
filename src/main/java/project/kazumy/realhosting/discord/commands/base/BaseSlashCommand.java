@@ -16,5 +16,7 @@ public abstract class BaseSlashCommand {
 
     private final List<OptionData> options;
 
+    private final DiscordMain discordMain;
+
     public abstract void execute(SlashCommandInteractionEvent event);
 }

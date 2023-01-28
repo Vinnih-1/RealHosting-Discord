@@ -30,12 +30,12 @@ public class CommandManager {
 
     }
 
-    public void loadSlashCommands() {
+    public void loadSlashCommands(DiscordMain discordMain) {
         new Reflections("project.kazumy.realhosting.discord.commands.slash").getSubTypesOf(BaseSlashCommand.class)
                 .stream()
                 .map(command -> {
                     try {
-                        return command.newInstance();
+                        return command.getDeclaredConstructor(DiscordMain.class).newInstance(discordMain);
                     } catch (Exception e) {
                         Logger.getGlobal().severe("Algum comando slash não pôde ser carregado: " + e.getMessage());
                         return null;
