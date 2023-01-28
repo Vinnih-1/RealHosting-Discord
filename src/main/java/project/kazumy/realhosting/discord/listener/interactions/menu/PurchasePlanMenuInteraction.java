@@ -20,7 +20,6 @@ public class PurchasePlanMenuInteraction extends InteractionService<StringSelect
     @Override
     public void execute(StringSelectInteractionEvent event) {
         val planId = event.getMessage().getEmbeds().get(0).getFields().get(1).getValue();
-        val client = discordMain.getClientManager().getClientById(event.getMember().getId());
 
         discordMain.getPlanManager().getPlanByClientId(event.getMember().getId()).stream()
                 .filter(plan -> plan.getId().equals(planId)).findFirst()
@@ -28,7 +27,6 @@ public class PurchasePlanMenuInteraction extends InteractionService<StringSelect
                     plan.setPrePlan(discordMain.getPlanManager().getPrePlanById(event.getSelectedOptions().get(0)
                             .getValue().split("\\.")[4]));
                     discordMain.getPlanManager().savePlan(plan);
-
                     val modal = Modal.create("purchase-plan-modal", "Preencha os Dados")
                             .addActionRow(
                                     TextInput.create("name", "Nome", TextInputStyle.SHORT)
