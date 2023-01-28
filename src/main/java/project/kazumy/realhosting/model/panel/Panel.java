@@ -14,6 +14,7 @@ import project.kazumy.realhosting.configuration.basic.PanelValue;
 import project.kazumy.realhosting.model.plan.Plan;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -72,8 +73,12 @@ public class Panel {
         }).start();
     }
 
-    public boolean userExistsByUsername(String username) {
-        return !application.retrieveUsersByUsername(username, true).execute().isEmpty();
+    public List<ApplicationUser> usersExistsByUsername(String username) {
+        return application.retrieveUsersByUsername(username, true).execute();
+    }
+
+    public boolean userExistsByEmail(String email) {
+        return !application.retrieveUsersByEmail(email, true).execute().isEmpty();
     }
 
     /**
