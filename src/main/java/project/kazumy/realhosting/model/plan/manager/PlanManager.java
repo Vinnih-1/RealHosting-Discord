@@ -1,9 +1,6 @@
 package project.kazumy.realhosting.model.plan.manager;
 
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.SneakyThrows;
-import lombok.val;
+import lombok.*;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.simpleyaml.configuration.file.YamlFile;
 import org.simpleyaml.exceptions.InvalidConfigurationException;
@@ -32,7 +29,7 @@ import java.util.logging.Logger;
 public class PlanManager {
 
     private final PlanRepository repository;
-    @Setter private Payment payment;
+    @Getter @Setter private Payment payment;
 
     private final List<PrePlan> prePlanList = new ArrayList<>();
 
@@ -59,12 +56,11 @@ public class PlanManager {
                     }
                 })
                 .forEach(config -> {
-                    prePlanList.add(new PrePlanImpl(
+                    val prePlan = new PrePlanImpl(
                             config.getString("id"),
                             config.getString("title"),
                             config.getString("type"),
                             config.getString("description"),
-                            new BigDecimal(config.getString("price")),
                             Emoji.fromUnicode(config.getString("emoji")),
                             new File(resources, config.getString("logo")),
                             PlanHardware.builder()
@@ -73,8 +69,9 @@ public class PlanManager {
                                     .disk(config.getLong("hardware.disk"))
                                     .backup(config.getLong("hardware.backup"))
                                     .database(config.getLong("hardware.database"))
-                                    .build())
-                    );
+                                    .build());
+                    prePlan.setPrice(new BigDecimal(config.getString("price")));
+                    prePlanList.add(prePlan);
                     plan.incrementAndGet();
                 });
         Logger.getGlobal().info(String.format("Um total de %s planos carregados em %sms", plan.get(), System.currentTimeMillis() - initialTime));

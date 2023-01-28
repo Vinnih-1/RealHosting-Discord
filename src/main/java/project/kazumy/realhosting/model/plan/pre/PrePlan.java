@@ -31,6 +31,8 @@ public interface PrePlan {
      */
     BigDecimal getPrice();
 
+    void setPrice(BigDecimal price);
+
     /**
      * Retorna o emoji unicode do plano, para uso no discord.
      *

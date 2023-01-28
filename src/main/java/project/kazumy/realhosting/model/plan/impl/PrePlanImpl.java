@@ -2,6 +2,7 @@ package project.kazumy.realhosting.model.plan.impl;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import project.kazumy.realhosting.model.plan.pre.PrePlan;
@@ -19,7 +20,7 @@ import java.math.BigDecimal;
 public class PrePlanImpl implements PrePlan {
 
     private final String id, title, type, description;
-    private final BigDecimal price;
+    @Setter private BigDecimal price;
     private final UnicodeEmoji emoji;
     private final File logo;
     private final PlanHardware hardware;
