@@ -61,7 +61,7 @@ public class Payment {
         request.addHeader("Authorization", "Bearer " + PaymentValue.get(PaymentValue::accessToken));
         request.addHeader("Content-Type", "application/json");
         request.setBody("{\n" +
-                "  \"external_reference\": \"" + plan.getId() + "\",\n" +
+                "  \"external_reference\": \"" + plan.getExternalId() + "\",\n" +
                 "  \"title\": \" " + plan.getPrePlan().getTitle() + " \",\n" +
                 "  \"total_amount\": " + plan.getPrePlan().getPrice().toString() + ",\n" +
                 "  \"description\": \"" + plan.getPrePlan().getDescription() + "\",\n" +
@@ -117,11 +117,11 @@ public class Payment {
                 }
                 val paymentClient = new PaymentClient();
                 val filters = (Map) new HashMap<String, Object>();
-                filters.put("external_reference", plan.getId());
+                filters.put("external_reference", plan.getExternalId());
                 val search = MPSearchRequest.builder().offset(SEARCH_OFFSET).limit(SEARCH_LIMIT).filters(filters).build();
                 val result = paymentClient.search(search);
                 result.getResults().stream()
-                        .filter(payment -> payment.getExternalReference().equals(plan.getId()))
+                        .filter(payment -> payment.getExternalReference().equals(plan.getExternalId()))
                         .findFirst().ifPresent(payment -> {
                             success.accept(null);
                             this.cancel();
