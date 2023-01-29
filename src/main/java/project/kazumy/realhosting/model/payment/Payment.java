@@ -88,8 +88,8 @@ public class Payment {
     public void checkCoupon(Plan plan, CouponRepository repository) {
         if (plan.getCoupon().isEmpty()) return;
         val coupon = repository.findCouponByName(plan.getCoupon());
-        if (coupon.getLimits() == 0) return;
-        if (coupon.getExpirateAt().isBefore(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))) return;
+        if (coupon == null) return;
+        if (LocalDateTime.now(ZoneId.of("America/Sao_Paulo")).isAfter(coupon.getExpirateAt())) return;
         val discount = (coupon.getPercentage() * plan.getPrePlan().getPrice().doubleValue()) / 100;
         plan.getPrePlan().setPrice(new BigDecimal(plan.getPrePlan().getPrice().doubleValue() - discount));
     }
