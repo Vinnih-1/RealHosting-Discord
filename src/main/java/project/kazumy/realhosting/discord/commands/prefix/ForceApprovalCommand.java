@@ -22,19 +22,18 @@ public class ForceApprovalCommand extends BasePrefixCommand {
 
     @Override
     public void execute(Member member, Message message, String[] args) {
-        if (args.length < 2) return;
-        val client = discordMain.getClientManager().getClientById(args[0]);
-        discordMain.getPlanManager().getPlanByClientId(args[0]).stream()
-                .filter(plan -> plan.getId().equals(args[1])).findFirst()
-                .ifPresentOrElse(plan -> {
-                    plan.setPaymentIntent(PaymentIntent.FORCE_APPROVAL);
-                    plan.setPrePlan(discordMain.getPlanManager().getPrePlanByType(discordMain.getPlanManager().getPrePlanTypeFromPlanById(plan.getId())));
-                    discordMain.getPlanManager().savePlan(plan);
-                }, () -> {
-                    message.getChannel().sendMessageEmbeds(new EmbedBuilder()
-                                    .setColor(Color.RED)
-                                    .setDescription("<@%s>, não consegui encontrar nenhum plano com este identificador!")
-                            .build()).queue();
-                });
+        if (args.length < 1) return;
+        val plan = discordMain.getPlanManager().getPlanByExternalId(args[0]);
+
+        if (plan == null) {
+            message.getChannel().sendMessageEmbeds(new EmbedBuilder()
+                    .setColor(Color.RED)
+                    .setDescription(String.format("<@%s>, não consegui encontrar nenhum plano com este identificador!", message.getAuthor().getId()))
+                    .build()).queue();
+            return;
+        }
+        plan.setPaymentIntent(PaymentIntent.FORCE_APPROVAL);
+        plan.setPrePlan(discordMain.getPlanManager().getPrePlanByType(discordMain.getPlanManager().getPrePlanTypeFromPlanById(plan.getId())));
+        discordMain.getPlanManager().savePlan(plan);
     }
 }
