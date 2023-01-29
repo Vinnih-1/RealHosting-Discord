@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
  * @author Vinícius Albert
  */
 @Getter
+@Setter
 @Builder
 @ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
@@ -21,17 +22,19 @@ public class PlanImpl extends Panel implements Plan {
 
     @EqualsAndHashCode.Include private final String id;
 
-    private final LocalDateTime creation, payment, expiration;
+    private final LocalDateTime creation, payment;
+
+    private LocalDateTime expiration;
 
     private final ServerType serverType;
 
     private final String owner;
 
-    @Setter private PaymentIntent paymentIntent;
+    private PaymentIntent paymentIntent;
 
-    @Setter private StageType stageType;
+    private StageType stageType;
 
-    @Setter private PrePlan prePlan;
+    private PrePlan prePlan;
 
-    @Setter private String coupon;
+    private String coupon, externalId;
 }

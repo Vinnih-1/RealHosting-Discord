@@ -43,15 +43,16 @@ menu:
       description: 'Contrate um dos planos do nosso serviço de hospedagem.'
       emoji: U+1F4B5
     2:
-      name: 'Aprimorar Serviços'
-      value: upgrade
-      description: 'Aprimore seus serviços para um melhor aproveitamento.'
+      name: 'Renovar Planos'
+      value: renew
+      description: 'Renove seus planos para utilizá-los por mais tempo.'
       emoji: U+1F680
     3:
       name: 'Não... sério, preciso de ajuda!'
       value: support
       description: 'Contate-nos pra solucionar problemas em seu serviço.'
       emoji: U+1F4BB
+
 
   feedback:
     1:

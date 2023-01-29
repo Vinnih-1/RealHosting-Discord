@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import project.kazumy.realhosting.configuration.embed.RenewTicketEmbedValue;
 import project.kazumy.realhosting.configuration.embed.ServerEmbedValue;
 import project.kazumy.realhosting.configuration.embed.SupportTicketEmbedValue;
 import project.kazumy.realhosting.configuration.embed.UpgradeTicketEmbedValue;
@@ -21,6 +22,12 @@ public enum TicketCategory {
     UPGRADE(
             "aprimorar",
             UpgradeTicketEmbedValue.get(UpgradeTicketEmbedValue::toEmbed),
+            null
+    ),
+
+    RENEW(
+            "renovar",
+            RenewTicketEmbedValue.get(RenewTicketEmbedValue::toEmbed),
             null
     ),
 

@@ -24,6 +24,10 @@ public interface Plan {
 
     String getOwner();
 
+    String getExternalId();
+
+    void setExternalId(String externalId);
+
     /**
      * Retorna a data em que o plano foi criado.
      *
@@ -48,6 +52,8 @@ public interface Plan {
      * @return data de expiração do plano.
      */
     LocalDateTime getExpiration();
+
+    void setExpiration(LocalDateTime expiration);
 
     /**
      * Retorna a intenção de pagamento do plano.

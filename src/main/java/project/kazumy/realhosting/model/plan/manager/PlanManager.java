@@ -111,6 +111,10 @@ public class PlanManager {
         return repository.findPlansByClientId(id);
     }
 
+    public Plan getPlanByExternalId(String externalId) {
+        return repository.findPlanByExternalId(externalId);
+    }
+
     public Plan getPlanById(String id) {
         return repository.findPlanById(id);
     }

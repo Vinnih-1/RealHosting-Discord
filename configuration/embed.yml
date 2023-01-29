@@ -132,6 +132,22 @@ embed:
         value: '%servidores'
         inline: true
         
+  renew:
+    title: ':white_check_mark: Renovação de Planos'
+    footer: Utilize este ticket para renovar serviços
+    description: Escolha abaixo qual servidor você gostaria de renovar.
+    thumbnail: https://media.discordapp.net/attachments/856621081438453770/1027391598541164574/Dois_Laranjas.png?width=534&height=534
+    site: https://app.realhosting.com.br
+    fields:
+      '1':
+        name: Clientes ativos
+        value: '%clientes'
+        inline: true
+      '2':
+        name: Servidores hospedados
+        value: '%servidores'
+        inline: true
+        
   support:
     title: ':wrench: Suporte da RealHosting'
     footer: Por favor, não mencione ninguém a menos que necessário
@@ -146,4 +162,56 @@ embed:
       '2':
         name: Servidores hospedados
         value: '%servidores'
+        inline: true
+  server-created-success:
+    title: ':white_check_mark:  |  Seu servidor foi criado com êxito'
+    footer: Aproveite! Os nossos serviços estão disponíveis
+    description: Observe que após a data de criação do servidor, você terá mais 30 (trinta) dias para utilizar deste serviço, podendo ser renovado quando você quiser.
+    thumbnail: https://media.discordapp.net/attachments/856621081438453770/1027391598541164574/Dois_Laranjas.png?width=534&height=534
+    site: https://app.realhosting.com.br
+    fields:
+      '1':
+        name: Nome do Servidor
+        value: '%servidor'
+        inline: true
+      '2':
+        name: Identificador
+        value: '%id'
+        inline: true
+  server-created-failure:
+    title: ':warning:  |  Houve uma falha na criação deste servidor'
+    footer: Houve um erro inesperado! Contate a equipe.
+    description: Desculpe-nos pelo incômodo, resolveremos isso o mais rápido possível.
+    thumbnail: https://media.discordapp.net/attachments/856621081438453770/1027391598541164574/Dois_Laranjas.png?width=534&height=534
+    site: https://app.realhosting.com.br
+    fields:
+      '1':
+        name: Identificador
+        value: '%id'
+        inline: true
+  user-created-success:
+    title: ':bust_in_silhouette:  |  Seu usuário foi criado com êxito'
+    footer: Seu usuário foi criado no painel
+    description: Seu usuário foi criado e está pronto para ser utilizado dentro do nosso [painel](https://app.realhosting.com.br/)
+    thumbnail: https://media.discordapp.net/attachments/856621081438453770/1027391598541164574/Dois_Laranjas.png?width=534&height=534
+    site: https://app.realhosting.com.br
+    fields:
+      '1':
+        name: Email
+        value: '%email'
+        inline: true
+      '2':
+        name: Password
+        value: '%password'
+        inline: true
+  user-created-failure:
+    title: ':warning:  |  Houve uma falha na criação deste usuário'
+    footer: Houve um erro inesperado! Contate a equipe.
+    description: Desculpe-nos pelo incômodo, resolveremos isso o mais rápido possível.
+    thumbnail: https://media.discordapp.net/attachments/856621081438453770/1027391598541164574/Dois_Laranjas.png?width=534&height=534
+    site: https://app.realhosting.com.br
+    fields:
+      '1':
+        name: Identificador
+        value: '%id'
         inline: true

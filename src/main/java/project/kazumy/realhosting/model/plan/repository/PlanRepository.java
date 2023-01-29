@@ -14,8 +14,8 @@ public class PlanRepository {
     private final SQLExecutor executor;
 
     public void save(Plan plan) {
-        executor.updateQuery("INSERT INTO plans (id, owner, intent, type, stage, server, creation, payment, expiration) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", statement -> {
+        executor.updateQuery("INSERT INTO plans (id, owner, intent, type, stage, server, creation, payment, expiration, external_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", statement -> {
             statement.set(1, plan.getId());
             statement.set(2, plan.getOwner());
             statement.set(3, plan.getPaymentIntent().toString());
@@ -25,12 +25,19 @@ public class PlanRepository {
             statement.set(7, plan.getCreation().toString());
             statement.set(8, plan.getPayment().toString());
             statement.set(9, plan.getExpiration().toString());
+            statement.set(10, plan.getExternalId());
         });
     }
 
     public Plan findPlanById(String id) {
         return executor.resultOneQuery("SELECT * FROM plans WHERE id = ?", statement -> {
             statement.set(1, id);
+        }, PlanAdapter.class);
+    }
+
+    public Plan findPlanByExternalId(String externalId) {
+        return executor.resultOneQuery("SELECT * FROM plans WHERE external_id = ?", statement -> {
+            statement.set(1, externalId);
         }, PlanAdapter.class);
     }
 

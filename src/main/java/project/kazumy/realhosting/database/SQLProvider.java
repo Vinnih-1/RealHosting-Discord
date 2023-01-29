@@ -41,17 +41,18 @@ public class SQLProvider {
                 ");\n");
 
         executor.updateQuery("CREATE TABLE IF NOT EXISTS plans (\n" +
-                "    id         TEXT (15) UNIQUE ON CONFLICT REPLACE\n" +
-                "                         NOT NULL,\n" +
-                "    owner      TEXT (18) NOT NULL,\n" +
-                "    intent     TEXT      NOT NULL,\n" +
-                "    type       TEXT      NOT NULL,\n" +
-                "    stage      TEXT      NOT NULL,\n" +
-                "    server     TEXT      NOT NULL,\n" +
-                "    creation   TEXT      NOT NULL,\n" +
-                "    payment    TEXT      NOT NULL,\n" +
-                "    expiration TEXT      NOT NULL\n" +
-                ");");
+                "    id          TEXT (15) UNIQUE ON CONFLICT REPLACE\n" +
+                "                          NOT NULL,\n" +
+                "    owner       TEXT (18) NOT NULL,\n" +
+                "    intent      TEXT      NOT NULL,\n" +
+                "    type        TEXT      NOT NULL,\n" +
+                "    stage       TEXT      NOT NULL,\n" +
+                "    server      TEXT      NOT NULL,\n" +
+                "    creation    TEXT      NOT NULL,\n" +
+                "    payment     TEXT      NOT NULL,\n" +
+                "    expiration  TEXT      NOT NULL,\n" +
+                "    external_id TEXT\n" +
+                ");\n");
 
         executor.updateQuery("CREATE TABLE IF NOT EXISTS coupons (\n" +
                 "    name       TEXT NOT NULL\n" +

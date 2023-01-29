@@ -17,6 +17,7 @@ public class PlanAdapter implements SQLResultAdapter<Plan> {
         return PlanImpl.builder()
                 .id(result.get("id"))
                 .owner(result.get("owner"))
+                .externalId(result.get("external_id") != null ? result.get("external_id") : "")
                 .paymentIntent(PaymentIntent.valueOf(result.get("intent")))
                 .prePlan(null)
                 .stageType(StageType.valueOf(result.get("stage")))
