@@ -27,8 +27,10 @@ public class PurchaseServerMenuInteraction extends InteractionService<StringSele
     @Override
     public void execute(StringSelectInteractionEvent event) {
         val type = event.getSelectedOptions().get(0).getValue().split("\\.")[2].toUpperCase();
+        val externalId = RandomStringUtils.randomAlphanumeric(15);
         val plan = PlanImpl.builder()
-                .id(RandomStringUtils.randomAlphanumeric(15))
+                .id(externalId)
+                .externalId(externalId)
                 .owner(event.getMember().getId())
                 .creation(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))
                 .payment(LocalDateTime.now(ZoneId.of("America/Sao_Paulo")))

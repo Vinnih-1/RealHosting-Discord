@@ -93,7 +93,6 @@ public class PurchasePlanModalInteraction extends InteractionService<ModalIntera
                             event.getChannel().sendMessageEmbeds(UserCreatedFailureEmbedValue.instance().toEmbed(plan)).queue();
                         }));
                     });
-
                     event.getChannel().sendMessage("Cobrança Automática de Serviços Prestados")
                             .addEmbeds(new EmbedBuilder()
                                     .setColor(Color.GRAY)
