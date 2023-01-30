@@ -60,7 +60,14 @@ public class PurchaseUpgradePlanMenuInteraction extends InteractionService<Strin
             plan.setPaymentIntent(PaymentIntent.NONE);
             discordMain.getPlanManager().savePlan(plan);
             val client = discordMain.getClientManager().getClientById(plan.getOwner());
-            //TODO: ir na classe do painel e criar o método para dar upgrade em servidores
+            client.getPanel().updateServerHardware(plan, server -> {
+                event.getChannel().sendMessageEmbeds(new EmbedBuilder()
+                                .setColor(Color.GREEN)
+                                .setDescription(String.format(":white_check_mark: **|** Sucesso! Você aprimorou o seu " +
+                                                "servidor para o plano **%s**!",
+                                        plan.getPrePlan().getType()))
+                        .build()).queue();
+            });
         });
         event.getChannel().sendMessage("Cobrança Automática de Serviços Prestados")
                 .addEmbeds(new EmbedBuilder()
