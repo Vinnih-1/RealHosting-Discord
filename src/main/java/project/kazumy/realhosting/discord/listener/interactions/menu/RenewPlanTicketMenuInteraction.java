@@ -34,6 +34,7 @@ public class RenewPlanTicketMenuInteraction extends InteractionService<StringSel
 
         val qrData = discordMain.getPlanManager().purchase(plan, success -> {
             plan.setExpiration(plan.getExpiration().plusDays(30L));
+            plan.setPaymentIntent(PaymentIntent.NONE);
             discordMain.getPlanManager().savePlan(plan);
             event.getChannel().sendMessageEmbeds(new EmbedBuilder()
                             .setColor(Color.GREEN)
