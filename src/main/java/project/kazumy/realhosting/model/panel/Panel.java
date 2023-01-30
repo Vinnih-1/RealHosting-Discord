@@ -73,6 +73,29 @@ public class Panel {
         }).start();
     }
 
+    public void updateServerHardware(Plan plan, Consumer<ApplicationServer> server) {
+        new Thread(() -> {
+            val hardware = plan.getPrePlan().getHardware();
+
+            getServerByPlanId(plan.getId(), success -> {
+                success.getBuildManager()
+                        .setCPU(hardware.getCpu())
+                        .setMemory(hardware.getRam(), DataType.MB)
+                        .setDisk(hardware.getDisk(), DataType.MB)
+                        .setAllowedDatabases((int) hardware.getDatabase())
+                        .setAllowedBackups((int) hardware.getBackup()).execute();
+
+                server.accept(success);
+            });
+        }).start();
+    }
+
+    public void getServerByPlanId(String planId, Consumer<ApplicationServer> success) {
+        application.retrieveServers().stream()
+                .filter(server -> server.getDescription().equals(planId)).findFirst()
+                .ifPresent(success);
+    }
+
     public List<ApplicationUser> usersExistsByUsername(String username) {
         return application.retrieveUsersByUsername(username, true).execute();
     }
