@@ -71,7 +71,10 @@ public class TicketMenuInteraction extends InteractionService<StringSelectIntera
                     .map(selected -> category).findFirst()
                     .ifPresent(selected -> {
                         if (selected.getMenu() != null) success.sendMessageEmbeds(selected.getEmbed()).addActionRow(selected.getMenu()).queue();
-                        if (menu.getOptions().isEmpty()) success.sendMessageEmbeds(category.getEmbed()).queue();
+                        if (menu.getOptions().isEmpty()) {
+                            success.sendMessageEmbeds(category.getEmbed()).queue();
+                            return;
+                        }
 
                         switch (selected.getName()) {
                             case "aprimorar":
