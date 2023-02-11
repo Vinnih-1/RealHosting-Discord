@@ -2,6 +2,7 @@ package project.kazumy.realhosting.discord.listener.interactions.button;
 
 import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import project.kazumy.realhosting.configuration.embed.FeedbackTicketEmbedValue;
 import project.kazumy.realhosting.configuration.menu.FeedbackMenuValue;
@@ -28,7 +29,7 @@ public class CancelTicketButtonInteraction extends InteractionService<ButtonInte
             return;
         }
 
-        if (!ticket.getOwner().equals(event.getUser().getId())) {
+        if (!ticket.getOwner().equals(event.getUser().getId()) && !event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
             event.deferReply(true).addEmbeds(new EmbedBuilder()
                             .setColor(Color.GRAY)
                             .setTitle(":warning: | Você não pode fechar este ticket!")
@@ -47,7 +48,8 @@ public class CancelTicketButtonInteraction extends InteractionService<ButtonInte
                         .setFooter("Todas as informações serão guardadas")
                         .build()).queue();
 
-                event.getUser().openPrivateChannel().queue(channel -> {
+                event.getGuild().getMemberById(ticket.getOwner())
+                        .getUser().openPrivateChannel().queue(channel -> {
                     channel.sendMessageEmbeds(FeedbackTicketEmbedValue.instance().toEmbed(success))
                             .addActionRow(FeedbackMenuValue.get(FeedbackMenuValue::toMenu))
                             .queue();

@@ -33,10 +33,11 @@ public class ServerCreatedSuccessEmbedValue implements ConfigurationInjectable {
     @ConfigField("fields") private ConfigurationSection section;
 
     @SneakyThrows
-    public MessageEmbed toEmbed(ApplicationServer server, Plan plan) {
+    public MessageEmbed toEmbed(Plan plan) {
         val yamlFile = new YamlFile("configuration/embed.yml");
         yamlFile.load();
         val embed = new EmbedBuilder();
+
         embed.setColor(Color.GREEN);
         embed.setTitle(title);
         embed.setFooter(footer);
@@ -57,7 +58,7 @@ public class ServerCreatedSuccessEmbedValue implements ConfigurationInjectable {
 
                         case "value":
                             value.append(section.getString(field)
-                                    .replace("%servidor", server.getName())
+                                    .replace("%servidor", plan.getPrePlan().getTitle())
                                     .replace("%id", plan.getId()));
                             break;
 

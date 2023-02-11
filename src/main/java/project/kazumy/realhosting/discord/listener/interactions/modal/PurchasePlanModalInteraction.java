@@ -4,6 +4,7 @@ import lombok.val;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
+import project.kazumy.realhosting.configuration.basic.GuildValue;
 import project.kazumy.realhosting.configuration.embed.ServerCreatedFailureEmbedValue;
 import project.kazumy.realhosting.configuration.embed.ServerCreatedSuccessEmbedValue;
 import project.kazumy.realhosting.configuration.embed.UserCreatedFailureEmbedValue;
@@ -16,6 +17,7 @@ import project.kazumy.realhosting.model.payment.intent.PaymentIntent;
 import project.kazumy.realhosting.model.payment.utils.PaymentUtils;
 
 import java.awt.*;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class PurchasePlanModalInteraction extends InteractionService<ModalInteractionEvent> {
@@ -46,6 +48,7 @@ public class PurchasePlanModalInteraction extends InteractionService<ModalIntera
         val planId = event.getMessage().getEmbeds().get(0).getFields().get(1).getValue();
         val client = discordMain.getClientManager().getClientById(event.getMember().getId());
         val panelUsers = client.getPanel().usersExistsByUsername(event.getValue("username").getAsString());
+        val guild = discordMain.getJda().getGuildById(GuildValue.get(GuildValue::id));
 
         if (!panelUsers.isEmpty()) {
             val panelUser = panelUsers.get(0);
@@ -75,9 +78,17 @@ public class PurchasePlanModalInteraction extends InteractionService<ModalIntera
                         plan.setStageType(StageType.ACTIVED);
                         discordMain.getPlanManager().savePlan(plan);
 
+                        val member = guild.getMemberById(plan.getOwner());
+                        val role = guild.getRoles().stream()
+                                .filter(roles -> roles.getId().equals("855625716078870538")).findFirst().get();
+
+                        guild.addRoleToMember(member, role).queue(unused -> {
+                            Logger.getGlobal().info("A tag Cliente foi cedida ao usuário " + plan.getOwner());
+                        });
+
                         client.getPanel().syncUserByEmail(client.getEmail(), user -> {
                             client.getPanel().createServer(plan, server -> {
-                                event.getChannel().sendMessageEmbeds(ServerCreatedSuccessEmbedValue.instance().toEmbed(server, plan)).queue();
+                                event.getChannel().sendMessageEmbeds(ServerCreatedSuccessEmbedValue.instance().toEmbed(plan)).queue();
                             }, error -> {
                                 event.getChannel().sendMessageEmbeds(ServerCreatedFailureEmbedValue.instance().toEmbed(plan)).queue();
                             });
@@ -85,7 +96,7 @@ public class PurchasePlanModalInteraction extends InteractionService<ModalIntera
                             client.getPanel().createServer(plan, server -> {
                                 event.getChannel().sendMessageEmbeds(
                                         UserCreatedSuccessEmbedValue.instance().toEmbed(client.getEmail(), client.getPanel().getPassword()),
-                                        ServerCreatedSuccessEmbedValue.instance().toEmbed(server, plan)).queue();
+                                        ServerCreatedSuccessEmbedValue.instance().toEmbed(plan)).queue();
                             }, error -> {
                                 event.getChannel().sendMessageEmbeds(ServerCreatedFailureEmbedValue.instance().toEmbed(plan)).queue();
                             });

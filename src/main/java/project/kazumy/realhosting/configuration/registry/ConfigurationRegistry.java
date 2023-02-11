@@ -25,7 +25,7 @@ public class ConfigurationRegistry {
                         ServerCreatedFailureEmbedValue.instance(),
                         ServerCreatedSuccessEmbedValue.instance(),
                         UserCreatedFailureEmbedValue.instance(),
-                        UserCreatedFailureEmbedValue.instance(),
+                        UserCreatedSuccessEmbedValue.instance(),
                         SupportTicketEmbedValue.instance(),
                         UpgradeTicketEmbedValue.instance(),
                         FeedbackTicketEmbedValue.instance(),
